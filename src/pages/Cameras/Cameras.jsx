@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Camera, RefreshCw, AlertCircle, Clock, MapPin } from 'lucide-react';
+import { Camera, RefreshCw, AlertCircle, Clock, MapPin, X } from 'lucide-react';
 import { FadeUp } from '../../components/AppleMotion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const INITIAL_CAMERAS = [
   { 
@@ -55,7 +56,7 @@ const INITIAL_CAMERAS = [
   }
 ];
 
-function CameraCard({ cam }) {
+function CameraCard({ cam, onSelect }) {
   const [loading, setLoading] = useState(false);
   const [timestamp, setTimestamp] = useState(new Date().toLocaleTimeString('hu-HU'));
   const [imgUrl, setImgUrl] = useState(cam.cover_url);
@@ -109,12 +110,15 @@ function CameraCard({ cam }) {
 
   return (
     <div className="glass-card rounded-[1.75rem] overflow-hidden active:scale-[0.99] transition-all group flex flex-col">
-      <div className="relative h-[200px] bg-night-900 overflow-hidden flex items-center justify-center">
+      <div 
+        onClick={() => errorCount < 2 && onSelect(cam, imgUrl)}
+        className={`relative h-[200px] bg-night-900 overflow-hidden flex items-center justify-center ${errorCount < 2 ? 'cursor-pointer' : ''}`}
+      >
         {errorCount < 2 ? (
           <img 
             src={imgUrl} 
             alt={cam.name} 
-            className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700" 
+            className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" 
             onError={handleImageError}
           />
         ) : (
@@ -122,7 +126,6 @@ function CameraCard({ cam }) {
             <Camera className="w-10 h-10 text-night-500" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-teal2-600/60 via-transparent to-cyan2-600/30" />
 
         {loading && (
           <div className="absolute inset-0 z-30 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
@@ -181,6 +184,19 @@ function CameraCard({ cam }) {
 }
 
 export default function Cameras() {
+  const [activeCam, setActiveCam] = useState(null);
+  const [activeImgUrl, setActiveImgUrl] = useState(null);
+
+  const handleSelect = (cam, url) => {
+    setActiveCam(cam);
+    setActiveImgUrl(url);
+  };
+
+  const handleClose = () => {
+    setActiveCam(null);
+    setActiveImgUrl(null);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4">
       <FadeUp>
@@ -195,7 +211,7 @@ export default function Cameras() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
         {INITIAL_CAMERAS.map((cam) => (
           <FadeUp key={cam.id} delay={0.05}>
-            <CameraCard cam={cam} />
+            <CameraCard cam={cam} onSelect={handleSelect} />
           </FadeUp>
         ))}
       </div>
@@ -206,11 +222,78 @@ export default function Cameras() {
           <div className="space-y-1">
             <h4 className="text-xs font-extrabold text-white">Figyelmeztetés a közvetítésekről:</h4>
             <p className="text-[11px] text-night-200/65 leading-relaxed font-semibold">
-              A kameraképek az Időkép szervereiről kerülnek lekérésre a Netlify-alapú szerveroldali proxy segítségével, elkerülve a böngészők CORS-korlátozásait. A „Kép Lekérése" gombbal manuálisan lekérhető az aktuális legfrissebb felvétel.
+              A kameraképek az Időkép szervereiről kerülnek lekérésre a Netlify-alapú szerveroldali proxy segítségével, elkerülve a böngészők CORS-korlátozásait. A „Kép Lekérése" gombbal manuálisan lekérhető az aktuális legfrissebb felvétel. A képére kattintva megnyithatod a teljes méretű nézetet!
             </p>
           </div>
         </div>
       </FadeUp>
+
+      {/* Modal for full camera view */}
+      <AnimatePresence>
+        {activeCam && (
+          <div 
+            onClick={handleClose}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md cursor-pointer"
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative max-w-4xl w-full glass-card rounded-[2rem] overflow-hidden flex flex-col shadow-2xl border border-white/10 cursor-default"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button 
+                onClick={handleClose}
+                className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/10 flex items-center justify-center hover:bg-black/80 hover:scale-105 active:scale-95 transition-all"
+                aria-label="Bezárás"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Large Image Container */}
+              <div className="relative aspect-video w-full bg-night-950 overflow-hidden flex items-center justify-center">
+                <img 
+                  src={activeImgUrl} 
+                  alt={activeCam.name} 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Footer details */}
+              <div className="p-6 space-y-3 bg-night-900/60">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-extrabold text-white leading-tight">{activeCam.name}</h3>
+                    <p className="text-[10px] text-cyan2-300 mt-1 font-bold uppercase tracking-wider">
+                      {activeCam.type === 'live' ? 'Városi Kamera' : 'Meteorológiai Webkamera'}
+                    </p>
+                  </div>
+                  {activeCam.coords && (
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeCam.coords.replace(';', ','))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-grad px-4 py-2 text-xs shrink-0 flex items-center gap-1.5"
+                    >
+                      <MapPin className="w-4 h-4" /> Térkép megnyitása
+                    </a>
+                  )}
+                </div>
+                <div className="h-px bg-white/5" />
+                <p className="text-xs text-night-200/70 leading-relaxed font-semibold">
+                  {activeCam.description}
+                </p>
+                {activeCam.coords && (
+                  <p className="text-[10px] text-cyan2-400/40 font-bold">
+                    Pozíció: {activeCam.coords.replace(';', ', ')}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
