@@ -60,3 +60,43 @@ export async function getMoments() {
     return MOCK_MOMENTS;
   }
 }
+
+const DEFAULT_FORECAST = {
+  title: 'Helyzetjelentés: Lassú felmelegedés és záporok esélye',
+  content: 'A mai napon a kőszegi hegyek felől érkező hűvösebb légtömegek hatása fokozatosan gyengül. Lassú felmelegedésre számíthatunk, de a délutáni órákban a megnövekvő fátyolfelhőzetből lokális záporok alakulhatnak ki. A csapadék mennyisége várhatóan 1-3 mm között mozog majd.',
+  updated_at: new Date().toISOString()
+};
+
+export async function getForecast() {
+  if (!supabase) {
+    return DEFAULT_FORECAST;
+  }
+  try {
+    const { data, error } = await supabase
+      .from('local_forecast')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
+      
+    if (error) throw error;
+    return data || DEFAULT_FORECAST;
+  } catch (err) {
+    console.error('Failed to load forecast from Supabase, serving offline fallback data:', err);
+    return DEFAULT_FORECAST;
+  }
+}
+
+export async function saveForecast(title, content) {
+  if (!supabase) {
+    throw new Error('Supabase nincs konfigurálva.');
+  }
+  const { data, error } = await supabase
+    .from('local_forecast')
+    .upsert({ id: 1, title, content, updated_at: new Date().toISOString() })
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+}
+

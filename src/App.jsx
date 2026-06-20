@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import WeatherDashboard from './pages/WeatherDashboard/WeatherDashboard';
-import Forecast from './pages/Forecast/Forecast';
 import About from './pages/About/About';
 import Reels from './pages/Reels/Reels';
 import Cameras from './pages/Cameras/Cameras';
@@ -11,7 +10,7 @@ import Logo from './components/Logo';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
-  { path: '/forecast', label: 'Előrejelzés', icon: Calendar },
+  { path: 'forecast', label: 'Előrejelzés', icon: Calendar, customClick: true },
   { path: '/reels', label: 'Reels', icon: Film },
   { path: '/cameras', label: 'Kamerák', icon: Camera },
   { path: '/about', label: 'Rólunk', icon: Info },
@@ -22,6 +21,36 @@ function AppContent() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const clickCountRef = useRef(0);
+  const lastClickRef = useRef(0);
+
+  const handleForecastClick = (e) => {
+    e.preventDefault();
+    const now = Date.now();
+    if (now - lastClickRef.current < 500) {
+      clickCountRef.current += 1;
+      if (clickCountRef.current >= 3) {
+        window.dispatchEvent(new CustomEvent('open-forecast-admin'));
+        clickCountRef.current = 0;
+        return;
+      }
+    } else {
+      clickCountRef.current = 1;
+    }
+    lastClickRef.current = now;
+
+    if (location.pathname !== '/') {
+      window.location.hash = '#/';
+      setTimeout(() => {
+        const el = document.getElementById('dashboard-forecast');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    } else {
+      const el = document.getElementById('dashboard-forecast');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); setShowInstallBtn(true); };
@@ -71,8 +100,17 @@ function AppContent() {
           </Link>
 
           <nav className="flex flex-col gap-1.5">
-            {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
+            {NAV_ITEMS.map(({ path, label, icon: Icon, customClick }) => {
               const active = location.pathname === path;
+              if (customClick) {
+                return (
+                  <button key={path} onClick={handleForecastClick}
+                    className="relative w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-night-200/70 hover:bg-white/10 hover:text-white transition-all text-left">
+                    <Icon className="w-[18px] h-[18px] shrink-0 relative z-10" />
+                    <span className="relative z-10">{label}</span>
+                  </button>
+                );
+              }
               return (
                 <Link key={path} to={path}
                   className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${active ? 'text-white' : 'text-night-200/70 hover:bg-white/10 hover:text-white'}`}>
@@ -150,8 +188,24 @@ function AppContent() {
                 </div>
 
                 <nav className="flex flex-col gap-1.5">
-                  {NAV_ITEMS.map(({ path, label, icon: Icon }, i) => {
+                  {NAV_ITEMS.map(({ path, label, icon: Icon, customClick }, i) => {
                     const active = location.pathname === path;
+                    if (customClick) {
+                      return (
+                        <motion.div
+                          key={path}
+                          initial={{ opacity: 0, x: 30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.08 + i * 0.05 }}
+                        >
+                          <button onClick={(e) => { handleForecastClick(e); setMenuOpen(false); }}
+                            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-night-200/75 hover:bg-white/10 hover:text-white transition-all text-left">
+                            <Icon className="w-[18px] h-[18px] shrink-0" />
+                            <span>{label}</span>
+                          </button>
+                        </motion.div>
+                      );
+                    }
                     return (
                       <motion.div
                         key={path}
@@ -189,7 +243,6 @@ function AppContent() {
       <main className="lg:pl-64 relative z-10 pt-4 lg:pt-6 pb-12">
         <Routes>
           <Route path="/" element={<WeatherDashboard />} />
-          <Route path="/forecast" element={<Forecast />} />
           <Route path="/reels" element={<Reels />} />
           <Route path="/cameras" element={<Cameras />} />
           <Route path="/about" element={<About />} />

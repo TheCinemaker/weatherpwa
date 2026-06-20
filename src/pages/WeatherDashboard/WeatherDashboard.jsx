@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IoRefresh } from 'react-icons/io5';
+import { motion, AnimatePresence } from 'framer-motion';
 import useWeatherData from './useWeatherData';
 import SunBar from './SunBar';
 import StatCard, { STAT_CARDS_CONFIG } from './StatCard';
 import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
 import { FadeUp } from '../../components/AppleMotion';
+import { getForecast, saveForecast } from '../../api/supabase';
 import {
   AlertTriangle, MapPin, ExternalLink, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
-  ArrowDown, ArrowUp, Droplets, Wind
+  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X
 } from 'lucide-react';
 
 const SYNODIC = 29.530588853;
@@ -78,6 +80,50 @@ function TempGauge({ temp, feels, condition, CondIcon }) {
 
 export default function WeatherDashboard() {
   const { currentData, historySeries, loading, error, lastUpdate, refresh } = useWeatherData();
+
+  const [forecastData, setForecastData] = useState({
+    title: 'Helyzetjelentés: Betöltés...',
+    content: 'Kérjük, várjon...',
+    updated_at: new Date().toISOString()
+  });
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminTitle, setAdminTitle] = useState('');
+  const [adminContent, setAdminContent] = useState('');
+  const [savingAdmin, setSavingAdmin] = useState(false);
+  const [adminError, setAdminError] = useState('');
+
+  useEffect(() => {
+    getForecast().then(data => {
+      setForecastData(data);
+      setAdminTitle(data.title);
+      setAdminContent(data.content);
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleOpenAdmin = () => setShowAdmin(true);
+    window.addEventListener('open-forecast-admin', handleOpenAdmin);
+    return () => window.removeEventListener('open-forecast-admin', handleOpenAdmin);
+  }, []);
+
+  const handleSaveForecast = async () => {
+    if (!adminTitle.trim() || !adminContent.trim()) {
+      setAdminError('Kérjük, töltsd ki mindkét mezőt!');
+      return;
+    }
+    setSavingAdmin(true);
+    setAdminError('');
+    try {
+      const data = await saveForecast(adminTitle.trim(), adminContent.trim());
+      setForecastData(data);
+      setShowAdmin(false);
+    } catch (err) {
+      console.error(err);
+      setAdminError(err.message || 'Hiba történt a mentés során.');
+    } finally {
+      setSavingAdmin(false);
+    }
+  };
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -293,6 +339,37 @@ export default function WeatherDashboard() {
         </div>
       )}
 
+      {/* --- HELYI ELŐREJELZÉS / HELYZETJELENTÉS --- */}
+      <FadeUp delay={0.02}>
+        <div id="dashboard-forecast" className="relative glass-card rounded-[2rem] p-6 overflow-hidden mt-5">
+          <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
+          
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
+              <span>László Helyzetjelentése</span>
+            </h2>
+            <span className="text-[9px] font-bold text-night-200/35 uppercase tracking-widest">
+              Előrejelzés
+            </span>
+          </div>
+
+          <div className="space-y-3 relative z-10">
+            <h3 className="text-base font-extrabold text-cyan2-200 leading-snug">{forecastData.title}</h3>
+            
+            <p className="text-[10px] font-bold text-night-200/50 uppercase tracking-wide">
+              Készítette: Ráduly László · Frissítve: {new Date(forecastData.updated_at).toLocaleDateString('hu-HU', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </p>
+            
+            <div className="h-px bg-white/5 my-2.5" />
+            
+            <p className="text-sm text-night-100/85 leading-relaxed whitespace-pre-wrap font-medium">
+              {forecastData.content}
+            </p>
+          </div>
+        </div>
+      </FadeUp>
+
       {/* --- NAP-CIKLUS --- */}
       <FadeUp delay={0.05}>
         <SectionLabel>Nap-ciklus</SectionLabel>
@@ -362,6 +439,74 @@ export default function WeatherDashboard() {
         currentValue={activeKey ? lastMeasure[activeKey] : null}
         onClose={() => setActiveKey(null)}
       />
+
+      {/* --- FORECAST ADMIN MODAL --- */}
+      <AnimatePresence>
+        {showAdmin && (
+          <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/65 backdrop-blur-md" 
+              onClick={() => setShowAdmin(false)} 
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+              animate={{ opacity: 1, y: 0, scale: 1 }} 
+              exit={{ opacity: 0, y: 40, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
+                  <span>Jelentés Módosítása (Laci)</span>
+                </h3>
+                <button 
+                  onClick={() => setShowAdmin(false)} 
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Jelentés címe</label>
+                  <input
+                    type="text"
+                    value={adminTitle}
+                    onChange={e => setAdminTitle(e.target.value.slice(0, 80))}
+                    placeholder="Pl.: Lassú felmelegedés és záporok..."
+                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Jelentés részletei</label>
+                  <textarea
+                    rows={6}
+                    value={adminContent}
+                    onChange={e => setAdminContent(e.target.value)}
+                    placeholder="Másold be ide a Facebook poszt szövegét..."
+                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                  />
+                </div>
+              </div>
+
+              {adminError && <p className="text-rose-300 text-xs font-extrabold text-center">{adminError}</p>}
+
+              <button 
+                onClick={handleSaveForecast} 
+                disabled={savingAdmin} 
+                className="btn-grad w-full py-4 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {savingAdmin ? 'Mentés folyamatban...' : 'Jelentés Mentése és Publikálása'}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
