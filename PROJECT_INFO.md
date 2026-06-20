@@ -15,7 +15,7 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ## 🔗 Külső Szolgáltatások & Címek
 
-* **GitHub Repository**: *Helyi Git inicializálva, feltöltésre és push-ra kész.*
+* **GitHub Repository**: [GitHub - TheCinemaker/weatherpwa](https://github.com/TheCinemaker/weatherpwa)
 * **Supabase Console**: [Supabase Dashboard](https://supabase.com/dashboard)
 * **Netlify Console**: [Netlify Dashboard](https://app.netlify.com/teams/thecinemaker/overview)
 * **Éles Weboldal**: *Feltöltés és Netlify build után lesz elérhető.*
