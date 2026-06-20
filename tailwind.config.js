@@ -11,28 +11,32 @@ export default {
         sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        // Élénk gradiens-paletta (lila → magenta → narancs)
-        grape:   { 400: '#a855f7', 500: '#9333ea', 600: '#7c3aed', 700: '#6d28d9' },
-        candy:   { 400: '#f472b6', 500: '#ec4899', 600: '#db2777' },
-        magenta: { 400: '#e879f9', 500: '#d946ef', 600: '#c026d3' },
-        sunset:  { 400: '#fb923c', 500: '#f97316', 600: '#ea580c' },
-        sky2:    { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
-        ink:     { 700: '#3b2a5a', 800: '#2a1f45', 900: '#1d1235' },
-        canvas:  '#f6f2ff',
+        // Olajzöld + zsálya/eukaliptusz akcentek (magas kontraszt)
+        teal2:   { 300: '#A7C0A8', 400: '#8AA892', 500: '#5E7A66', 600: '#43574A' },
+        cyan2:   { 200: '#C2CBB8', 300: '#A2B29F', 400: '#8FA088', 500: '#7E9580', 600: '#6B8270' },
+        sky2:    { 300: '#B3C2A6', 400: '#9DB7A6', 500: '#73876A', 600: '#566E63' },
+        indigo2: { 300: '#9DB7A6', 400: '#6E8B7B', 500: '#4F6B5C' },
+        emerald2:{ 300: '#A7C0A8', 400: '#8AA892', 500: '#5E7A66' },
+        // Olajzöld háttér + törtfehér/kavics-szürke szövegek
+        night:   { 50: '#fdfdfb', 100: '#EDEAE0', 200: '#D0C9BC', 300: '#A2B29F', 700: '#2A332A', 800: '#222A20', 900: '#141811' },
+        canvas:  '#1E251C',
+        cream:   '#F9F9F6',
+        sage:    '#A2B29F',
+        pebble:  '#D0C9BC',
       },
       boxShadow: {
-        glow: '0 20px 45px -15px rgba(124, 58, 237, 0.45)',
-        'glow-pink': '0 20px 45px -15px rgba(217, 70, 239, 0.45)',
-        soft: '0 10px 40px -12px rgba(45, 27, 78, 0.18)',
-        card: '0 8px 30px -10px rgba(45, 27, 78, 0.14)',
+        glow: '0 16px 40px -14px rgba(110, 139, 123, 0.5)',
+        'glow-pink': '0 16px 40px -14px rgba(94, 122, 102, 0.5)',
+        soft: '0 18px 50px -18px rgba(0, 0, 0, 0.75)',
+        card: '0 12px 36px -14px rgba(0, 0, 0, 0.6)',
       },
       borderRadius: {
         '4xl': '2rem',
         '5xl': '2.75rem',
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #7c3aed 0%, #d946ef 50%, #fb923c 100%)',
-        'brand-gradient-soft': 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(217,70,239,0.12) 50%, rgba(251,146,60,0.12) 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #8AA892 0%, #6E8B7B 50%, #4F6B5C 100%)',
+        'brand-gradient-soft': 'linear-gradient(135deg, rgba(162,178,159,0.16) 0%, rgba(110,139,123,0.16) 50%, rgba(79,107,92,0.16) 100%)',
       },
       keyframes: {
         blob: {

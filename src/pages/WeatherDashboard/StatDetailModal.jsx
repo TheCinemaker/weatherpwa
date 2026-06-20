@@ -28,6 +28,8 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
 
   const isBar = metric?.type === 'bar';
   const Chart = isBar ? Bar : Line;
+  const Icon = metric?.icon;
+  const gradient = metric ? `linear-gradient(135deg, ${metric.grad[0]}, ${metric.grad[1]})` : '';
   const chartData = useMemo(() => (metric ? makeChartData(metric, timestamps, data) : null), [metric, timestamps, data]);
   const options = useMemo(() => (metric ? makeChartOptions(metric) : null), [metric]);
   const stats = useMemo(() => summarize(data), [data]);
@@ -37,7 +39,6 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
   return (
     <AnimatePresence>
       {metric && [
-        /* Backdrop — CSAK ez halványul, hogy a kártya morph közben végig tömör legyen */
         <motion.div
           key="stat-modal-backdrop"
           initial={{ opacity: 0 }}
@@ -45,10 +46,8 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7 }}
           onClick={onClose}
-          className="fixed inset-0 z-[9998] bg-[#0a1626]/50 backdrop-blur-md"
+          className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
         />,
-        /* Középre igazító réteg (sima div) + a layoutId-s, teljesen átlátszatlan kártya.
-           Záráskor a rácsban lévő csempe morfol vissza a kártya helyéről (layoutId). */
         <div
           key="stat-modal-card"
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
@@ -56,10 +55,10 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
           <motion.div
             layoutId={`metric-${metric.key}`}
             transition={{ type: 'spring', stiffness: 30, damping: 9 }}
-            className="relative w-full max-w-2xl bg-beige-50 dark:bg-[#0c1726] rounded-[2rem] border border-[#e9d8c9]/70 dark:border-white/10 shadow-2xl shadow-[#123a57]/30 overflow-hidden pointer-events-auto"
+            className="relative w-full max-w-2xl bg-night-800 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden pointer-events-auto"
           >
-            {/* Szín-akcentus felül */}
-            <div className="h-1.5 w-full" style={{ backgroundColor: metric.color }} />
+            {/* Gradiens-akcentus felül */}
+            <div className="h-2 w-full" style={{ background: gradient }} />
 
             <div className="p-6 sm:p-8">
               <motion.div
@@ -70,25 +69,21 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                 {/* Fejléc */}
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#123a57]/5 dark:bg-white/10 flex items-center justify-center shrink-0">
-                      {metric.icon}
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-sm shrink-0" style={{ background: gradient }}>
+                      {Icon && <Icon className="w-6 h-6" />}
                     </div>
                     <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest text-[#0a97be] mb-0.5">
-                        Aktuális
-                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-night-200/55 mb-0.5">Aktuális</div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-black text-[#123a57] dark:text-white tracking-tight">
-                          {fmt(currentValue)}
-                        </span>
-                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{metric.unit}</span>
+                        <span className="text-3xl font-extrabold text-white tracking-tight">{fmt(currentValue)}</span>
+                        <span className="text-sm font-bold text-night-200/45">{metric.unit}</span>
                       </div>
-                      <div className="text-sm font-bold text-[#123a57] dark:text-gray-200 mt-0.5">{metric.label}</div>
+                      <div className="text-sm font-bold text-white/90 mt-0.5">{metric.label}</div>
                     </div>
                   </div>
                   <button
                     onClick={onClose}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-[#123a57]/5 hover:bg-[#123a57]/10 dark:bg-white/10 dark:hover:bg-white/20 text-[#123a57] dark:text-white transition-all active:scale-95 shrink-0"
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all active:scale-95 shrink-0"
                   >
                     <IoClose className="text-lg" />
                   </button>
@@ -102,10 +97,10 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                       { label: 'Átlag', val: stats.avg },
                       { label: 'Maximum', val: stats.max },
                     ].map((s) => (
-                      <div key={s.label} className="bg-[#f2e9e1]/60 dark:bg-white/5 border border-[#e9d8c9]/70 dark:border-white/10 rounded-2xl px-3 py-2.5 text-center">
-                        <div className="text-[9px] font-black uppercase tracking-widest text-[#0a97be] mb-1">{s.label}</div>
-                        <div className="text-base font-black text-[#123a57] dark:text-white">
-                          {fmt(s.val)}<span className="text-[10px] font-bold text-gray-400 ml-0.5">{metric.unit}</span>
+                      <div key={s.label} className="bg-white/[0.04] rounded-2xl px-3 py-2.5 text-center border border-white/10">
+                        <div className="text-[9px] font-bold uppercase tracking-widest text-night-200/55 mb-1">{s.label}</div>
+                        <div className="text-base font-extrabold text-white">
+                          {fmt(s.val)}<span className="text-[10px] font-bold text-night-200/45 ml-0.5">{metric.unit}</span>
                         </div>
                       </div>
                     ))}
@@ -113,15 +108,15 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                 )}
 
                 {/* Nagy grafikon */}
-                <div className="text-[10px] font-black uppercase tracking-widest text-[#b36022] mb-3 flex items-center gap-2">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-cyan2-200/70 mb-3 flex items-center gap-2">
                   <span>24 órás előzmény</span>
-                  <div className="flex-1 h-px bg-[#e9d8c9]/70 dark:bg-white/10" />
+                  <div className="flex-1 h-px bg-white/10" />
                 </div>
                 <div className="relative h-[260px] w-full">
                   {chartData ? (
                     <Chart data={chartData} options={options} />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400">
+                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-night-200/45">
                       Nincs mérési adat az elmúlt 24 órában.
                     </div>
                   )}

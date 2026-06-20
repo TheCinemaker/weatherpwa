@@ -1,6 +1,13 @@
 [build]
   publish = "dist"
   command = "npm run build"
+  functions = "netlify/functions"
+
+# Proxy webcam requests to the serverless function
+[[redirects]]
+  from = "/api/webcam/:id"
+  to = "/.netlify/functions/webcam-proxy?cam=:id"
+  status = 200
 
 # React Router routing support - redirect all paths to index.html
 [[redirects]]

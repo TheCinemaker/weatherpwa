@@ -5,34 +5,42 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
   body {
-    @apply font-sans text-ink-900 antialiased;
-    background-color: #f6f2ff;
+    @apply font-sans antialiased text-night-100;
+    background: #1E251C;
   }
   ::selection {
-    @apply bg-magenta-500/30 text-ink-900;
+    background: rgba(162, 178, 159, 0.45);
+    color: #1E251C;
   }
-  /* Egyedi görgetősáv */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb {
     @apply rounded-full;
-    background: linear-gradient(180deg, #a855f7, #f472b6);
+    background: linear-gradient(180deg, #A2B29F, #6E8B7B);
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  ::-webkit-scrollbar-track { background: transparent; }
 }
 
 @layer components {
-  /* Lebegő gradiens-folt a háttérhez */
+  /* Lebegő nebula-folt az éjszakai háttérhez */
   .blob {
-    @apply absolute rounded-full blur-3xl pointer-events-none mix-blend-multiply opacity-60;
+    @apply absolute rounded-full blur-3xl pointer-events-none mix-blend-screen opacity-40;
+  }
+
+  /* Csillagmező */
+  .starfield {
+    background-image:
+      radial-gradient(1.2px 1.2px at 12% 18%, #fff, transparent),
+      radial-gradient(1px 1px at 28% 42%, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1.4px 1.4px at 46% 12%, #fff, transparent),
+      radial-gradient(1px 1px at 62% 32%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.3px 1.3px at 78% 20%, #fff, transparent),
+      radial-gradient(1px 1px at 88% 50%, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 35% 68%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1.2px 1.2px at 70% 75%, #fff, transparent),
+      radial-gradient(1px 1px at 18% 85%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 92% 82%, rgba(255,255,255,0.6), transparent);
   }
 
   /* Gradiens szövegkitöltés */
@@ -40,13 +48,21 @@
     @apply bg-clip-text text-transparent bg-brand-gradient;
   }
 
-  /* Üveg-kártya az élénk háttér felett */
+  /* Meleg, áttetsző kártya az olajzöld háttér felett */
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-card;
+    @apply bg-[#F4F2EA]/[0.06] backdrop-blur-2xl border border-[#F4F2EA]/10 shadow-soft;
   }
 
-  /* Elsődleges gradiens-gomb */
+  /* Elsődleges gomb — törtfehér, sötét olajzöld szöveggel (magas kontraszt) */
   .btn-grad {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-gradient bg-[length:200%_200%] text-white font-bold shadow-glow transition-all hover:bg-[position:100%_50%] hover:scale-[1.03] active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-cream text-canvas font-bold shadow-soft transition-all hover:bg-white hover:scale-[1.03] active:scale-95;
+  }
+
+  /* Szintjelző csík (Air Quality / Wind stílus) */
+  .meter-track {
+    @apply relative h-1.5 w-full rounded-full bg-[#F4F2EA]/[0.12] overflow-hidden;
+  }
+  .meter-fill {
+    @apply absolute inset-y-0 left-0 rounded-full bg-brand-gradient;
   }
 }

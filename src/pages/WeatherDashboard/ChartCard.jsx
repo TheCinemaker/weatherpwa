@@ -11,14 +11,14 @@ import {
   Filler
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
-import { 
-  Thermometer, 
-  Droplets, 
-  Wind, 
-  Gauge, 
-  CloudRain, 
-  Flame, 
-  Droplet 
+import {
+  Thermometer,
+  Droplets,
+  Wind,
+  Gauge,
+  CloudRain,
+  Flame,
+  Droplet
 } from 'lucide-react';
 
 ChartJS.register(
@@ -32,48 +32,70 @@ ChartJS.register(
   Filler
 );
 
-// VisitKőszeg paletta: terrakotta (#d68743 / #b36022) a meleg metrikákhoz,
-// mély tengerkék–türkiz (#123a57 / #0a97be / #0bc9f8) a hűvös/légköri metrikákhoz.
+// Élénk gradiens-paletta: minden metrika két-színű átmenetet kap.
 export const CHART_CONFIGS = [
-  { key: 'T',          label: 'Hőmérséklet',  icon: <Thermometer className="w-4 h-4 text-[#d68743]" />, unit: '°C', color: '#d68743' },
-  { key: 'U',          label: 'Páratartalom', icon: <Droplets className="w-4 h-4 text-[#0bc9f8]" />, unit: '%',  color: '#0bc9f8' },
-  { key: 'FF',         label: 'Szélsebesség', icon: <Wind className="w-4 h-4 text-[#0a97be]" />, unit: 'km/h',color: '#0a97be' },
-  { key: 'FXY',        label: 'Széllökések',  icon: <Wind className="w-4 h-4 text-[#3385a2]" />, unit: 'km/h',color: '#3385a2' },
-  { key: 'SLP',        label: 'Légnyomás',    icon: <Gauge className="w-4 h-4 text-[#123a57]" />, unit: 'hPa',color: '#123a57' },
-  { key: 'RR_1H',      label: 'Csapadék 1h',  icon: <CloudRain className="w-4 h-4 text-[#0bc9f8]" />, unit: 'mm', color: '#0bc9f8', type: 'bar' },
-  { key: 'HEAT_INDEX', label: 'Hőérzet',      icon: <Flame className="w-4 h-4 text-[#b36022]" />, unit: '°C', color: '#b36022' },
-  { key: 'HUMIDEX',    label: 'Humidex',       icon: <Droplet className="w-4 h-4 text-[#0a97be]" />, unit: '',   color: '#0a97be' },
+  { key: 'T',          label: 'Hőmérséklet',  icon: Thermometer, unit: '°C',  grad: ['#A7C0A8', '#6E8B7B'] },
+  { key: 'U',          label: 'Páratartalom', icon: Droplets,    unit: '%',   grad: ['#8AA892', '#4F6B5C'] },
+  { key: 'FF',         label: 'Szélsebesség', icon: Wind,        unit: 'km/h',grad: ['#A7C0A8', '#5E7A66'] },
+  { key: 'FXY',        label: 'Széllökések',  icon: Wind,        unit: 'km/h',grad: ['#B3C2A6', '#566E63'] },
+  { key: 'SLP',        label: 'Légnyomás',    icon: Gauge,       unit: 'hPa', grad: ['#9DB7A6', '#4F6B5C'] },
+  { key: 'RR_1H',      label: 'Csapadék 1h',  icon: CloudRain,   unit: 'mm',  grad: ['#8AA892', '#566E63'], type: 'bar' },
+  { key: 'HEAT_INDEX', label: 'Hőérzet',      icon: Flame,       unit: '°C',  grad: ['#B3C2A6', '#73876A'] },
+  { key: 'HUMIDEX',    label: 'Humidex',       icon: Droplet,     unit: '',    grad: ['#9DB7A6', '#566E63'] },
 ];
+
+// Hex → rgba segéd az áttetsző kitöltésekhez
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
 
 // Megosztott chart-építők, hogy a ChartCard és a részletező modal ugyanazt használja.
 export function makeChartData(config, timestamps, data) {
   if (!timestamps || !data || data.length === 0) return null;
-  const { color, type } = config;
+  const { grad, type } = config;
+  const [c0, c1] = grad;
   const isBar = type === 'bar';
   return {
     labels: timestamps,
     datasets: [{
-      data: data,
-      borderColor: color,
-      // Függőleges gradiens kitöltés a vonaldiagramokhoz (felül telített, lent áttetsző)
+      data,
+      // Vízszintes vonal-szín a metrika átmenetéből
+      borderColor: (ctx) => {
+        const { chart } = ctx;
+        const { ctx: c, chartArea } = chart;
+        if (!chartArea) return c0;
+        const g = c.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+        g.addColorStop(0, c0);
+        g.addColorStop(1, c1);
+        return g;
+      },
       backgroundColor: isBar
-        ? color + 'cc'
+        ? (ctx) => {
+            const { chart } = ctx;
+            const { ctx: c, chartArea } = chart;
+            if (!chartArea) return hexA(c0, 0.8);
+            const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            g.addColorStop(0, hexA(c0, 0.95));
+            g.addColorStop(1, hexA(c1, 0.75));
+            return g;
+          }
         : (ctx) => {
             const { chart } = ctx;
             const { ctx: c, chartArea } = chart;
-            if (!chartArea) return color + '20';
+            if (!chartArea) return hexA(c0, 0.15);
             const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            g.addColorStop(0, color + '59');
-            g.addColorStop(1, color + '00');
+            g.addColorStop(0, hexA(c0, 0.35));
+            g.addColorStop(1, hexA(c1, 0.0));
             return g;
           },
-      borderWidth: isBar ? 0 : 2.5,
+      borderWidth: isBar ? 0 : 3,
       pointRadius: 0,
       pointHoverRadius: 5,
-      pointHoverBackgroundColor: color,
+      pointHoverBackgroundColor: c1,
       fill: !isBar,
       tension: 0.4,
-      borderRadius: isBar ? 4 : 0,
+      borderRadius: isBar ? 6 : 0,
       spanGaps: true,
     }]
   };
@@ -84,22 +106,17 @@ export function makeChartOptions(config) {
   return {
     responsive: true,
     maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
+    interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: {
-        display: false
-      },
+      legend: { display: false },
       tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(10, 22, 20, 0.95)',
+        borderColor: 'rgba(34, 211, 238, 0.25)',
         borderWidth: 1,
         padding: 12,
-        titleColor: 'rgba(240, 244, 248, 0.7)',
-        bodyColor: 'rgba(240, 244, 248, 1)',
-        cornerRadius: 12,
+        titleColor: 'rgba(255, 255, 255, 0.7)',
+        bodyColor: 'rgba(255, 255, 255, 1)',
+        cornerRadius: 14,
         callbacks: {
           label: (context) => {
             const val = context.parsed.y;
@@ -110,29 +127,19 @@ export function makeChartOptions(config) {
     },
     scales: {
       x: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.04)'
-        },
+        grid: { color: 'rgba(255, 255, 255, 0.05)' },
         ticks: {
           maxTicksLimit: 6,
           maxRotation: 0,
-          color: 'rgba(148, 163, 184, 0.6)',
-          font: {
-            family: "-apple-system, system-ui, sans-serif",
-            size: 10
-          }
+          color: 'rgba(159, 192, 189, 0.6)',
+          font: { family: '"Plus Jakarta Sans", system-ui, sans-serif', size: 10, weight: '600' }
         }
       },
       y: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.05)'
-        },
+        grid: { color: 'rgba(255, 255, 255, 0.06)' },
         ticks: {
-          color: 'rgba(148, 163, 184, 0.6)',
-          font: {
-            family: "-apple-system, system-ui, sans-serif",
-            size: 10
-          },
+          color: 'rgba(159, 192, 189, 0.6)',
+          font: { family: '"Plus Jakarta Sans", system-ui, sans-serif', size: 10, weight: '600' },
           callback: (value) => `${value}${unit ? ' ' + unit : ''}`
         }
       }
@@ -141,44 +148,39 @@ export function makeChartOptions(config) {
 }
 
 export default function ChartCard({ config, timestamps, data, loading }) {
-  const { label, icon, type } = config;
+  const { label, icon: Icon, grad, type } = config;
   const isBar = type === 'bar';
+  const gradient = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
 
   const hasData = useMemo(() => data && data.length > 0 && data.some(v => v !== null && v !== undefined), [data]);
   const chartData = useMemo(() => makeChartData(config, timestamps, data), [config, timestamps, data]);
   const options = useMemo(() => makeChartOptions(config), [config]);
 
   return (
-    <div className="bg-beige-50/70 dark:bg-white/5 border border-[#e9d8c9]/60 dark:border-white/10 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all hover:scale-[1.01] flex flex-col justify-between overflow-hidden">
+    <div className="glass-card rounded-[1.75rem] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft flex flex-col justify-between overflow-hidden">
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm font-bold text-[#123a57] dark:text-white flex items-center gap-2">
-          <span>{icon}</span>
-          <span>{label}</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-sm" style={{ background: gradient }}>
+            <Icon className="w-[18px] h-[18px]" />
+          </div>
+          <span className="text-sm font-extrabold text-white">{label}</span>
         </div>
-        <div className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#123a57]/5 dark:bg-white/10 text-[#0a97be] dark:text-gray-400 uppercase tracking-wider">
+        <div className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-night-200/60 uppercase tracking-wider">
           24h
         </div>
       </div>
       <div className="relative h-[160px] w-full">
         {hasData && chartData ? (
-          isBar ? (
-            <Bar data={chartData} options={options} />
-          ) : (
-            <Line data={chartData} options={options} />
-          )
+          isBar ? <Bar data={chartData} options={options} /> : <Line data={chartData} options={options} />
         ) : loading ? (
-          <div className="w-full h-full bg-gray-200/5 dark:bg-white/5 rounded-2xl flex flex-col items-center justify-center gap-2">
-            <div className="w-6 h-6 border-2 border-[#0a97be] animate-spin" />
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-              Diagram betöltése...
-            </span>
+          <div className="w-full h-full bg-white/[0.03] rounded-2xl flex flex-col items-center justify-center gap-2">
+            <div className="w-6 h-6 rounded-full border-[3px] border-cyan2-400 border-t-transparent animate-spin" />
+            <span className="text-[10px] font-bold text-night-200/45 uppercase tracking-widest">Diagram betöltése...</span>
           </div>
         ) : (
-          <div className="w-full h-full bg-gray-200/5 dark:bg-white/5 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1">
-              Nincs mérési adat
-            </span>
-            <span className="text-[10px] text-gray-500 dark:text-gray-400 max-w-[200px] leading-relaxed">
+          <div className="w-full h-full bg-white/[0.03] rounded-2xl flex flex-col items-center justify-center p-4 text-center">
+            <span className="text-xs font-bold text-night-200/55 mb-1">Nincs mérési adat</span>
+            <span className="text-[10px] text-night-200/45 max-w-[200px] leading-relaxed">
               Az elmúlt 24 órában nem érkezett adat ettől a szenzortól.
             </span>
           </div>

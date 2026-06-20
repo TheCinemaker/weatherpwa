@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow, differenceInMinutes } from 'date-fns';
 import { hu } from 'date-fns/locale';
 import { IoCameraOutline, IoCloseOutline, IoLocationOutline, IoSendOutline, IoTimeOutline } from 'react-icons/io5';
@@ -34,44 +34,17 @@ function compressImage(file, maxW = 1080) {
   });
 }
 
-// Fallback mock moments if supabase client is not initialized
 const MOCK_MOMENTS = [
-  {
-    id: 'mock-1',
-    photo_url: 'https://images.unsplash.com/photo-1548777123-e216912df7d8?w=800',
-    caption: 'Hatalmas havazás a Kőszegi-hegységben! ❄️',
-    created_at: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 3600000 * 20).toISOString(),
-    lat: 47.3971,
-    lng: 16.546
-  },
-  {
-    id: 'mock-2',
-    photo_url: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=800',
-    caption: 'Látványos peremfelhő és villámlások a hegyek felett tegnap este. ⛈️',
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    expires_at: new Date(Date.now() + 3600000 * 22).toISOString(),
-    lat: 47.3971,
-    lng: 16.546
-  },
-  {
-    id: 'mock-3',
-    photo_url: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800',
-    caption: 'Csodálatos napkelte az Írott-kő kilátóból! 🌅 Magasság: 884 méter.',
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    expires_at: new Date(Date.now() + 3600000 * 20).toISOString(),
-    lat: 47.3971,
-    lng: 16.546
-  }
+  { id: 'mock-1', photo_url: 'https://images.unsplash.com/photo-1548777123-e216912df7d8?w=800', caption: 'Hatalmas havazás a Kőszegi-hegységben! ❄️', created_at: new Date().toISOString(), expires_at: new Date(Date.now() + 3600000 * 20).toISOString(), lat: 47.3971, lng: 16.546 },
+  { id: 'mock-2', photo_url: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=800', caption: 'Látványos peremfelhő és villámlások a hegyek felett tegnap este. ⛈️', created_at: new Date(Date.now() - 3600000 * 2).toISOString(), expires_at: new Date(Date.now() + 3600000 * 22).toISOString(), lat: 47.3971, lng: 16.546 },
+  { id: 'mock-3', photo_url: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800', caption: 'Csodálatos napkelte az Írott-kő kilátóból! 🌅 Magasság: 884 méter.', created_at: new Date(Date.now() - 3600000 * 4).toISOString(), expires_at: new Date(Date.now() + 3600000 * 20).toISOString(), lat: 47.3971, lng: 16.546 }
 ];
 
 export default function Reels() {
-  const navigate = useNavigate();
   const [moments, setMoments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPost, setShowPost] = useState(false);
 
-  // Posting state
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [caption, setCaption] = useState('');
@@ -80,24 +53,12 @@ export default function Reels() {
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState('');
 
-  // Update title on mount
-  useEffect(() => {
-    document.title = "KőszegReels – 24 órás pillanatok";
-  }, []);
+  useEffect(() => { document.title = 'Kőszeg Reels – 24 órás pillanatok'; }, []);
 
   const fetchMoments = useCallback(async () => {
-    if (!supabase) {
-      setMoments(MOCK_MOMENTS);
-      setLoading(false);
-      return;
-    }
-    
+    if (!supabase) { setMoments(MOCK_MOMENTS); setLoading(false); return; }
     try {
-      const { data } = await supabase
-        .from('city_moments')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(40);
+      const { data } = await supabase.from('city_moments').select('*').order('created_at', { ascending: false }).limit(40);
       if (data) setMoments(data.length > 0 ? data : MOCK_MOMENTS);
     } catch (err) {
       console.error(err);
@@ -107,22 +68,16 @@ export default function Reels() {
     }
   }, []);
 
-  useEffect(() => { 
-    fetchMoments(); 
-
+  useEffect(() => {
+    fetchMoments();
     if (supabase) {
-      // ⚡ REALTIME CSATORNA BEKÖTÉSE
       const channel = supabase
         .channel('realtime_moments_page')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'city_moments' }, (payload) => {
-          // Új pillanat beszúrása a feed tetejére (maximum 40 elemet tartunk meg)
           setMoments((prev) => [payload.new, ...prev].slice(0, 40));
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
+      return () => { supabase.removeChannel(channel); };
     }
   }, [fetchMoments]);
 
@@ -148,15 +103,8 @@ export default function Reels() {
 
   const handlePost = async () => {
     if (!file) return;
-    if (caption && containsProfanity(caption)) {
-      setPostError('Kérjük, kulturált szöveget írj! 🙏');
-      return;
-    }
-    
-    if (!supabase) {
-      setPostError('Supabase nincs konfigurálva a feltöltéshez.');
-      return;
-    }
+    if (caption && containsProfanity(caption)) { setPostError('Kérjük, kulturált szöveget írj! 🙏'); return; }
+    if (!supabase) { setPostError('Supabase nincs konfigurálva a feltöltéshez.'); return; }
 
     setPosting(true);
     try {
@@ -178,7 +126,7 @@ export default function Reels() {
       setCoords(null);
       setUseLocation(false);
       fetchMoments();
-    } catch (err) {
+    } catch {
       setPostError('Hiba történt, próbáld újra!');
     } finally {
       setPosting(false);
@@ -194,23 +142,19 @@ export default function Reels() {
   };
 
   return (
-    <div className="min-h-screen pb-32 pt-4 px-4 max-w-4xl mx-auto">
-
+    <div className="pb-12 px-4 max-w-4xl mx-auto">
       {/* Header */}
       <FadeUp>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-black text-[#123a57] dark:text-white tracking-tight flex items-center gap-2">
-              📸 KőszegReels
+            <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              📸 Kőszeg <span className="text-gradient">Reels</span>
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-0.5">
+            <p className="text-xs text-night-200/55 font-semibold mt-0.5">
               Pillanatok amelyek 24 óra múlva eltűnnek · {moments.length} aktív
             </p>
           </div>
-          <button
-            onClick={() => setShowPost(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#123a57] hover:bg-[#0a97be] text-white font-black text-sm shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
-          >
+          <button onClick={() => setShowPost(true)} className="btn-grad px-4 py-2.5 text-sm">
             <IoCameraOutline className="text-lg" />
             Posztolj!
           </button>
@@ -221,56 +165,41 @@ export default function Reels() {
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="aspect-[3/4] rounded-2xl bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+            <div key={i} className="aspect-[3/4] rounded-3xl bg-white/[0.04] animate-pulse" />
           ))}
         </div>
       ) : moments.length === 0 ? (
         <FadeUp>
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
             <div className="text-6xl">📸</div>
-            <h3 className="text-xl font-black text-[#123a57] dark:text-white">Még nincs egy pillanat sem!</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold max-w-xs">
-              Légy te az első aki megmutatja milyen most Kőszeg!
-            </p>
-            <button
-              onClick={() => setShowPost(true)}
-              className="px-6 py-3 rounded-2xl bg-[#123a57] text-white font-black text-sm shadow-lg active:scale-95 transition-all"
-            >
-              Posztolj most!
-            </button>
+            <h3 className="text-xl font-extrabold text-white">Még nincs egy pillanat sem!</h3>
+            <p className="text-night-200/55 text-sm font-semibold max-w-xs">Légy te az első aki megmutatja milyen most Kőszeg!</p>
+            <button onClick={() => setShowPost(true)} className="btn-grad px-6 py-3 text-sm">Posztolj most!</button>
           </div>
         </FadeUp>
       ) : (
         <div className="columns-2 sm:columns-3 gap-3 space-y-3">
           {moments.map((m, i) => (
             <FadeUp key={m.id} delay={i * 0.04}>
-              <div className="break-inside-avoid rounded-2xl overflow-hidden relative group shadow-sm border border-white/60 dark:border-zinc-800/80 bg-gray-100 dark:bg-zinc-900">
-                <img
-                  src={m.photo_url}
-                  alt=""
-                  className="w-full object-cover block group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="break-inside-avoid rounded-2xl overflow-hidden relative group shadow-card border border-white/10 bg-white/[0.04]">
+                <img src={m.photo_url} alt="" className="w-full object-cover block group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                {/* Time badge */}
-                <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] font-black">
+                <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/45 backdrop-blur-sm text-white text-[10px] font-extrabold">
                   <IoTimeOutline className="text-xs" />
                   {timeLeft(m.expires_at)}
                 </div>
 
-                {/* Location badge */}
                 {m.lat && m.lng && (
-                  <div className="absolute top-2 left-2 p-1.5 rounded-full bg-black/50 backdrop-blur-sm text-[#0bc9f8]">
+                  <div className="absolute top-2 left-2 p-1.5 rounded-full bg-black/45 backdrop-blur-sm text-cyan2-200">
                     <IoLocationOutline className="text-xs" />
                   </div>
                 )}
 
-                {/* Caption */}
                 {m.caption && (
                   <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <p className="text-white text-xs font-semibold leading-tight line-clamp-2">{m.caption}</p>
-                    <p className="text-white/50 text-[9px] font-bold mt-1">
+                    <p className="text-white/60 text-[9px] font-bold mt-1">
                       {formatDistanceToNow(new Date(m.created_at), { addSuffix: true, locale: hu })}
                     </p>
                   </div>
@@ -282,92 +211,76 @@ export default function Reels() {
       )}
 
       {/* Post modal */}
-      {showPost && (
-        <div
-          className="fixed inset-0 z-[300] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
-          onClick={closePost}
-        >
-          <div
-            className="w-full max-w-md bg-beige-50 dark:bg-[#0c1726] rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-zinc-200/50 dark:border-zinc-800/50"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-[#123a57] dark:text-white">📸 Pillanat megosztása</h3>
-              <button onClick={closePost} className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-                <IoCloseOutline className="text-xl" />
+      <AnimatePresence>
+        {showPost && (
+          <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-4" onClick={closePost}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/65 backdrop-blur-md" />
+            <motion.div
+              initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="relative w-full max-w-md bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
+              onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-extrabold text-white">📸 Pillanat megosztása</h3>
+                <button onClick={closePost} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+                  <IoCloseOutline className="text-xl" />
+                </button>
+              </div>
+
+              <label className="cursor-pointer">
+                {preview ? (
+                  <div className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <img src={preview} alt="" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <IoCameraOutline className="text-white text-4xl" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border-2 border-dashed border-cyan2-400/40 aspect-[4/3] flex flex-col items-center justify-center gap-3 text-night-200/50 hover:border-cyan2-400 hover:text-cyan2-200 bg-brand-gradient-soft transition-all duration-300">
+                    <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center text-white shadow-glow">
+                      <IoCameraOutline className="text-3xl" />
+                    </div>
+                    <div className="text-center px-4">
+                      <span className="text-sm font-extrabold text-white block">Kamera megnyitása</span>
+                      <span className="text-[10px] font-semibold text-night-200/50 mt-1 block">Kattints ide egy élő fotó készítéséhez! 📸</span>
+                    </div>
+                  </div>
+                )}
+                <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+              </label>
+
+              <input
+                type="text"
+                value={caption}
+                onChange={e => { setCaption(e.target.value.slice(0, 120)); setPostError(''); }}
+                placeholder="Rövid felirat... (opcionális)"
+                className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+              />
+
+              <button
+                onClick={handleLocationToggle}
+                className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-sm font-bold transition-all ${
+                  useLocation ? 'bg-brand-gradient-soft border-cyan2-400/40 text-cyan2-200' : 'border-white/10 text-night-200/50'
+                }`}
+              >
+                <IoLocationOutline className="text-lg" />
+                {useLocation && coords ? 'Helyzet hozzáadva ✓' : 'Helyzet hozzáadása (opcionális)'}
               </button>
-            </div>
 
-            {/* Photo picker */}
-            <label className="cursor-pointer">
-              {preview ? (
-                <div className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-zinc-200 dark:border-zinc-800">
-                  <img src={preview} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <IoCameraOutline className="text-white text-4xl" />
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border-2 border-dashed border-indigo-500/30 dark:border-indigo-400/20 aspect-[4/3] flex flex-col items-center justify-center gap-3 text-zinc-400 hover:border-indigo-500 hover:text-indigo-500 bg-zinc-50/50 dark:bg-zinc-950/20 transition-all duration-300">
-                  <div className="w-16 h-16 rounded-full bg-[#123a57]/5 dark:bg-white/10 flex items-center justify-center text-[#123a57] dark:text-white">
-                    <IoCameraOutline className="text-3xl" />
-                  </div>
-                  <div className="text-center px-4">
-                    <span className="text-sm font-black text-gray-800 dark:text-zinc-200 block">Kamera megnyitása</span>
-                    <span className="text-[10px] font-semibold text-gray-500 dark:text-zinc-400 mt-1 block">Kattints ide egy élő fotó készítéséhez! 📸</span>
-                  </div>
-                </div>
-              )}
-              <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
-            </label>
+              {postError && <p className="text-rose-300 text-xs font-extrabold text-center">{postError}</p>}
 
-            {/* Caption */}
-            <input
-              type="text"
-              value={caption}
-              onChange={e => { setCaption(e.target.value.slice(0, 120)); setPostError(''); }}
-              placeholder="Rövid felirat... (opcionális)"
-              className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-850 text-gray-900 dark:text-white text-sm font-semibold placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-            />
+              <button onClick={handlePost} disabled={!file || posting} className="btn-grad w-full py-4 text-sm disabled:opacity-40">
+                {posting ? <span className="animate-pulse">Feltöltés...</span> : <><IoSendOutline className="text-lg" /> Megosztom a pillanatot!</>}
+              </button>
 
-            {/* Location toggle */}
-            <button
-              onClick={handleLocationToggle}
-              className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-sm font-bold transition-all ${
-                useLocation
-                  ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500/40 text-[#123a57] dark:text-[#0bc9f8]'
-                  : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400'
-              }`}
-            >
-              <IoLocationOutline className="text-lg" />
-              {useLocation && coords ? 'Helyzet hozzáadva ✓' : 'Helyzet hozzáadása (opcionális)'}
-            </button>
-
-            {postError && (
-              <p className="text-rose-500 text-xs font-black text-center">{postError}</p>
-            )}
-
-            <button
-              onClick={handlePost}
-              disabled={!file || posting}
-              className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-[#123a57] hover:bg-[#0a97be] disabled:opacity-40 text-white font-black text-sm shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
-            >
-              {posting ? (
-                <span className="animate-pulse">Feltöltés...</span>
-              ) : (
-                <>
-                  <IoSendOutline className="text-lg" />
-                  Megosztom a pillanatot!
-                </>
-              )}
-            </button>
-
-            <p className="text-zinc-400 text-[10px] font-semibold text-center">
-              A fotód 24 óra múlva automatikusan eltűnik. Semmi személyes adatot nem gyűjtünk.
-            </p>
+              <p className="text-night-200/40 text-[10px] font-semibold text-center">
+                A fotód 24 óra múlva automatikusan eltűnik. Semmi személyes adatot nem gyűjtünk.
+              </p>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

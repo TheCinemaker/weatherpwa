@@ -30,6 +30,20 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ---
 
+## 📸 Élő Webkamerák (Proxy)
+
+A rendszer 5 aktív kőszegi és Kendig-csúcsi Időkép webkamerát integrál szerveroldali proxy segítségével, megkerülve a CORS és referrer-korlátozásokat:
+* **Kőszeg Hegyoldal (Hepi)**: `47.3851;16.5466` | ID: `hepi`
+* **Kőszeg Belváros (Microweb)**: `47.38;16.5451` | ID: `microweb9730`
+* **Kendig-csúcs (Nyugat)**: `47.364;16.4834` | ID: `ha1kyy`
+* **Kendig-csúcs (Dél)**: `47.3626;16.4648` | ID: `ha1kyy3`
+* **Kendig-csúcs (Északkelet)**: `47.3684;16.48` | ID: `eszenyi1`
+
+**API Végpont**: `/api/webcam/:id` (például `/api/webcam/hepi` vagy `/api/webcam/microweb9730`)
+A végpont automatikusan lekéri az Időkép kameránkénti aktív tokenjét, és a streamelt képet továbbítja a kliensnek, hiba esetén a statikus thumbnailre vagy 302-es átirányításra váltva.
+
+---
+
 ## 🔄 Kapcsolódó Munkaterületek (IDE)
 
 * [KőszegApp megnyitása](file:///Users/thecinemaker/.gemini/antigravity/playground/koszegapp)
