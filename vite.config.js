@@ -14,6 +14,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      'react': path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
       'fuse.js': path.resolve(__dirname, 'node_modules/fuse.js/dist/fuse.mjs')
     }
   }
