@@ -10,6 +10,7 @@ import { FadeUp } from '../../components/AppleMotion';
 import { getForecast, saveForecast } from '../../api/supabase';
 import {
   AlertTriangle, MapPin, ExternalLink, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
+  Cloud, CloudSun,
   ArrowDown, ArrowUp, Droplets, Wind, Calendar, X
 } from 'lucide-react';
 
@@ -179,11 +180,15 @@ export default function WeatherDashboard() {
     if (rr > 1.0 || rate > 0.5) condition = 'rain';
     else if (rr > 0.1 || rate > 0) condition = 'drizzle';
     else if (u >= 92) condition = 'fog';
+    else if (u >= 82) condition = 'cloudy';
+    else if (u >= 65) condition = 'partly-cloudy';
 
     let label;
     if (condition === 'rain') label = 'Esős idő';
     else if (condition === 'drizzle') label = 'Szemerkélő';
     else if (condition === 'fog') label = 'Párás, ködös';
+    else if (condition === 'cloudy') label = 'Borús, szürke idő';
+    else if (condition === 'partly-cloudy') label = 'Változóan felhős';
     else if (timeOfDay === 'night') label = 'Tiszta éj';
     else if (timeOfDay === 'dawn') label = 'Derült hajnal';
     else if (timeOfDay === 'dusk') label = 'Alkonyat';
@@ -193,7 +198,12 @@ export default function WeatherDashboard() {
     if (condition === 'rain') CondIcon = CloudRain;
     else if (condition === 'drizzle') CondIcon = CloudDrizzle;
     else if (condition === 'fog') CondIcon = CloudFog;
-    else if (timeOfDay === 'night') CondIcon = Moon;
+    else if (condition === 'cloudy') CondIcon = Cloud;
+    else if (condition === 'partly-cloudy') {
+      CondIcon = timeOfDay === 'night' ? Cloud : CloudSun;
+    } else if (timeOfDay === 'night') {
+      CondIcon = Moon;
+    }
 
     return { timeOfDay, condition, label, isNight: timeOfDay === 'night', CondIcon };
   }, [lastMeasure, sunInfo]);
