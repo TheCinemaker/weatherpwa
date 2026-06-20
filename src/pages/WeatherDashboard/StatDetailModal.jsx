@@ -38,34 +38,29 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
 
   return (
     <AnimatePresence>
-      {metric && [
+      {metric && (
         <motion.div
-          key="stat-modal-backdrop"
+          key="stat-modal"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }}
           transition={{ duration: 0.18 }}
           onClick={onClose}
-          className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
-        />,
-        <div
-          key="stat-modal-card"
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
+          className="fixed inset-0 z-[9998] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         >
           <motion.div
-            layoutId={`metric-${metric.key}`}
-            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.7 }}
-            className="relative w-full max-w-2xl bg-night-800 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.94, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 16, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
+            transition={{ type: 'spring', stiffness: 460, damping: 36, mass: 0.7 }}
+            className="relative w-full max-w-2xl bg-night-800 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden"
           >
             {/* Gradiens-akcentus felül */}
             <div className="h-2 w-full" style={{ background: gradient }} />
 
             <div className="p-6 sm:p-8">
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.22 }}
-              >
+              <div>
                 {/* Fejléc */}
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div className="flex items-center gap-3">
@@ -121,11 +116,11 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                     </div>
                   )}
                 </div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
-        </div>
-      ]}
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 }
