@@ -61,7 +61,7 @@ function TempGauge({ temp, feels, condition, CondIcon }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-        <CondIcon className="w-7 h-7 text-cyan2-400 mb-1 animate-float" />
+        {CondIcon && <CondIcon className="w-7 h-7 text-cyan2-400 mb-1 animate-float" />}
         {temp != null ? (
           <div className="flex items-start leading-none">
             <span className="text-6xl font-light tracking-tighter text-white">{temp.toFixed(0)}</span>
@@ -70,7 +70,7 @@ function TempGauge({ temp, feels, condition, CondIcon }) {
         ) : (
           <span className="text-3xl font-light text-white/60">– °</span>
         )}
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-night-200/80 mt-1">{condition}</p>
+        {condition && <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-night-200/80 mt-1">{condition}</p>}
         {feels != null && (
           <p className="text-[11px] font-semibold text-night-200/55 mt-0.5">Hőérzet {feels.toFixed(0)}°</p>
         )}
@@ -174,35 +174,19 @@ export default function WeatherDashboard() {
     }
     const rr = lastMeasure.RR_1H || 0;
     const rate = lastMeasure.RR_RATE || 0;
-    const u = lastMeasure.U ?? 50;
-    const temp = lastMeasure.T;
-    let condition = 'clear';
-    if (rr > 1.0 || rate > 0.5) condition = 'rain';
-    else if (rr > 0.1 || rate > 0) condition = 'drizzle';
-    else if (u >= 92) condition = 'fog';
-    else if (u >= 82) condition = 'cloudy';
-    else if (u >= 65) condition = 'partly-cloudy';
+    
+    let condition = null;
+    let label = null;
+    let CondIcon = null;
 
-    let label;
-    if (condition === 'rain') label = 'Esős idő';
-    else if (condition === 'drizzle') label = 'Szemerkélő';
-    else if (condition === 'fog') label = 'Párás, ködös';
-    else if (condition === 'cloudy') label = 'Borús, szürke idő';
-    else if (condition === 'partly-cloudy') label = 'Változóan felhős';
-    else if (timeOfDay === 'night') label = 'Tiszta éj';
-    else if (timeOfDay === 'dawn') label = 'Derült hajnal';
-    else if (timeOfDay === 'dusk') label = 'Alkonyat';
-    else label = temp && temp > 25 ? 'Meleg, napos' : 'Napsütés';
-
-    let CondIcon = Sun;
-    if (condition === 'rain') CondIcon = CloudRain;
-    else if (condition === 'drizzle') CondIcon = CloudDrizzle;
-    else if (condition === 'fog') CondIcon = CloudFog;
-    else if (condition === 'cloudy') CondIcon = Cloud;
-    else if (condition === 'partly-cloudy') {
-      CondIcon = timeOfDay === 'night' ? Cloud : CloudSun;
-    } else if (timeOfDay === 'night') {
-      CondIcon = Moon;
+    if (rr > 1.0 || rate > 0.5) {
+      condition = 'rain';
+      label = 'Eső';
+      CondIcon = CloudRain;
+    } else if (rr > 0.1 || rate > 0) {
+      condition = 'drizzle';
+      label = 'Szemerkélő eső';
+      CondIcon = CloudDrizzle;
     }
 
     return { timeOfDay, condition, label, isNight: timeOfDay === 'night', CondIcon };
@@ -424,15 +408,16 @@ export default function WeatherDashboard() {
         {showAdmin && (
           <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-4">
             <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/65 backdrop-blur-md" 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }} transition={{ duration: 0.18 }}
+              className="absolute inset-0 bg-black/65 backdrop-blur-md"
               onClick={() => setShowAdmin(false)} 
             />
             <motion.div
               initial={{ opacity: 0, y: 40, scale: 0.95 }} 
               animate={{ opacity: 1, y: 0, scale: 1 }} 
-              exit={{ opacity: 0, y: 40, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
+              transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
               className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
               onClick={e => e.stopPropagation()}
             >

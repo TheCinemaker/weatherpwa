@@ -6,17 +6,17 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 /**
  * Slow, cinematic fade up effect for sections/cards
  */
-export const FadeUp = ({ children, delay = 0, duration = 0.7, className = "" }) => {
+export const FadeUp = ({ children, delay = 0, duration = 0.4, className = "" }) => {
     const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: "-10% 0px -10% 0px" });
+    const isInView = useInView(ref, { once: true, margin: "-8% 0px -8% 0px" });
 
     return (
         <motion.div
             ref={ref}
             className={className}
-            initial={{ opacity: 0, y: 60, filter: 'blur(10px)' }}
+            initial={{ opacity: 0, y: 26, filter: 'blur(6px)' }}
             animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
-            transition={{ duration: duration, ease: [0.16, 1, 0.3, 1], delay: delay }}
+            transition={{ duration: duration, ease: [0.22, 1, 0.36, 1], delay: delay }}
         >
             {children}
         </motion.div>
@@ -39,11 +39,11 @@ export const SpringUp = ({ children, delay = 0, className = "" }) => {
             animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
             transition={{
                 type: 'spring',
-                stiffness: 300,
-                damping: 18,
-                mass: 0.9,
+                stiffness: 420,
+                damping: 30,
+                mass: 0.8,
                 delay,
-                opacity: { duration: 0.3, delay },
+                opacity: { duration: 0.2, delay },
             }}
         >
             {children}
