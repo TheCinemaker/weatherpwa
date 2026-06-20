@@ -1,0 +1,21 @@
+{
+  "short_name": "Kőszeg Időjárás",
+  "name": "Kőszegi Időjárás Előrejelzés",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#030816",
+  "theme_color": "#0a1a2e",
+  "display": "standalone",
+  "orientation": "portrait"
+}

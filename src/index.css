@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply font-sans text-ink-900 antialiased;
+    background-color: #f6f2ff;
+  }
+  ::selection {
+    @apply bg-magenta-500/30 text-ink-900;
+  }
+  /* Egyedi görgetősáv */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background: linear-gradient(180deg, #a855f7, #f472b6);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* Lebegő gradiens-folt a háttérhez */
+  .blob {
+    @apply absolute rounded-full blur-3xl pointer-events-none mix-blend-multiply opacity-60;
+  }
+
+  /* Gradiens szövegkitöltés */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-brand-gradient;
+  }
+
+  /* Üveg-kártya az élénk háttér felett */
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-card;
+  }
+
+  /* Elsődleges gradiens-gomb */
+  .btn-grad {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-gradient bg-[length:200%_200%] text-white font-bold shadow-glow transition-all hover:bg-[position:100%_50%] hover:scale-[1.03] active:scale-95;
+  }
+}
