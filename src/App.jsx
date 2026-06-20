@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import WeatherDashboard from './pages/WeatherDashboard/WeatherDashboard';
@@ -22,24 +22,8 @@ function AppContent() {
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const clickCountRef = useRef(0);
-  const lastClickRef = useRef(0);
-
   const handleForecastClick = (e) => {
     e.preventDefault();
-    const now = Date.now();
-    if (now - lastClickRef.current < 500) {
-      clickCountRef.current += 1;
-      if (clickCountRef.current >= 3) {
-        window.dispatchEvent(new CustomEvent('open-forecast-admin'));
-        clickCountRef.current = 0;
-        return;
-      }
-    } else {
-      clickCountRef.current = 1;
-    }
-    lastClickRef.current = now;
-
     if (location.pathname !== '/') {
       window.location.hash = '#/';
       setTimeout(() => {

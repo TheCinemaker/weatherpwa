@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { IoRefresh } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import useWeatherData from './useWeatherData';
@@ -91,6 +91,7 @@ export default function WeatherDashboard() {
   const [adminContent, setAdminContent] = useState('');
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminError, setAdminError] = useState('');
+  const longPressRef = useRef(null);
 
   useEffect(() => {
     getForecast().then(data => {
@@ -100,10 +101,17 @@ export default function WeatherDashboard() {
     });
   }, []);
 
-  useEffect(() => {
-    const handleOpenAdmin = () => setShowAdmin(true);
-    window.addEventListener('open-forecast-admin', handleOpenAdmin);
-    return () => window.removeEventListener('open-forecast-admin', handleOpenAdmin);
+  const startLongPress = useCallback(() => {
+    longPressRef.current = setTimeout(() => {
+      setShowAdmin(true);
+    }, 2000);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressRef.current) {
+      clearTimeout(longPressRef.current);
+      longPressRef.current = null;
+    }
   }, []);
 
   const handleSaveForecast = async () => {
@@ -144,26 +152,6 @@ export default function WeatherDashboard() {
     return out;
   }, [historySeries]);
 
-  const recentHourly = useMemo(() => {
-    const tSeries = historySeries['T'];
-    if (!tSeries || !tSeries.ts || tSeries.ts.length === 0) return [];
-    
-    const points = [];
-    const step = Math.max(1, Math.floor(tSeries.ts.length / 5));
-    const startIndex = Math.max(0, tSeries.ts.length - 5 * step);
-    
-    for (let i = startIndex; i < tSeries.ts.length; i += step) {
-      const ts = tSeries.ts[i];
-      const val = tSeries.data[i];
-      if (val != null) {
-        points.push({
-          time: new Date(ts * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Budapest' }),
-          temp: val
-        });
-      }
-    }
-    return points;
-  }, [historySeries]);
 
   const [activeKey, setActiveKey] = useState(null);
   const chartableKeys = useMemo(() => new Set(CHART_CONFIGS.map(c => c.key)), []);
@@ -289,33 +277,6 @@ export default function WeatherDashboard() {
             </p>
           )}
 
-          {recentHourly.length > 0 && (
-            <div className="relative mt-7 pt-5 border-t border-white/5">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-night-200/40 mb-4 text-center">Nemrég mért hőmérséklet</p>
-              <div className="flex overflow-x-auto gap-3.5 pb-2 justify-center scrollbar-none">
-                {recentHourly.map((pt, idx) => {
-                  const isLatest = idx === recentHourly.length - 1;
-                  const IconComponent = weather.CondIcon;
-                  return (
-                    <div 
-                      key={idx} 
-                      className={`flex flex-col items-center justify-between py-4 px-3.5 rounded-full w-[64px] h-[110px] transition-all border ${
-                        isLatest 
-                          ? 'bg-brand-gradient border-cyan2-400 text-white shadow-glow' 
-                          : 'bg-white/[0.03] border-white/5 text-night-100 hover:bg-white/[0.08]'
-                      }`}
-                    >
-                      <span className="text-[9px] font-bold text-night-200/40 uppercase">{pt.time}</span>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isLatest ? 'bg-white/20' : 'bg-white/10'}`}>
-                        <IconComponent className={`w-4 h-4 ${isLatest ? 'text-white' : 'text-cyan2-300'}`} />
-                      </div>
-                      <span className="text-xs font-black">{pt.temp.toFixed(0)}°</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </FadeUp>
 
@@ -344,7 +305,15 @@ export default function WeatherDashboard() {
         <div id="dashboard-forecast" className="relative glass-card rounded-[2rem] p-6 overflow-hidden mt-5">
           <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
           
-          <div className="flex items-center justify-between mb-4">
+          <div 
+            className="flex items-center justify-between mb-4 select-none cursor-default"
+            onMouseDown={startLongPress}
+            onMouseUp={cancelLongPress}
+            onMouseLeave={cancelLongPress}
+            onTouchStart={startLongPress}
+            onTouchEnd={cancelLongPress}
+            onTouchCancel={cancelLongPress}
+          >
             <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
               <span>László Helyzetjelentése</span>
