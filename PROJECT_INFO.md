@@ -46,6 +46,5 @@ A végpont automatikusan lekéri az Időkép kameránkénti aktív tokenjét, é
 
 ## 🔄 Kapcsolódó Munkaterületek (IDE)
 
-* [KőszegApp megnyitása](file:///Users/thecinemaker/.gemini/antigravity/playground/koszegapp)
 * [VoltDesk megnyitása](file:///Users/thecinemaker/.gemini/antigravity/scratch/villanyszerelo_munkalap/solar-workflow)
 * [Saját Oldal (Portfolio) megnyitása](file:///Users/thecinemaker/.gemini/antigravity/scratch/thecinemaker-portfolio)

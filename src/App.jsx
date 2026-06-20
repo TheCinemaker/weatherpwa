@@ -65,8 +65,8 @@ function AppContent() {
               <Logo className="w-6 h-6" />
             </div>
             <div className="leading-tight">
-              <h1 className="text-[15px] font-extrabold tracking-tight text-white">Kőszegi</h1>
-              <span className="text-[10px] font-bold text-night-200/60 uppercase tracking-[0.18em]">Időjárás · KIE</span>
+              <h1 className="text-[15px] font-extrabold tracking-tight text-white">Kőszeg</h1>
+              <span className="text-[10px] font-bold text-night-200/60 uppercase tracking-[0.18em]">Időjárás</span>
             </div>
           </Link>
 
@@ -140,8 +140,8 @@ function AppContent() {
                       <Logo className="w-5 h-5" />
                     </div>
                     <div className="leading-tight">
-                      <h1 className="text-sm font-extrabold tracking-tight text-white">Kőszegi</h1>
-                      <span className="text-[9px] font-bold text-night-200/55 uppercase tracking-[0.18em]">Időjárás · KIE</span>
+                      <h1 className="text-sm font-extrabold tracking-tight text-white">Kőszeg</h1>
+                      <span className="text-[9px] font-bold text-night-200/55 uppercase tracking-[0.18em]">Időjárás</span>
                     </div>
                   </div>
                   <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-white active:scale-95" aria-label="Bezárás">

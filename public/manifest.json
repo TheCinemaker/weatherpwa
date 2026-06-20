@@ -1,6 +1,6 @@
 {
-  "short_name": "Kőszeg Időjárás",
-  "name": "Kőszegi Időjárás Előrejelzés",
+  "short_name": "Kőszeg Weather",
+  "name": "Kőszeg Weather PWA",
   "icons": [
     {
       "src": "/favicon.png",
