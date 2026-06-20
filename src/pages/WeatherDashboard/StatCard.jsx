@@ -83,7 +83,7 @@ export default function StatCard({ config, val, onClick }) {
     <motion.div
       layoutId={clickable ? `metric-${config.key}` : undefined}
       onClick={onClick}
-      transition={{ type: 'spring', stiffness: 30, damping: 9 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.7 }}
       className={`group relative h-full min-h-[118px] rounded-3xl p-4 flex flex-col justify-between overflow-hidden glass-card transition-all duration-300 active:scale-[0.98] ${clickable ? 'cursor-pointer hover:border-white/20' : ''}`}
     >
       <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity" style={{ background: gradient }} />

@@ -146,14 +146,16 @@ function AppContent() {
         {menuOpen && (
           <div className="lg:hidden fixed inset-0 z-[100]">
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }}
+              transition={{ duration: 0.18 }}
               onClick={() => setMenuOpen(false)}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.aside
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+              initial={{ x: '100%' }} animate={{ x: 0 }}
+              exit={{ x: '100%', transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
+              transition={{ type: 'spring', stiffness: 480, damping: 42, mass: 0.7 }}
               className="absolute top-0 right-0 h-full w-[80%] max-w-xs p-4"
             >
               <div className="h-full flex flex-col glass-card rounded-[1.75rem] p-5">
@@ -194,9 +196,9 @@ function AppContent() {
                     return (
                       <motion.div
                         key={path}
-                        initial={{ opacity: 0, x: 30 }}
+                        initial={{ opacity: 0, x: 24 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.08 + i * 0.05 }}
+                        transition={{ delay: 0.04 + i * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                       >
                         <Link to={path}
                           className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-night-200/75 hover:bg-white/10 hover:text-white'}`}>

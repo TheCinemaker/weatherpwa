@@ -316,7 +316,7 @@ export default function WeatherDashboard() {
           >
             <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
-              <span>László Helyzetjelentése</span>
+              <span>Előrejelzés az Alpokaljára</span>
             </h2>
             <span className="text-[9px] font-bold text-night-200/35 uppercase tracking-widest">
               Előrejelzés

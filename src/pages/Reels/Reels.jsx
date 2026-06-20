@@ -214,11 +214,13 @@ export default function Reels() {
       <AnimatePresence>
         {showPost && (
           <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-4" onClick={closePost}>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }} transition={{ duration: 0.18 }}
               className="absolute inset-0 bg-black/65 backdrop-blur-md" />
             <motion.div
-              initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              initial={{ opacity: 0, y: 40, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
+              transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
               className="relative w-full max-w-md bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
               onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between">

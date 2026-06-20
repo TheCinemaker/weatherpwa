@@ -22,13 +22,19 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ---
 
-## 🔑 Környezeti Változók & Beégetett Kulcsok (`.env.example`)
+## 🔑 Környezeti Változók & Beégetett Kulcsok (`.env`)
 
-* **Supabase API (Beállításra vár)**:
-  * `VITE_SUPABASE_URL`: *Supabase projekt URL*
-  * `VITE_SUPABASE_ANON_KEY`: *Anon public key*
+* **Supabase API (Beállítva és élesítve)**:
+  * `VITE_SUPABASE_URL` = `https://xgolwkiwsetqnvxnclhq.supabase.co`
+  * `VITE_SUPABASE_ANON_KEY` = `sb_publishable_R5PJJeyhIr37SNDznb8VvQ_tVilxfKU` (Ez a kliensoldali publikus kulcs, ami be van állítva a helyi `.env`-ben és a Netlify környezeti változók között is.)
 
 ---
+
+## 🛠️ Jelenlegi Állapot & Legutóbbi Fejlesztések
+
+* **Routing Frissítés**: A korábbi `HashRouter` le lett cserélve modern HTML5-alapú `BrowserRouter`-re. A linkekből eltűnt a hashtag (`/#/` helyett sima `/` útvonalak vannak). A Netlify átirányítások be vannak állítva.
+* **PWA Caching Javítás**: A Service Worker (`sw.js`) verziója `v2`-re frissült. A korábbi agreszív `Cache-First` stratégia helyett a főoldal/HTML kérések `Network-First` módban futnak (hálózatról frissít, ha elérhető), a Supabase API kérések pedig nincsenek gyorsítótárazva.
+* **Admin Funkció**: A dashboardon az „Előrejelzés az Alpokaljára” kártya fejlécének **2 másodperces nyomva tartásával** nyitható meg az adminisztrátori mentési felület.
 
 ## 📸 Élő Webkamerák (Proxy)
 

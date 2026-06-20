@@ -43,8 +43,8 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
           key="stat-modal-backdrop"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.7 }}
+          exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }}
+          transition={{ duration: 0.18 }}
           onClick={onClose}
           className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
         />,
@@ -54,7 +54,7 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
         >
           <motion.div
             layoutId={`metric-${metric.key}`}
-            transition={{ type: 'spring', stiffness: 30, damping: 9 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.7 }}
             className="relative w-full max-w-2xl bg-night-800 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden pointer-events-auto"
           >
             {/* Gradiens-akcentus felül */}
@@ -64,7 +64,7 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.4 }}
+                transition={{ delay: 0.1, duration: 0.22 }}
               >
                 {/* Fejléc */}
                 <div className="flex items-start justify-between gap-4 mb-5">
