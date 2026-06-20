@@ -73,8 +73,12 @@ export default function Reels() {
     if (supabase) {
       const channel = supabase
         .channel('realtime_moments_page')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'city_moments' }, (payload) => {
-          setMoments((prev) => [payload.new, ...prev].slice(0, 40));
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'city_moments' }, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setMoments((prev) => [payload.new, ...prev].slice(0, 40));
+          } else if (payload.eventType === 'DELETE') {
+            setMoments((prev) => prev.filter((m) => m.id !== payload.old.id));
+          }
         })
         .subscribe();
       return () => { supabase.removeChannel(channel); };
