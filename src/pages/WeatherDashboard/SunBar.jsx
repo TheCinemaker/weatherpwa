@@ -13,10 +13,10 @@ function formatTime(val) {
 
 export default function SunBar({ sunInfo, loading }) {
   const items = [
-    { label: 'Napkelte', icon: Sunrise, grad: ['#A7C0A8', '#6E8B7B'], value: sunInfo?.sunrise },
-    { label: 'Dél', icon: Sun, grad: ['#B3C2A6', '#73876A'], value: sunInfo?.noon },
-    { label: 'Napnyugta', icon: Sunset, grad: ['#9DB7A6', '#566E63'], value: sunInfo?.sunset },
-    { label: 'Szürkület', icon: Moon, grad: ['#8AA892', '#4F6B5C'], value: sunInfo?.dusk }
+    { label: 'Napkelte', icon: Sunrise, grad: ['#5eead4', '#0891b2'], value: sunInfo?.sunrise },
+    { label: 'Dél', icon: Sun, grad: ['#67e8f9', '#0ea5e9'], value: sunInfo?.noon },
+    { label: 'Napnyugta', icon: Sunset, grad: ['#38bdf8', '#0d9488'], value: sunInfo?.sunset },
+    { label: 'Szürkület', icon: Moon, grad: ['#22d3ee', '#06b6d4'], value: sunInfo?.dusk }
   ];
 
   return (

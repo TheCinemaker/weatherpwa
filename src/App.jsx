@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import WeatherDashboard from './pages/WeatherDashboard/WeatherDashboard';
 import About from './pages/About/About';
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
 
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,7 +26,7 @@ function AppContent() {
   const handleForecastClick = (e) => {
     e.preventDefault();
     if (location.pathname !== '/') {
-      window.location.hash = '#/';
+      navigate('/');
       setTimeout(() => {
         const el = document.getElementById('dashboard-forecast');
         if (el) el.scrollIntoView({ behavior: 'smooth' });

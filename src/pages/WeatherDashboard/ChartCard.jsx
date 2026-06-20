@@ -34,14 +34,14 @@ ChartJS.register(
 
 // Élénk gradiens-paletta: minden metrika két-színű átmenetet kap.
 export const CHART_CONFIGS = [
-  { key: 'T',          label: 'Hőmérséklet',  icon: Thermometer, unit: '°C',  grad: ['#A7C0A8', '#6E8B7B'] },
-  { key: 'U',          label: 'Páratartalom', icon: Droplets,    unit: '%',   grad: ['#8AA892', '#4F6B5C'] },
-  { key: 'FF',         label: 'Szélsebesség', icon: Wind,        unit: 'km/h',grad: ['#A7C0A8', '#5E7A66'] },
-  { key: 'FXY',        label: 'Széllökések',  icon: Wind,        unit: 'km/h',grad: ['#B3C2A6', '#566E63'] },
-  { key: 'SLP',        label: 'Légnyomás',    icon: Gauge,       unit: 'hPa', grad: ['#9DB7A6', '#4F6B5C'] },
-  { key: 'RR_1H',      label: 'Csapadék 1h',  icon: CloudRain,   unit: 'mm',  grad: ['#8AA892', '#566E63'], type: 'bar' },
-  { key: 'HEAT_INDEX', label: 'Hőérzet',      icon: Flame,       unit: '°C',  grad: ['#B3C2A6', '#73876A'] },
-  { key: 'HUMIDEX',    label: 'Humidex',       icon: Droplet,     unit: '',    grad: ['#9DB7A6', '#566E63'] },
+  { key: 'T',          label: 'Hőmérséklet',  icon: Thermometer, unit: '°C',  grad: ['#5eead4', '#0891b2'] },
+  { key: 'U',          label: 'Páratartalom', icon: Droplets,    unit: '%',   grad: ['#22d3ee', '#06b6d4'] },
+  { key: 'FF',         label: 'Szélsebesség', icon: Wind,        unit: 'km/h',grad: ['#5eead4', '#14b8a6'] },
+  { key: 'FXY',        label: 'Széllökések',  icon: Wind,        unit: 'km/h',grad: ['#67e8f9', '#0d9488'] },
+  { key: 'SLP',        label: 'Légnyomás',    icon: Gauge,       unit: 'hPa', grad: ['#38bdf8', '#06b6d4'] },
+  { key: 'RR_1H',      label: 'Csapadék 1h',  icon: CloudRain,   unit: 'mm',  grad: ['#22d3ee', '#0d9488'], type: 'bar' },
+  { key: 'HEAT_INDEX', label: 'Hőérzet',      icon: Flame,       unit: '°C',  grad: ['#67e8f9', '#0ea5e9'] },
+  { key: 'HUMIDEX',    label: 'Humidex',       icon: Droplet,     unit: '',    grad: ['#38bdf8', '#0d9488'] },
 ];
 
 // Hex → rgba segéd az áttetsző kitöltésekhez

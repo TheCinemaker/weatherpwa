@@ -1,4 +1,4 @@
-const CACHE_NAME = 'koszeg-weather-cache-v1';
+const CACHE_NAME = 'koszeg-weather-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -32,9 +32,39 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only handle GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   const url = new URL(event.request.url);
 
-  // Network first for weather API stations requests, fall back to cached version if offline
+  // 1. Bypass cache for Supabase requests
+  if (url.hostname.includes('supabase.co')) {
+    return;
+  }
+
+  // 2. Network-First for navigation requests (HTML pages)
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.status === 200) {
+            const clonedResponse = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clonedResponse);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // 3. Network-First for weather API requests (smartmixin.io)
   if (url.hostname === 'api2.smartmixin.io') {
     event.respondWith(
       fetch(event.request)
@@ -52,7 +82,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache first for other assets
+  // 4. Cache-First for static assets (like CSS, JS, images)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

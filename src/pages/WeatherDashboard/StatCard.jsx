@@ -12,22 +12,22 @@ function ddToText(deg) {
 
 // Minden metrika: két-színű gradiens + tartomány a szintjelző csíkhoz.
 export const STAT_CARDS_CONFIG = [
-  { key: 'T',          label: 'Hőmérséklet',    icon: Thermometer,  unit: '°C',    grad: ['#A7C0A8', '#6E8B7B'], range: [-15, 40],   fmt: v => v.toFixed(1) },
-  { key: 'HEAT_INDEX', label: 'Hőérzet',         icon: Flame,        unit: '°C',    grad: ['#B3C2A6', '#73876A'], range: [-15, 45],   fmt: v => v.toFixed(1) },
-  { key: 'HUMIDEX',    label: 'Humidex',          icon: Droplet,      unit: '',      grad: ['#9DB7A6', '#566E63'], range: [0, 45],     fmt: v => v.toFixed(1) },
-  { key: 'U',          label: 'Páratartalom',    icon: Droplets,     unit: '%',     grad: ['#8AA892', '#4F6B5C'], range: [0, 100],    fmt: v => v.toFixed(0) },
-  { key: 'DP',         label: 'Harmatpont',      icon: CloudFog,     unit: '°C',    grad: ['#A2B29F', '#5E7A66'], range: [-15, 30],   fmt: v => v.toFixed(1) },
-  { key: 'SLP',        label: 'Légnyomás',       icon: Gauge,        unit: 'hPa',   grad: ['#9DB7A6', '#4F6B5C'], range: [980, 1040], fmt: v => v.toFixed(1) },
-  { key: 'FF',         label: 'Szélsebesség',    icon: Wind,         unit: 'km/h',  grad: ['#A7C0A8', '#5E7A66'], range: [0, 60],     fmt: v => v.toFixed(1) },
-  { key: 'FXY',        label: 'Széllökés',       icon: Wind,         unit: 'km/h',  grad: ['#B3C2A6', '#566E63'], range: [0, 90],     fmt: v => v.toFixed(1) },
-  { key: 'DD',         label: 'Szélirány',       icon: Compass,      unit: '°',     grad: ['#A2B29F', '#6E8B7B'], fmt: v => v.toFixed(0), isWind: true },
-  { key: 'RR_1H',      label: '1h csapadék',     icon: CloudRain,    unit: 'mm',    grad: ['#8AA892', '#566E63'], range: [0, 20],     fmt: v => v.toFixed(1) },
+  { key: 'T',          label: 'Hőmérséklet',    icon: Thermometer,  unit: '°C',    grad: ['#5eead4', '#0891b2'], range: [-15, 40],   fmt: v => v.toFixed(1) },
+  { key: 'HEAT_INDEX', label: 'Hőérzet',         icon: Flame,        unit: '°C',    grad: ['#67e8f9', '#0ea5e9'], range: [-15, 45],   fmt: v => v.toFixed(1) },
+  { key: 'HUMIDEX',    label: 'Humidex',          icon: Droplet,      unit: '',      grad: ['#38bdf8', '#0d9488'], range: [0, 45],     fmt: v => v.toFixed(1) },
+  { key: 'U',          label: 'Páratartalom',    icon: Droplets,     unit: '%',     grad: ['#22d3ee', '#06b6d4'], range: [0, 100],    fmt: v => v.toFixed(0) },
+  { key: 'DP',         label: 'Harmatpont',      icon: CloudFog,     unit: '°C',    grad: ['#2dd4bf', '#14b8a6'], range: [-15, 30],   fmt: v => v.toFixed(1) },
+  { key: 'SLP',        label: 'Légnyomás',       icon: Gauge,        unit: 'hPa',   grad: ['#38bdf8', '#06b6d4'], range: [980, 1040], fmt: v => v.toFixed(1) },
+  { key: 'FF',         label: 'Szélsebesség',    icon: Wind,         unit: 'km/h',  grad: ['#5eead4', '#14b8a6'], range: [0, 60],     fmt: v => v.toFixed(1) },
+  { key: 'FXY',        label: 'Széllökés',       icon: Wind,         unit: 'km/h',  grad: ['#67e8f9', '#0d9488'], range: [0, 90],     fmt: v => v.toFixed(1) },
+  { key: 'DD',         label: 'Szélirány',       icon: Compass,      unit: '°',     grad: ['#2dd4bf', '#0891b2'], fmt: v => v.toFixed(0), isWind: true },
+  { key: 'RR_1H',      label: '1h csapadék',     icon: CloudRain,    unit: 'mm',    grad: ['#22d3ee', '#0d9488'], range: [0, 20],     fmt: v => v.toFixed(1) },
   { key: 'RR_TODAY',   label: 'Mai csapadék',    icon: Umbrella,     unit: 'mm',    grad: ['#22d3ee', '#818cf8'], range: [0, 40],     fmt: v => v.toFixed(1) },
-  { key: 'AIR_DENSITY',label: 'Levegősűrűség',   icon: Gauge,        unit: 'kg/m³', grad: ['#A7C0A8', '#4F6B5C'], range: [1.0, 1.35], fmt: v => v.toFixed(4) },
-  { key: 'T_MAX',      label: 'Napi max.',        icon: ArrowUp,      unit: '°C',    grad: ['#A7C0A8', '#6E8B7B'], range: [-15, 40],   fmt: v => v.toFixed(1) },
-  { key: 'T_MIN',      label: 'Napi min.',        icon: ArrowDown,    unit: '°C',    grad: ['#8AA892', '#566E63'], range: [-15, 40],   fmt: v => v.toFixed(1) },
-  { key: 'T_TREND',    label: 'Hőm. trend',       icon: TrendingUp,   unit: '',      grad: ['#A7C0A8', '#6E8B7B'], fmt: v => typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(2) + ' °C/h' : v, isTrend: true },
-  { key: 'SLP_TREND',  label: 'Légnyomás trend',  icon: TrendingDown, unit: '',      grad: ['#9DB7A6', '#4F6B5C'], fmt: v => typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(2) + ' hPa/h' : v, isTrend: true },
+  { key: 'AIR_DENSITY',label: 'Levegősűrűség',   icon: Gauge,        unit: 'kg/m³', grad: ['#5eead4', '#06b6d4'], range: [1.0, 1.35], fmt: v => v.toFixed(4) },
+  { key: 'T_MAX',      label: 'Napi max.',        icon: ArrowUp,      unit: '°C',    grad: ['#5eead4', '#0891b2'], range: [-15, 40],   fmt: v => v.toFixed(1) },
+  { key: 'T_MIN',      label: 'Napi min.',        icon: ArrowDown,    unit: '°C',    grad: ['#22d3ee', '#0d9488'], range: [-15, 40],   fmt: v => v.toFixed(1) },
+  { key: 'T_TREND',    label: 'Hőm. trend',       icon: TrendingUp,   unit: '',      grad: ['#5eead4', '#0891b2'], fmt: v => typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(2) + ' °C/h' : v, isTrend: true },
+  { key: 'SLP_TREND',  label: 'Légnyomás trend',  icon: TrendingDown, unit: '',      grad: ['#38bdf8', '#06b6d4'], fmt: v => typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(2) + ' hPa/h' : v, isTrend: true },
 ];
 
 export default function StatCard({ config, val, onClick }) {
