@@ -45,20 +45,20 @@ function TempGauge({ temp, feels, condition, CondIcon }) {
       <svg viewBox="0 0 240 240" className="w-full h-full -rotate-90">
         <defs>
           <linearGradient id="gauge" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#C2CBB8" />
-            <stop offset="0.5" stopColor="#A2B29F" />
-            <stop offset="1" stopColor="#6E8B7B" />
+            <stop offset="0" stopColor="#06b6d4" />
+            <stop offset="0.5" stopColor="#14b8a6" />
+            <stop offset="1" stopColor="#10b981" />
           </linearGradient>
         </defs>
-        <circle cx="120" cy="120" r={R} fill="none" stroke="rgba(249,249,246,0.1)" strokeWidth="10" />
+        <circle cx="120" cy="120" r={R} fill="none" stroke="rgba(249,249,246,0.06)" strokeWidth="10" />
         <circle
           cx="120" cy="120" r={R} fill="none" stroke="url(#gauge)" strokeWidth="10" strokeLinecap="round"
           strokeDasharray={C} strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 1s ease', filter: 'drop-shadow(0 0 6px rgba(162,178,159,0.55))' }}
+          style={{ transition: 'stroke-dashoffset 1s ease', filter: 'drop-shadow(0 0 8px rgba(6,182,212,0.65))' }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-        <CondIcon className="w-7 h-7 text-cyan2-300 mb-1" />
+        <CondIcon className="w-7 h-7 text-cyan2-400 mb-1 animate-float" />
         {temp != null ? (
           <div className="flex items-start leading-none">
             <span className="text-6xl font-light tracking-tighter text-white">{temp.toFixed(0)}</span>
@@ -67,7 +67,7 @@ function TempGauge({ temp, feels, condition, CondIcon }) {
         ) : (
           <span className="text-3xl font-light text-white/60">– °</span>
         )}
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-night-200/70 mt-1">{condition}</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-night-200/80 mt-1">{condition}</p>
         {feels != null && (
           <p className="text-[11px] font-semibold text-night-200/55 mt-0.5">Hőérzet {feels.toFixed(0)}°</p>
         )}
@@ -96,6 +96,27 @@ export default function WeatherDashboard() {
       };
     }
     return out;
+  }, [historySeries]);
+
+  const recentHourly = useMemo(() => {
+    const tSeries = historySeries['T'];
+    if (!tSeries || !tSeries.ts || tSeries.ts.length === 0) return [];
+    
+    const points = [];
+    const step = Math.max(1, Math.floor(tSeries.ts.length / 5));
+    const startIndex = Math.max(0, tSeries.ts.length - 5 * step);
+    
+    for (let i = startIndex; i < tSeries.ts.length; i += step) {
+      const ts = tSeries.ts[i];
+      const val = tSeries.data[i];
+      if (val != null) {
+        points.push({
+          time: new Date(ts * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Budapest' }),
+          temp: val
+        });
+      }
+    }
+    return points;
   }, [historySeries]);
 
   const [activeKey, setActiveKey] = useState(null);
@@ -220,6 +241,34 @@ export default function WeatherDashboard() {
             <p className="relative text-center text-[11px] font-semibold text-night-200/55 mt-3">
               Szélirány: <span className="text-cyan2-200 font-bold">{ddToText(windDir)} ({windDir.toFixed(0)}°)</span>
             </p>
+          )}
+
+          {recentHourly.length > 0 && (
+            <div className="relative mt-7 pt-5 border-t border-white/5">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-night-200/40 mb-4 text-center">Nemrég mért hőmérséklet</p>
+              <div className="flex overflow-x-auto gap-3.5 pb-2 justify-center scrollbar-none">
+                {recentHourly.map((pt, idx) => {
+                  const isLatest = idx === recentHourly.length - 1;
+                  const IconComponent = weather.CondIcon;
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`flex flex-col items-center justify-between py-4 px-3.5 rounded-full w-[64px] h-[110px] transition-all border ${
+                        isLatest 
+                          ? 'bg-brand-gradient border-cyan2-400 text-white shadow-glow' 
+                          : 'bg-white/[0.03] border-white/5 text-night-100 hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      <span className="text-[9px] font-bold text-night-200/40 uppercase">{pt.time}</span>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isLatest ? 'bg-white/20' : 'bg-white/10'}`}>
+                        <IconComponent className={`w-4 h-4 ${isLatest ? 'text-white' : 'text-cyan2-300'}`} />
+                      </div>
+                      <span className="text-xs font-black">{pt.temp.toFixed(0)}°</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       </FadeUp>

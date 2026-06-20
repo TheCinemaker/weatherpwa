@@ -11,32 +11,32 @@ export default {
         sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        // Olajzöld + zsálya/eukaliptusz akcentek (magas kontraszt)
-        teal2:   { 300: '#A7C0A8', 400: '#8AA892', 500: '#5E7A66', 600: '#43574A' },
-        cyan2:   { 200: '#C2CBB8', 300: '#A2B29F', 400: '#8FA088', 500: '#7E9580', 600: '#6B8270' },
-        sky2:    { 300: '#B3C2A6', 400: '#9DB7A6', 500: '#73876A', 600: '#566E63' },
-        indigo2: { 300: '#9DB7A6', 400: '#6E8B7B', 500: '#4F6B5C' },
-        emerald2:{ 300: '#A7C0A8', 400: '#8AA892', 500: '#5E7A66' },
-        // Olajzöld háttér + törtfehér/kavics-szürke szövegek
-        night:   { 50: '#fdfdfb', 100: '#EDEAE0', 200: '#D0C9BC', 300: '#A2B29F', 700: '#2A332A', 800: '#222A20', 900: '#141811' },
-        canvas:  '#1E251C',
-        cream:   '#F9F9F6',
-        sage:    '#A2B29F',
-        pebble:  '#D0C9BC',
+        // True vibrant teals and cyans for dark-sky glassmorphism
+        teal2:   { 300: '#5eead4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' },
+        cyan2:   { 200: '#a5f3fc', 300: '#67e8f9', 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' },
+        sky2:    { 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
+        indigo2: { 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1' },
+        emerald2:{ 300: '#6ee7b7', 400: '#34d399', 500: '#10b981' },
+        // Deep dark slate-cyan tones
+        night:   { 50: '#f8fafc', 100: '#e2e8f0', 200: '#94a3b8', 300: '#64748b', 700: '#0f172a', 800: '#070c14', 900: '#020408' },
+        canvas:  '#050d10',
+        cream:   '#ffffff',
+        sage:    '#06b6d4',
+        pebble:  '#94a3b8',
       },
       boxShadow: {
-        glow: '0 16px 40px -14px rgba(110, 139, 123, 0.5)',
-        'glow-pink': '0 16px 40px -14px rgba(94, 122, 102, 0.5)',
-        soft: '0 18px 50px -18px rgba(0, 0, 0, 0.75)',
-        card: '0 12px 36px -14px rgba(0, 0, 0, 0.6)',
+        glow: '0 16px 40px -14px rgba(6, 182, 212, 0.45)',
+        'glow-pink': '0 16px 40px -14px rgba(20, 184, 166, 0.45)',
+        soft: '0 18px 50px -18px rgba(0, 0, 0, 0.95)',
+        card: '0 12px 36px -14px rgba(0, 0, 0, 0.8)',
       },
       borderRadius: {
         '4xl': '2rem',
         '5xl': '2.75rem',
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #8AA892 0%, #6E8B7B 50%, #4F6B5C 100%)',
-        'brand-gradient-soft': 'linear-gradient(135deg, rgba(162,178,159,0.16) 0%, rgba(110,139,123,0.16) 50%, rgba(79,107,92,0.16) 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #06b6d4 0%, #14b8a6 50%, #0891b2 100%)',
+        'brand-gradient-soft': 'linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(20,184,166,0.1) 50%, rgba(8,145,178,0.1) 100%)',
       },
       keyframes: {
         blob: {

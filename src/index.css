@@ -8,16 +8,16 @@
   html { scroll-behavior: smooth; }
   body {
     @apply font-sans antialiased text-night-100;
-    background: #1E251C;
+    background: #050d10;
   }
   ::selection {
-    background: rgba(162, 178, 159, 0.45);
-    color: #1E251C;
+    background: rgba(6, 182, 212, 0.45);
+    color: #050d10;
   }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb {
     @apply rounded-full;
-    background: linear-gradient(180deg, #A2B29F, #6E8B7B);
+    background: linear-gradient(180deg, #06b6d4, #0891b2);
   }
   ::-webkit-scrollbar-track { background: transparent; }
 }
@@ -48,14 +48,14 @@
     @apply bg-clip-text text-transparent bg-brand-gradient;
   }
 
-  /* Meleg, áttetsző kártya az olajzöld háttér felett */
+  /* Breathtaking Dark Cyan Glassmorphic Card */
   .glass-card {
-    @apply bg-[#F4F2EA]/[0.06] backdrop-blur-2xl border border-[#F4F2EA]/10 shadow-soft;
+    @apply bg-[#0e2429]/[0.45] backdrop-blur-2xl border border-[#1b3e46]/45 shadow-soft;
   }
 
-  /* Elsődleges gomb — törtfehér, sötét olajzöld szöveggel (magas kontraszt) */
+  /* Elsődleges gomb — törtfehér, sötét háttérrel */
   .btn-grad {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-cream text-canvas font-bold shadow-soft transition-all hover:bg-white hover:scale-[1.03] active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-gradient text-white font-bold shadow-glow transition-all hover:brightness-110 hover:scale-[1.03] active:scale-95;
   }
 
   /* Szintjelző csík (Air Quality / Wind stílus) */

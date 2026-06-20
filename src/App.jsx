@@ -50,11 +50,11 @@ function AppContent() {
     <div className="relative min-h-screen text-night-100 font-sans overflow-x-hidden">
 
       {/* --- NIGHT-SKY BACKGROUND --- */}
-      <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: 'linear-gradient(165deg, #2A332A 0%, #1E251C 48%, #141811 100%)' }}>
+      <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: 'linear-gradient(165deg, #0A2227 0%, #061216 48%, #030608 100%)' }}>
         <div className="absolute inset-0 starfield opacity-20" />
-        <div className="blob w-[45rem] h-[45rem] -top-40 -left-40 bg-teal2-500 animate-blob" />
-        <div className="blob w-[40rem] h-[40rem] top-1/3 -right-40 bg-cyan2-500 animate-blob" style={{ animationDelay: '3s' }} />
-        <div className="blob w-[34rem] h-[34rem] bottom-0 left-1/4 bg-emerald2-500 animate-blob" style={{ animationDelay: '6s' }} />
+        <div className="blob w-[45rem] h-[45rem] -top-40 -left-40 bg-teal2-500/25 animate-blob" />
+        <div className="blob w-[40rem] h-[40rem] top-1/3 -right-40 bg-cyan2-500/25 animate-blob" style={{ animationDelay: '3s' }} />
+        <div className="blob w-[34rem] h-[34rem] bottom-0 left-1/4 bg-indigo2-500/20 animate-blob" style={{ animationDelay: '6s' }} />
       </div>
 
       {/* --- DESKTOP SIDEBAR RAIL --- */}
