@@ -274,11 +274,11 @@ export async function getSponsors() {
   }
 }
 
-export async function saveSponsor({ id, name, logo_url, description, website_url, expires_at, active = true }) {
+export async function saveSponsor({ id, name, logo_url, description, website_url, flyer_url = null, contact = null, expires_at, active = true }) {
   if (!supabase) {
     throw new Error('Supabase nincs konfigurálva.');
   }
-  const payload = { name, logo_url, description, website_url, expires_at, active };
+  const payload = { name, logo_url, description, website_url, flyer_url, contact, expires_at, active };
   if (id) payload.id = id;
 
   const { data, error } = await supabase

@@ -45,6 +45,32 @@ export default function Sponsors() {
   const [savingSponsor, setSavingSponsor] = useState(false);
   const [formError, setFormError] = useState('');
 
+  // Hirdetés-részletek modál + új mezők (flyer/plakát, elérhetőség)
+  const [selectedAd, setSelectedAd] = useState(null);
+  const [sponsorContact, setSponsorContact] = useState('');
+  const [flyerFile, setFlyerFile] = useState(null);
+  const [flyerPreview, setFlyerPreview] = useState(null);
+
+  // A beégetett saját hirdetés (SA software) – ugyanakkora kártya, mint a többi.
+  const DEVELOPER_AD = {
+    id: 'sa-software',
+    isDeveloper: true,
+    name: 'SA software',
+    subtitle: '& Network Solutions',
+    logo_url: '/sasoftware.png',
+    description: 'Egyedi szoftverfejlesztés, felhő-infrastruktúrák tervezése és prémium IT hálózati megoldások az Ön vállalkozására szabva. Ez az időjárás-alkalmazás is a mi munkánk.',
+    website_url: null,
+    contact: developerEmail,
+    services: [
+      { title: 'Web & Mobilappok', desc: 'Gyors, modern és reszponzív rendszerek (mint ez az app).' },
+      { title: 'Felhő & Adatbázis', desc: 'Biztonságos Supabase és PostgreSQL integrációk.' },
+      { title: 'IT Hálózatok', desc: 'VPN kiépítés, távoli elérés és rendszerfelügyelet.' }
+    ]
+  };
+
+  // Minden hirdetés egy listában, egységes méretben: elöl a saját, utána a fizetős hirdetők.
+  const allAds = [DEVELOPER_AD, ...sponsors];
+
   const fetchSponsorsList = async () => {
     setLoading(true);
     const data = await getSponsors();
@@ -64,9 +90,16 @@ export default function Sponsors() {
     setLogoPreview(URL.createObjectURL(file));
   };
 
+  const handleFlyerChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFlyerFile(file);
+    setFlyerPreview(URL.createObjectURL(file));
+  };
+
   const handleAddOrUpdateSponsor = async () => {
-    if (!sponsorName.trim() || !sponsorUrl.trim()) {
-      setFormError('A név és a weboldal megadása kötelező!');
+    if (!sponsorName.trim()) {
+      setFormError('A név megadása kötelező!');
       return;
     }
     if (!selectedFile && !editingSponsor?.logo_url) {
@@ -78,10 +111,17 @@ export default function Sponsors() {
     setFormError('');
     try {
       let finalLogoUrl = editingSponsor?.logo_url || '';
-      
+
       if (selectedFile) {
         const compressed = await compressLogo(selectedFile);
         finalLogoUrl = await uploadSponsorLogo(compressed);
+      }
+
+      // Flyer/plakát (nagyobb felbontás a részletes nézethez)
+      let finalFlyerUrl = flyerPreview; // megtartott meglévő URL vagy null ha eltávolítva
+      if (flyerFile) {
+        const compressedFlyer = await compressLogo(flyerFile, 1200);
+        finalFlyerUrl = await uploadSponsorLogo(compressedFlyer);
       }
 
       // Calculate expiration date
@@ -99,7 +139,9 @@ export default function Sponsors() {
         name: sponsorName.trim(),
         logo_url: finalLogoUrl,
         description: sponsorDesc.trim() || null,
-        website_url: sponsorUrl.trim(),
+        website_url: sponsorUrl.trim() || null,
+        flyer_url: finalFlyerUrl || null,
+        contact: sponsorContact.trim() || null,
         expires_at: expiresAt,
         active: true
       });
@@ -108,10 +150,13 @@ export default function Sponsors() {
       setSponsorName('');
       setSponsorDesc('');
       setSponsorUrl('');
+      setSponsorContact('');
       setSelectedFile(null);
       setLogoPreview(null);
+      setFlyerFile(null);
+      setFlyerPreview(null);
       setEditingSponsor(null);
-      
+
       await fetchSponsorsList();
     } catch (err) {
       console.error(err);
@@ -137,7 +182,10 @@ export default function Sponsors() {
     setSponsorName(sponsor.name);
     setSponsorDesc(sponsor.description || '');
     setSponsorUrl(sponsor.website_url || '');
+    setSponsorContact(sponsor.contact || '');
     setLogoPreview(sponsor.logo_url);
+    setFlyerFile(null);
+    setFlyerPreview(sponsor.flyer_url || null);
     setFormError('');
   };
 
@@ -149,139 +197,164 @@ export default function Sponsors() {
           <div>
             <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
               <Heart className="w-6 h-6 text-cyan2-300" />
-              <span>Kiemelt <span className="text-gradient">Támogatóink</span></span>
+              <span>Kőszegi <span className="text-gradient">Hirdetések</span></span>
             </h1>
             <p className="text-xs text-night-200/55 font-semibold mt-0.5">
-              Helyi vállalkozások, amelyek támogatják az időjárás állomás működését
+              Helyi vállalkozások és partnerek · kattints egy hirdetésre a részletekért
             </p>
           </div>
         </div>
       </FadeUp>
 
-      {/* Fő Fejlesztő/Támogató Kártya (SA software) */}
+      {/* --- HIRDETÉS-RÁCS (minden kártya egységes méretű) --- */}
       <FadeUp delay={0.05}>
-        <div className="relative overflow-hidden rounded-[2rem] glass-card p-6 sm:p-8 text-center border border-cyan2-500/20 shadow-glow bg-[#0a1e22]/60">
-          <div className="absolute -top-16 -left-10 w-56 h-56 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-16 -right-10 w-56 h-56 rounded-full bg-teal2-500/10 blur-3xl pointer-events-none" />
-
-          {/* SA software logó */}
-          <div className="relative w-20 h-20 mx-auto mb-5 select-none">
-            <div className="w-20 h-20 rounded-3xl bg-night-900 border-2 border-cyan2-400/40 flex items-center justify-center shadow-lg relative z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#saLogoGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <defs>
-                  <linearGradient id="saLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#06b6d4" />
-                    <stop offset="100%" stopColor="#2dd4bf" />
-                  </linearGradient>
-                </defs>
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-          </div>
-
-          <h2 className="text-xl font-extrabold text-white tracking-tight">SA software</h2>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cyan2-300 mt-1">
-            & Network Solutions
-          </p>
-
-          <p className="text-xs text-night-200/80 leading-relaxed max-w-md mx-auto mt-4 font-medium">
-            Egyedi szoftverfejlesztés, felhő-infrastruktúrák tervezése és prémium IT hálózati megoldások az Ön vállalkozására szabva.
-          </p>
-
-          {/* Szolgáltatások */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 text-left">
-            {[
-              { icon: Globe, title: 'Web & Mobilappok', desc: 'Gyors, modern és reszponzív rendszerek (mint ez az időjárás app).' },
-              { icon: Shield, title: 'Felhő & Adatbázis', desc: 'Biztonságos Supabase és PostgreSQL alapú adatbázis integrációk.' },
-              { icon: Calendar, title: 'IT Hálózatok', desc: 'VPN kiépítés, távoli elérés és folyamatos rendszerfelügyelet.' }
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1.5">
-                <Icon className="w-5 h-5 text-cyan2-300" />
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">{title}</h4>
-                <p className="text-[10px] text-night-200/60 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Kapcsolat */}
-          <div className="mt-6 flex flex-col items-center justify-center gap-2">
-            <a
-              href={`mailto:${developerEmail}?subject=Ajánlatkérés - SA software`}
-              className="btn-grad px-6 py-3 text-xs w-full sm:w-auto"
-            >
-              <Mail className="w-4 h-4" />
-              <span>Írjon nekünk e-mailt</span>
-            </a>
-            <span className="text-[10px] font-bold text-night-200/40">{developerEmail}</span>
-          </div>
-        </div>
-      </FadeUp>
-
-      {/* --- ACTIVE SPONSORS LIST --- */}
-      <FadeUp delay={0.1}>
-        <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-cyan2-200/80 mt-8 mb-4 flex items-center gap-3">
-          <span>Partnereink & Hirdetőink</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="h-32 rounded-[2rem] bg-white/[0.04] animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-44 rounded-[1.75rem] bg-white/[0.04] animate-pulse" />
             ))}
-          </div>
-        ) : sponsors.length === 0 ? (
-          /* Empty State / Promote ad space */
-          <div className="rounded-[2rem] glass-card p-6 text-center space-y-4">
-            <h3 className="text-base font-extrabold text-white">Szeretnéd itt látni a vállalkozásodat?</h3>
-            <p className="text-xs text-night-200/70 max-w-md mx-auto leading-relaxed">
-              Az alkalmazás Kőszeg lakói és a környékre látogató turisták körében is népszerű. Támogasd a fenntartást, és jelenítsd meg hirdetésedet az oldalon!
-            </p>
-            <a
-              href={`mailto:${developerEmail}?subject=Hirdetési lehetőség - Kőszeg Weather`}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all active:scale-95"
-            >
-              <Mail className="w-4 h-4" /><span>Hirdetési részletek</span>
-            </a>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {sponsors.map((sp) => (
-              <div key={sp.id} className="glass-card rounded-[2rem] p-5 flex items-start gap-4 hover:border-cyan2-400/30 transition-all duration-300 relative overflow-hidden group">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+            {allAds.map((ad) => (
+              <button
+                key={ad.id}
+                onClick={() => setSelectedAd(ad)}
+                className={`glass-card rounded-[1.75rem] p-5 text-left flex flex-col h-full transition-all duration-300 relative overflow-hidden group active:scale-[0.99] ${ad.isDeveloper ? 'border-cyan2-500/30 shadow-glow' : 'hover:border-cyan2-400/30'}`}
+              >
                 <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan2-500/5 blur-xl pointer-events-none" />
-                
-                {/* Logo */}
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                  <img src={sp.logo_url} alt={sp.name} className="w-full h-full object-cover" />
-                </div>
-
-                {/* Details */}
-                <div className="space-y-1.5 flex-1 min-w-0">
-                  <h4 className="text-sm font-extrabold text-white truncate">{sp.name}</h4>
-                  {sp.description && (
-                    <p className="text-[11px] text-night-200/60 leading-relaxed line-clamp-2">{sp.description}</p>
-                  )}
-                  <div className="flex items-center justify-between pt-2">
-                    <a
-                      href={sp.website_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[10px] font-bold text-cyan2-300 hover:text-white transition-colors"
-                    >
-                      <Globe className="w-3.5 h-3.5" />
-                      <span>Weboldal megnyitása</span>
-                    </a>
-                    
-                    <span className="text-[8px] font-bold text-night-200/40 uppercase tracking-wider">
-                      Aktív
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                    <img src={ad.logo_url} alt={ad.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-extrabold text-white truncate">{ad.name}</h4>
+                    <span className={`text-[8px] font-extrabold uppercase tracking-widest ${ad.isDeveloper ? 'text-cyan2-300' : 'text-night-200/45'}`}>
+                      {ad.isDeveloper ? 'Fejlesztő · Kiemelt' : 'Hirdetés'}
                     </span>
                   </div>
                 </div>
-              </div>
+                <p className="text-[11px] text-night-200/65 leading-relaxed line-clamp-3 mt-3 flex-1 relative z-10">
+                  {ad.description}
+                </p>
+                <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-bold text-cyan2-300 group-hover:text-white transition-colors relative z-10">
+                  Részletek megtekintése →
+                </span>
+              </button>
             ))}
           </div>
         )}
       </FadeUp>
+
+      {/* --- HIRDETÉSI CTA (fizetős felület) --- */}
+      <FadeUp delay={0.1}>
+        <div className="relative overflow-hidden rounded-[2rem] glass-card p-6 sm:p-8 text-center border border-cyan2-500/20 bg-[#0a1e22]/60 mt-2">
+          <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
+          <h3 className="text-lg font-extrabold text-white">Hirdess a Kőszegi Időjárásban!</h3>
+          <p className="text-xs text-night-200/70 max-w-md mx-auto leading-relaxed mt-2">
+            Az alkalmazást Kőszeg lakói és a környékre látogató turisták ezrei használják nap mint nap. Jelenítsd meg vállalkozásodat saját hirdetési felületen – plakáttal, leírással és elérhetőséggel.
+          </p>
+          <a
+            href={`mailto:${developerEmail}?subject=Hirdetési lehetőség - Kőszegi Időjárás`}
+            className="btn-grad px-6 py-3 text-xs mt-5 inline-flex"
+          >
+            <Mail className="w-4 h-4" />
+            <span>Hirdetési ajánlatkérés</span>
+          </a>
+          <p className="text-[10px] font-bold text-night-200/45 mt-2">{developerEmail}</p>
+        </div>
+      </FadeUp>
+
+      {/* --- HIRDETÉS RÉSZLETES MODÁL --- */}
+      <AnimatePresence>
+        {selectedAd && (
+          <div className="fixed inset-0 z-[350] flex items-end sm:items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }} transition={{ duration: 0.18 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              onClick={() => setSelectedAd(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
+              transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
+              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedAd(null)}
+                aria-label="Bezárás"
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-rose-500 border border-white/20 text-white flex items-center justify-center transition-all active:scale-90"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Flyer / plakát (ha van), különben a logó nagyban */}
+              {selectedAd.flyer_url ? (
+                <div className="w-full bg-black/30 flex items-center justify-center rounded-t-[2rem] overflow-hidden">
+                  <img src={selectedAd.flyer_url} alt={selectedAd.name} className="w-full h-auto max-h-[55vh] object-contain" />
+                </div>
+              ) : (
+                <div className="pt-8 flex justify-center">
+                  <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+                    <img src={selectedAd.logo_url} alt={selectedAd.name} className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
+
+              <div className="p-6 space-y-4">
+                <div className="text-center">
+                  <h3 className="text-xl font-extrabold text-white tracking-tight">{selectedAd.name}</h3>
+                  {selectedAd.subtitle && (
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cyan2-300 mt-1">{selectedAd.subtitle}</p>
+                  )}
+                </div>
+
+                {selectedAd.description && (
+                  <p className="text-sm text-night-100/85 leading-relaxed text-center whitespace-pre-wrap">{selectedAd.description}</p>
+                )}
+
+                {/* Fejlesztő szolgáltatások */}
+                {selectedAd.isDeveloper && selectedAd.services && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                    {selectedAd.services.map((s) => (
+                      <div key={s.title} className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                        <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">{s.title}</h4>
+                        <p className="text-[10px] text-night-200/60 leading-relaxed">{s.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Elérhetőség + weboldal */}
+                <div className="flex flex-col gap-2 pt-1">
+                  {selectedAd.contact && (
+                    <a
+                      href={selectedAd.contact.includes('@') ? `mailto:${selectedAd.contact}` : `tel:${selectedAd.contact.replace(/\s/g, '')}`}
+                      className="btn-grad w-full py-3 text-xs"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>{selectedAd.contact}</span>
+                    </a>
+                  )}
+                  {selectedAd.website_url && (
+                    <a
+                      href={selectedAd.website_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all active:scale-95"
+                    >
+                      <Globe className="w-4 h-4" /><span>Weboldal megnyitása</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* --- SPONSOR ADMIN MODAL --- */}
       <AnimatePresence>
@@ -344,12 +417,26 @@ export default function Sponsors() {
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1 block">Rövid leírás</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest block">Hirdetés szövege</label>
+                    <span className="text-[9px] font-bold text-night-200/40">{sponsorDesc.length}/1000</span>
+                  </div>
+                  <textarea
+                    rows={5}
+                    value={sponsorDesc}
+                    onChange={e => setSponsorDesc(e.target.value.slice(0, 1000))}
+                    placeholder="Pl.: Minőségi műanyag nyílászárók beépítése Kőszegen. Ingyenes helyszíni felmérés, akár 10 év garancia..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1 block">Elérhetőség (e-mail vagy telefon)</label>
                   <input
                     type="text"
-                    value={sponsorDesc}
-                    onChange={e => setSponsorDesc(e.target.value.slice(0, 100))}
-                    placeholder="Pl.: Minőségi műanyag nyílászárók beépítése Kőszegen..."
+                    value={sponsorContact}
+                    onChange={e => setSponsorContact(e.target.value.slice(0, 60))}
+                    placeholder="Pl.: info@kuszala.hu vagy +36 30 123 4567"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
                   />
                 </div>
@@ -392,6 +479,30 @@ export default function Sponsors() {
                   </div>
                 </div>
 
+                {/* Flyer / plakát feltöltése (a részletes modálban nagyban jelenik meg) */}
+                <div>
+                  <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1 block">Plakát / flyer (opcionális, nagy kép a részletekhez)</label>
+                  {flyerPreview ? (
+                    <div className="relative w-full h-28 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                      <img src={flyerPreview} alt="Flyer előnézet" className="h-full object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => { setFlyerFile(null); setFlyerPreview(null); }}
+                        className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow-md"
+                        title="Plakát eltávolítása"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="w-full flex items-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] text-night-200/60 hover:text-white cursor-pointer justify-center text-xs font-semibold transition-colors">
+                      <ImageIcon className="w-4 h-4 text-cyan2-300" />
+                      <span>Plakát feltöltése</span>
+                      <input type="file" accept="image/*" onChange={handleFlyerChange} className="hidden" />
+                    </label>
+                  )}
+                </div>
+
                 {formError && <p className="text-rose-300 text-[10px] font-extrabold text-center">{formError}</p>}
 
                 <div className="flex gap-2 pt-2">
@@ -409,8 +520,11 @@ export default function Sponsors() {
                         setSponsorName('');
                         setSponsorDesc('');
                         setSponsorUrl('');
+                        setSponsorContact('');
                         setSelectedFile(null);
                         setLogoPreview(null);
+                        setFlyerFile(null);
+                        setFlyerPreview(null);
                       }}
                       className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold"
                     >

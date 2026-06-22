@@ -408,6 +408,14 @@ function AppContent() {
           <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
+          <a
+            href="https://visitkoszeg.hu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[9px] font-extrabold uppercase tracking-[0.18em] text-cyan2-200/80 hover:text-white hover:border-cyan2-400/30 transition-all"
+          >
+            Sponsored by VISITKOSZEG.HU
+          </a>
         </div>
       </footer>
     </div>

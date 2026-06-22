@@ -160,7 +160,7 @@ export default function About() {
             Kövesd a közösségi oldalamat a legfrissebb helyi előrejelzésekért és viharjelentésekért!
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a href="https://www.facebook.com/search/top?q=k%C5%91szegi%20id%C5%91j%C3%A1r%C3%A1s%20el%C5%91rejelz%C3%A9s"
+            <a href="https://www.facebook.com/idojaraskoszeg.hu"
               target="_blank" rel="noopener noreferrer" className="btn-grad px-6 py-3 text-xs w-full sm:w-auto">
               <span>Facebook Oldalam</span><ExternalLink className="w-4 h-4" />
             </a>
