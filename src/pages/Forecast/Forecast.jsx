@@ -51,15 +51,21 @@ export default function Forecast() {
     card1_icon: 'sun',
     card1_desc: 'Napos',
     card1_temp_min: 15,
+    card1_temp_min_2: null,
     card1_temp_max: 25,
+    card1_temp_max_2: null,
     card2_icon: 'cloud-sun',
     card2_desc: 'Változóan felhős',
     card2_temp_min: 16,
+    card2_temp_min_2: null,
     card2_temp_max: 26,
+    card2_temp_max_2: null,
     card3_icon: 'cloud-rain',
     card3_desc: 'Záporok',
     card3_temp_min: 14,
+    card3_temp_min_2: null,
     card3_temp_max: 22,
+    card3_temp_max_2: null,
     announcement_text: '',
     announcement_active: false,
     updated_at: new Date().toISOString()
@@ -87,17 +93,23 @@ export default function Forecast() {
   const [adminCard1Icon, setAdminCard1Icon] = useState('sun');
   const [adminCard1Desc, setAdminCard1Desc] = useState('');
   const [adminCard1TempMin, setAdminCard1TempMin] = useState(15);
+  const [adminCard1TempMin2, setAdminCard1TempMin2] = useState('');
   const [adminCard1TempMax, setAdminCard1TempMax] = useState(25);
+  const [adminCard1TempMax2, setAdminCard1TempMax2] = useState('');
 
   const [adminCard2Icon, setAdminCard2Icon] = useState('cloud-sun');
   const [adminCard2Desc, setAdminCard2Desc] = useState('');
   const [adminCard2TempMin, setAdminCard2TempMin] = useState(16);
+  const [adminCard2TempMin2, setAdminCard2TempMin2] = useState('');
   const [adminCard2TempMax, setAdminCard2TempMax] = useState(26);
+  const [adminCard2TempMax2, setAdminCard2TempMax2] = useState('');
 
   const [adminCard3Icon, setAdminCard3Icon] = useState('cloud-rain');
   const [adminCard3Desc, setAdminCard3Desc] = useState('');
   const [adminCard3TempMin, setAdminCard3TempMin] = useState(14);
+  const [adminCard3TempMin2, setAdminCard3TempMin2] = useState('');
   const [adminCard3TempMax, setAdminCard3TempMax] = useState(22);
+  const [adminCard3TempMax2, setAdminCard3TempMax2] = useState('');
   
   const [adminAnnText, setAdminAnnText] = useState('');
   const [adminAnnActive, setAdminAnnActive] = useState(false);
@@ -130,19 +142,25 @@ export default function Forecast() {
       setAdminCard1Icon(data.card1_icon || 'sun');
       setAdminCard1Desc(data.card1_desc || 'Napos');
       setAdminCard1TempMin(data.card1_temp_min ?? 15);
+      setAdminCard1TempMin2(data.card1_temp_min_2 != null ? String(data.card1_temp_min_2) : '');
       setAdminCard1TempMax(data.card1_temp_max ?? 25);
+      setAdminCard1TempMax2(data.card1_temp_max_2 != null ? String(data.card1_temp_max_2) : '');
 
       // Card 2
       setAdminCard2Icon(data.card2_icon || 'cloud-sun');
       setAdminCard2Desc(data.card2_desc || 'Változóan felhős');
       setAdminCard2TempMin(data.card2_temp_min ?? 16);
+      setAdminCard2TempMin2(data.card2_temp_min_2 != null ? String(data.card2_temp_min_2) : '');
       setAdminCard2TempMax(data.card2_temp_max ?? 26);
+      setAdminCard2TempMax2(data.card2_temp_max_2 != null ? String(data.card2_temp_max_2) : '');
 
       // Card 3
       setAdminCard3Icon(data.card3_icon || 'cloud-rain');
       setAdminCard3Desc(data.card3_desc || 'Záporok');
       setAdminCard3TempMin(data.card3_temp_min ?? 14);
+      setAdminCard3TempMin2(data.card3_temp_min_2 != null ? String(data.card3_temp_min_2) : '');
       setAdminCard3TempMax(data.card3_temp_max ?? 22);
+      setAdminCard3TempMax2(data.card3_temp_max_2 != null ? String(data.card3_temp_max_2) : '');
 
       setAdminAnnText(data.announcement_text || '');
       setAdminAnnActive(data.announcement_active || false);
@@ -202,6 +220,8 @@ export default function Forecast() {
         finalImageUrl3day = '';
       }
 
+      const parseOptional = (v) => { const n = parseFloat(v); return (v === '' || v == null || isNaN(n)) ? null : n; };
+
       const data = await saveForecast({
         title: adminTitle.trim(),
         content: adminContent.trim(),
@@ -213,17 +233,23 @@ export default function Forecast() {
         card1_icon: adminCard1Icon,
         card1_desc: adminCard1Desc.trim(),
         card1_temp_min: parseFloat(adminCard1TempMin),
+        card1_temp_min_2: parseOptional(adminCard1TempMin2),
         card1_temp_max: parseFloat(adminCard1TempMax),
+        card1_temp_max_2: parseOptional(adminCard1TempMax2),
         
         card2_icon: adminCard2Icon,
         card2_desc: adminCard2Desc.trim(),
         card2_temp_min: parseFloat(adminCard2TempMin),
+        card2_temp_min_2: parseOptional(adminCard2TempMin2),
         card2_temp_max: parseFloat(adminCard2TempMax),
+        card2_temp_max_2: parseOptional(adminCard2TempMax2),
         
         card3_icon: adminCard3Icon,
         card3_desc: adminCard3Desc.trim(),
         card3_temp_min: parseFloat(adminCard3TempMin),
+        card3_temp_min_2: parseOptional(adminCard3TempMin2),
         card3_temp_max: parseFloat(adminCard3TempMax),
+        card3_temp_max_2: parseOptional(adminCard3TempMax2),
         
         announcement_text: adminAnnText.trim(),
         announcement_active: adminAnnActive
@@ -355,12 +381,20 @@ export default function Forecast() {
                     <div className="flex gap-3 text-xs border-t border-white/5 pt-2 w-full justify-center">
                       <div className="text-center">
                         <span className="text-[10px] text-night-200/60 uppercase tracking-wider block">Min</span>
-                        <span className="text-sky2-300 font-extrabold">{Math.round(forecastData.card1_temp_min)}°C</span>
+                        <span className="text-sky2-300 font-extrabold">
+                          {Math.round(forecastData.card1_temp_min)}
+                          {forecastData.card1_temp_min_2 != null && `–${Math.round(forecastData.card1_temp_min_2)}`}
+                          °C
+                        </span>
                       </div>
                       <div className="w-px h-6 bg-white/10" />
                       <div className="text-center">
                         <span className="text-[10px] text-night-200/60 uppercase tracking-wider block">Max</span>
-                        <span className="text-rose-300 font-extrabold">{Math.round(forecastData.card1_temp_max)}°C</span>
+                        <span className="text-rose-300 font-extrabold">
+                          {Math.round(forecastData.card1_temp_max)}
+                          {forecastData.card1_temp_max_2 != null && `–${Math.round(forecastData.card1_temp_max_2)}`}
+                          °C
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -380,12 +414,20 @@ export default function Forecast() {
                     <div className="flex gap-3 text-xs border-t border-white/5 pt-2 w-full justify-center">
                       <div className="text-center">
                         <span className="text-[10px] text-night-200/60 uppercase tracking-wider block">Min</span>
-                        <span className="text-sky2-300 font-extrabold">{Math.round(forecastData.card2_temp_min)}°C</span>
+                        <span className="text-sky2-300 font-extrabold">
+                          {Math.round(forecastData.card2_temp_min)}
+                          {forecastData.card2_temp_min_2 != null && `–${Math.round(forecastData.card2_temp_min_2)}`}
+                          °C
+                        </span>
                       </div>
                       <div className="w-px h-6 bg-white/10" />
                       <div className="text-center">
                         <span className="text-[10px] text-night-200/60 uppercase tracking-wider block">Max</span>
-                        <span className="text-rose-300 font-extrabold">{Math.round(forecastData.card2_temp_max)}°C</span>
+                        <span className="text-rose-300 font-extrabold">
+                          {Math.round(forecastData.card2_temp_max)}
+                          {forecastData.card2_temp_max_2 != null && `–${Math.round(forecastData.card2_temp_max_2)}`}
+                          °C
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -405,12 +447,20 @@ export default function Forecast() {
                     <div className="flex gap-3 text-xs border-t border-white/5 pt-2 w-full justify-center">
                       <div className="text-center">
                         <span className="text-[10px] text-night-200/60 uppercase tracking-wider block">Min</span>
-                        <span className="text-sky2-300 font-extrabold">{Math.round(forecastData.card3_temp_min)}°C</span>
+                        <span className="text-sky2-300 font-extrabold">
+                          {Math.round(forecastData.card3_temp_min)}
+                          {forecastData.card3_temp_min_2 != null && `–${Math.round(forecastData.card3_temp_min_2)}`}
+                          °C
+                        </span>
                       </div>
                       <div className="w-px h-6 bg-white/10" />
                       <div className="text-center">
                         <span className="text-[10px] text-night-200/60 uppercase tracking-wider block">Max</span>
-                        <span className="text-rose-300 font-extrabold">{Math.round(forecastData.card3_temp_max)}°C</span>
+                        <span className="text-rose-300 font-extrabold">
+                          {Math.round(forecastData.card3_temp_max)}
+                          {forecastData.card3_temp_max_2 != null && `–${Math.round(forecastData.card3_temp_max_2)}`}
+                          °C
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -517,11 +567,11 @@ export default function Forecast() {
                   <div>
                     <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Részletek</label>
                     <textarea
-                      rows={3}
+                      rows={10}
                       value={adminContent}
                       onChange={e => setAdminContent(e.target.value)}
                       placeholder="Elemzés szövege..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
                     />
                   </div>
 
@@ -577,11 +627,11 @@ export default function Forecast() {
                   <div>
                     <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Részletek</label>
                     <textarea
-                      rows={3}
+                      rows={10}
                       value={adminContent3day}
                       onChange={e => setAdminContent3day(e.target.value)}
                       placeholder="3 napos elemzés szövege..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
                     />
                   </div>
 
@@ -652,24 +702,46 @@ export default function Forecast() {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
                       <div>
-                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm (°C)</label>
-                        <input
-                          type="number"
-                          value={adminCard1TempMin}
-                          onChange={e => setAdminCard1TempMin(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
-                        />
+                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={adminCard1TempMin}
+                            onChange={e => setAdminCard1TempMin(e.target.value)}
+                            placeholder="tól"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                          />
+                          <span className="text-white/40 text-xs font-bold">–</span>
+                          <input
+                            type="number"
+                            value={adminCard1TempMin2}
+                            onChange={e => setAdminCard1TempMin2(e.target.value)}
+                            placeholder="ig"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm (°C)</label>
-                        <input
-                          type="number"
-                          value={adminCard1TempMax}
-                          onChange={e => setAdminCard1TempMax(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
-                        />
+                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={adminCard1TempMax}
+                            onChange={e => setAdminCard1TempMax(e.target.value)}
+                            placeholder="tól"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                          />
+                          <span className="text-white/40 text-xs font-bold">–</span>
+                          <input
+                            type="number"
+                            value={adminCard1TempMax2}
+                            onChange={e => setAdminCard1TempMax2(e.target.value)}
+                            placeholder="ig"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -701,24 +773,46 @@ export default function Forecast() {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
                       <div>
-                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm (°C)</label>
-                        <input
-                          type="number"
-                          value={adminCard2TempMin}
-                          onChange={e => setAdminCard2TempMin(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
-                        />
+                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={adminCard2TempMin}
+                            onChange={e => setAdminCard2TempMin(e.target.value)}
+                            placeholder="tól"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                          />
+                          <span className="text-white/40 text-xs font-bold">–</span>
+                          <input
+                            type="number"
+                            value={adminCard2TempMin2}
+                            onChange={e => setAdminCard2TempMin2(e.target.value)}
+                            placeholder="ig"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm (°C)</label>
-                        <input
-                          type="number"
-                          value={adminCard2TempMax}
-                          onChange={e => setAdminCard2TempMax(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
-                        />
+                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={adminCard2TempMax}
+                            onChange={e => setAdminCard2TempMax(e.target.value)}
+                            placeholder="tól"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                          />
+                          <span className="text-white/40 text-xs font-bold">–</span>
+                          <input
+                            type="number"
+                            value={adminCard2TempMax2}
+                            onChange={e => setAdminCard2TempMax2(e.target.value)}
+                            placeholder="ig"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -750,24 +844,46 @@ export default function Forecast() {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
                       <div>
-                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm (°C)</label>
-                        <input
-                          type="number"
-                          value={adminCard3TempMin}
-                          onChange={e => setAdminCard3TempMin(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
-                        />
+                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={adminCard3TempMin}
+                            onChange={e => setAdminCard3TempMin(e.target.value)}
+                            placeholder="tól"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                          />
+                          <span className="text-white/40 text-xs font-bold">–</span>
+                          <input
+                            type="number"
+                            value={adminCard3TempMin2}
+                            onChange={e => setAdminCard3TempMin2(e.target.value)}
+                            placeholder="ig"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm (°C)</label>
-                        <input
-                          type="number"
-                          value={adminCard3TempMax}
-                          onChange={e => setAdminCard3TempMax(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
-                        />
+                        <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            value={adminCard3TempMax}
+                            onChange={e => setAdminCard3TempMax(e.target.value)}
+                            placeholder="tól"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                          />
+                          <span className="text-white/40 text-xs font-bold">–</span>
+                          <input
+                            type="number"
+                            value={adminCard3TempMax2}
+                            onChange={e => setAdminCard3TempMax2(e.target.value)}
+                            placeholder="ig"
+                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

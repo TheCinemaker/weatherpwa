@@ -71,15 +71,21 @@ const DEFAULT_FORECAST = {
   card1_icon: 'sun',
   card1_desc: 'Derült, napos',
   card1_temp_min: 16,
+  card1_temp_min_2: null,
   card1_temp_max: 31,
+  card1_temp_max_2: null,
   card2_icon: 'cloud-sun',
   card2_desc: 'Gomolyfelhők, száraz',
   card2_temp_min: 17,
+  card2_temp_min_2: null,
   card2_temp_max: 33,
+  card2_temp_max_2: null,
   card3_icon: 'cloud-rain',
   card3_desc: 'Záporok, zivatarok',
   card3_temp_min: 15,
+  card3_temp_min_2: null,
   card3_temp_max: 24,
+  card3_temp_max_2: null,
   updated_at: new Date().toISOString(),
   announcement_text: '',
   announcement_active: false
@@ -117,9 +123,9 @@ export async function getForecast() {
 const FORECAST_COLUMNS = [
   'title', 'content', 'image_url',
   'title_3day', 'content_3day', 'image_url_3day',
-  'card1_icon', 'card1_desc', 'card1_temp_min', 'card1_temp_max',
-  'card2_icon', 'card2_desc', 'card2_temp_min', 'card2_temp_max',
-  'card3_icon', 'card3_desc', 'card3_temp_min', 'card3_temp_max',
+  'card1_icon', 'card1_desc', 'card1_temp_min', 'card1_temp_min_2', 'card1_temp_max', 'card1_temp_max_2',
+  'card2_icon', 'card2_desc', 'card2_temp_min', 'card2_temp_min_2', 'card2_temp_max', 'card2_temp_max_2',
+  'card3_icon', 'card3_desc', 'card3_temp_min', 'card3_temp_min_2', 'card3_temp_max', 'card3_temp_max_2',
   'announcement_text', 'announcement_active'
 ];
 

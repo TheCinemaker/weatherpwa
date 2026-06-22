@@ -824,11 +824,11 @@ export default function WeatherDashboard() {
                 <div>
                   <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Jelentés részletei</label>
                   <textarea
-                    rows={5}
+                    rows={12}
                     value={adminContent}
                     onChange={e => setAdminContent(e.target.value)}
                     placeholder="Másold be ide a Facebook poszt szövegét..."
-                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
                   />
                 </div>
 

@@ -36,6 +36,8 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 * **Routing Frissítés**: A korábbi `HashRouter` le lett cserélve modern HTML5-alapú `BrowserRouter`-re. A linkekből eltűnt a hashtag (`/#/` helyett sima `/` útvonalak vannak). A Netlify átirányítások be vannak állítva.
 * **PWA Caching Javítás**: A Service Worker (`sw.js`) verziója `v2`-re frissült. A korábbi agreszív `Cache-First` stratégia helyett a főoldal/HTML kérések `Network-First` módban futnak (hálózatról frissít, ha elérhető), a Supabase API kérések pedig nincsenek gyorsítótárazva.
 * **Admin Funkció**: A dashboardon az „Előrejelzés az Alpokaljára” kártya fejlécének **2 másodperces nyomva tartásával** nyitható meg az adminisztrátori mentési felület.
+* **Admin Textarea Nagyobbítás**: Az adminisztrátori előrejelzés szerkesztőben a szövegbeíró mezők magassága `rows={10}` / `rows={12}` (Forecast/Dashboard), és függőlegesen átméretezhető (`resize-y`).
+* **Hőmérsékleti Tartományok (3 Napos)**: A 3 napos előrejelzés kártyáinál a minimum és maximum hőmérsékletet tartományként lehet megadni (pl. „Min: 20–22 °C, Max: 30–32 °C"). Ha a második mező üres, egyetlen érték jelenik meg. DB-ben: `card1_temp_min_2`, `card1_temp_max_2`, stb. (migráció: `14_add_temp_range_columns.sql`).
 
 ## 📸 Élő Webkamerák (Proxy)
 
