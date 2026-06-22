@@ -192,7 +192,7 @@ function AppContent() {
                 <span className="text-cyan2-300">I</span>dőjárás
               </div>
               <div className="text-[9px] font-bold text-night-200/50 uppercase tracking-wider leading-none mt-0.5">
-                <span className="text-cyan2-300">E</span>lőrejelzés!
+                <span className="text-cyan2-300">E</span>lőrejelzés
               </div>
             </div>
           </Link>
@@ -272,7 +272,7 @@ function AppContent() {
               <Logo className="w-5 h-5" />
             </div>
             <span className="text-[10px] sm:text-xs font-black tracking-tight text-white whitespace-nowrap">
-              <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés!
+              <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés
             </span>
           </Link>
           <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ function AppContent() {
                         <span className="text-cyan2-300">I</span>dőjárás
                       </div>
                       <div className="text-[8px] font-bold text-night-200/50 uppercase tracking-wider leading-none mt-0.5">
-                        <span className="text-cyan2-300">E</span>lőrejelzés!
+                        <span className="text-cyan2-300">E</span>lőrejelzés
                       </div>
                     </div>
                   </div>

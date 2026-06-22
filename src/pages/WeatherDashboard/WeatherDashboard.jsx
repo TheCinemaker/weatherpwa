@@ -598,7 +598,7 @@ export default function WeatherDashboard() {
       {/* --- HÍRMORZSÁK --- */}
       {newsBlurbs.length > 0 && (
         <FadeUp delay={0.04}>
-          <SectionLabel>Hírmorzsák</SectionLabel>
+          <SectionLabel>Villámhírek</SectionLabel>
           <div className="space-y-3">
             {newsBlurbs.map(b => (
               <div key={b.id} className="relative glass-card rounded-2xl p-4 flex gap-3">
@@ -841,7 +841,7 @@ export default function WeatherDashboard() {
               <div className="h-px bg-white/5" />
               <div className="space-y-2.5">
                 <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest flex items-center gap-1.5">
-                  <Newspaper className="w-3.5 h-3.5 text-cyan2-300" /> Hírmorzsák
+                  <Newspaper className="w-3.5 h-3.5 text-cyan2-300" /> Villámhírek
                 </label>
                 <textarea
                   rows={2}
@@ -876,7 +876,7 @@ export default function WeatherDashboard() {
                   disabled={blurbBusy || !newBlurb.trim()}
                   className="btn-grad w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <Plus className="w-4 h-4" /> {blurbBusy ? 'Mentés...' : 'Hírmorzsa hozzáadása'}
+                  <Plus className="w-4 h-4" /> {blurbBusy ? 'Mentés...' : 'Villámhír hozzáadása'}
                 </button>
 
                 {newsBlurbs.length > 0 && (
@@ -936,7 +936,7 @@ export default function WeatherDashboard() {
                               onClick={() => startEditBlurb(b)}
                               disabled={blurbBusy}
                               className="shrink-0 w-7 h-7 rounded-lg bg-white/10 hover:bg-cyan2-500/30 text-white flex items-center justify-center transition-colors disabled:opacity-50"
-                              title="Hírmorzsa szerkesztése"
+                              title="Villámhír szerkesztése"
                             >
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -944,7 +944,7 @@ export default function WeatherDashboard() {
                               onClick={() => handleDeleteBlurb(b.id)}
                               disabled={blurbBusy}
                               className="shrink-0 w-7 h-7 rounded-lg bg-rose-500/80 hover:bg-rose-500 text-white flex items-center justify-center transition-colors disabled:opacity-50"
-                              title="Hírmorzsa törlése"
+                              title="Villámhír törlése"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

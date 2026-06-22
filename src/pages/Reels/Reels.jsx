@@ -136,13 +136,32 @@ export default function Reels() {
         const img = new Image();
         const url = URL.createObjectURL(file);
         img.onload = () => {
-          const scale = Math.min(1, 1080 / img.width);
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          try {
+            const scale = Math.min(1, 1080 / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              canvas.toBlob((b) => {
+                URL.revokeObjectURL(url);
+                resolve(b || file);
+              }, 'image/jpeg', 0.85);
+            } else {
+              URL.revokeObjectURL(url);
+              resolve(file); // fallback to original file
+            }
+          } catch (err) {
+            console.error("Image compression canvas error:", err);
+            URL.revokeObjectURL(url);
+            resolve(file); // fallback to original file
+          }
+        };
+        img.onerror = (err) => {
+          console.error("Image load error during compression:", err);
           URL.revokeObjectURL(url);
-          canvas.toBlob(resolve, 'image/jpeg', 0.85);
+          resolve(file); // fallback to original file
         };
         img.src = url;
       });
@@ -168,8 +187,9 @@ export default function Reels() {
       setCoords(null);
       setUseLocation(false);
       fetchMoments();
-    } catch {
-      setPostError('Hiba történt, próbáld újra!');
+    } catch (err) {
+      console.error("Reel upload failed:", err);
+      setPostError(err.message || 'Hiba történt, próbáld újra!');
     } finally {
       setPosting(false);
     }
