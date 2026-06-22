@@ -9,6 +9,8 @@
   body {
     @apply font-sans antialiased text-night-100;
     background: #050d10;
+    /* Saját pull-to-refresh: a böngésző natív "húzd le a frissítéshez" gesztusát kikapcsoljuk */
+    overscroll-behavior-y: contain;
   }
   ::selection {
     background: rgba(6, 182, 212, 0.45);

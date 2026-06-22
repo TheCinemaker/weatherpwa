@@ -1,4 +1,4 @@
-const CACHE_NAME = 'koszeg-weather-cache-v2';
+const CACHE_NAME = 'koszeg-weather-cache-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -29,6 +29,42 @@ self.addEventListener('activate', (event) => {
     })
   );
   self.clients.claim();
+});
+
+// --- Web Push előkészítés ---
+// Akkor lép működésbe, ha a háttérben push üzenet érkezik (valódi háttér-értesítés,
+// akkor is, ha az app nincs nyitva). Ehhez a kliensoldali feliratkozás + szerveroldali
+// küldés (VAPID kulcsokkal, pl. Supabase Edge Function) szükséges.
+self.addEventListener('push', (event) => {
+  let payload = { title: 'Kőszegi Időjárás', body: 'Új figyelmeztetés érkezett.' };
+  try {
+    if (event.data) payload = { ...payload, ...event.data.json() };
+  } catch (e) {
+    if (event.data) payload.body = event.data.text();
+  }
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: '/favicon.png',
+      badge: '/favicon.png',
+      tag: 'koszeg-weather-alert',
+      data: { url: payload.url || '/' }
+    })
+  );
+});
+
+// Értesítésre kattintva nyissuk meg/fókuszáljuk az appot.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+      for (const win of wins) {
+        if ('focus' in win) return win.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(targetUrl);
+    })
+  );
 });
 
 self.addEventListener('fetch', (event) => {

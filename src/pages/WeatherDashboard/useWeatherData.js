@@ -43,6 +43,7 @@ export default function useWeatherData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [lastMeasureAt, setLastMeasureAt] = useState(null); // az állomás tényleges mérési ideje (unix mp)
 
   const fetchCurrent = useCallback(async () => {
     const res = await fetch(CURRENT_URL, { headers: CURRENT_HEADERS });
@@ -115,6 +116,9 @@ export default function useWeatherData() {
         setCurrentData(current);
         const now = new Date();
         setLastUpdate(now.toLocaleTimeString('hu-HU', { timeZone: 'Europe/Budapest' }));
+        if (typeof current.last_measure_at === 'number') {
+          setLastMeasureAt(current.last_measure_at);
+        }
       }
       // Metrikánként frissítünk: a most megkapott metrikák új adatot kapnak,
       // a hiányzók megtartják az utolsó jó sorozatukat (nem ürül ki a grafikon).
@@ -157,6 +161,7 @@ export default function useWeatherData() {
     loading,
     error,
     lastUpdate,
+    lastMeasureAt,
     refresh: loadAll
   };
 }

@@ -6,13 +6,33 @@ import SunBar from './SunBar';
 import StatCard, { STAT_CARDS_CONFIG } from './StatCard';
 import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
+import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
-import { getForecast, saveForecast } from '../../api/supabase';
+import { createPortal } from 'react-dom';
+import { getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage } from '../../api/supabase';
 import {
-  AlertTriangle, MapPin, ExternalLink, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
-  Cloud, CloudSun,
+  AlertTriangle, MapPin, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
+  Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
   ArrowDown, ArrowUp, Droplets, Wind, Calendar, X
 } from 'lucide-react';
+
+// Kép tömörítése feltöltés előtt (max 1000px széles, JPEG).
+function compressImage(file, maxW = 1000) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(resolve, 'image/jpeg', 0.85);
+    };
+    img.src = url;
+  });
+}
 
 const SYNODIC = 29.530588853;
 function getMoonPhase(date = new Date()) {
@@ -38,82 +58,199 @@ function ddToText(deg) {
   return dirs[Math.round(deg / 45) % 8] || '–';
 }
 
-// Körkörös hőmérséklet-mérő (SVG) — a hero középpontja
-function TempGauge({ temp, feels, condition, CondIcon }) {
-  const R = 104, C = 2 * Math.PI * R;
-  const frac = temp == null ? 0 : Math.max(0, Math.min(1, (temp + 15) / 55));
-  const offset = C * (1 - frac);
+// Relatív idő magyarul a tényleges mérési időbélyeghez (unix mp).
+function formatAgoHu(unixSec, nowMs) {
+  if (!unixSec) return null;
+  const diffMin = Math.max(0, Math.round((nowMs - unixSec * 1000) / 60000));
+  if (diffMin < 1) return 'épp most';
+  if (diffMin < 60) return `${diffMin} perce`;
+  const h = Math.floor(diffMin / 60);
+  const m = diffMin % 60;
+  return m ? `${h} ó ${m} p` : `${h} órája`;
+}
+
+// Landscape weather hero card matching custom mockup
+function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
+  const trendUp = tempTrend === 'up';
+  const trendDown = tempTrend === 'down';
+  let gradientClass = 'from-cyan-600 via-cyan-500 to-teal-500';
+  let glowColor = 'bg-yellow-300/40 shadow-[0_0_80px_40px_rgba(253,224,71,0.3)]';
+  
+  if (timeOfDay === 'night') {
+    gradientClass = 'from-indigo-950 via-slate-900 to-blue-950';
+    glowColor = 'bg-slate-200/30 shadow-[0_0_80px_40px_rgba(226,232,240,0.2)]';
+  } else if (timeOfDay === 'dawn') {
+    gradientClass = 'from-orange-500 via-rose-500 to-indigo-700';
+    glowColor = 'bg-amber-400/40 shadow-[0_0_80px_40px_rgba(251,191,36,0.3)]';
+  } else if (timeOfDay === 'dusk') {
+    gradientClass = 'from-indigo-900 via-purple-800 to-pink-700';
+    glowColor = 'bg-rose-400/40 shadow-[0_0_80px_40px_rgba(251,113,133,0.3)]';
+  }
+
   return (
-    <div className="relative w-[240px] h-[240px] mx-auto">
-      <svg viewBox="0 0 240 240" className="w-full h-full -rotate-90">
-        <defs>
-          <linearGradient id="gauge" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#06b6d4" />
-            <stop offset="0.5" stopColor="#14b8a6" />
-            <stop offset="1" stopColor="#10b981" />
-          </linearGradient>
-        </defs>
-        <circle cx="120" cy="120" r={R} fill="none" stroke="rgba(249,249,246,0.06)" strokeWidth="10" />
-        <circle
-          cx="120" cy="120" r={R} fill="none" stroke="url(#gauge)" strokeWidth="10" strokeLinecap="round"
-          strokeDasharray={C} strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 1s ease', filter: 'drop-shadow(0 0 8px rgba(6,182,212,0.65))' }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-        {CondIcon && <CondIcon className="w-7 h-7 text-cyan2-400 mb-1 animate-float" />}
-        {temp != null ? (
-          <div className="flex items-start leading-none">
-            <span className="text-6xl font-light tracking-tighter text-white">{temp.toFixed(0)}</span>
-            <span className="text-2xl font-light text-white/70 mt-1">°</span>
+    <div className={`relative rounded-[2rem] p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/10 flex flex-col justify-between min-h-[190px]`}>
+      
+      {/* Middle row: Temp & Details & Graphic */}
+      <div className="flex justify-between items-center relative z-10 w-full flex-1 gap-4">
+        <div className="space-y-2">
+          <div>
+            <p className="text-[9px] font-black text-white/55 uppercase tracking-[0.2em]">{dateStr}</p>
+            <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mt-0.5">Kőszeg · Időjárás</h2>
           </div>
-        ) : (
-          <span className="text-3xl font-light text-white/60">– °</span>
-        )}
-        {condition && <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-night-200/80 mt-1">{condition}</p>}
-        {feels != null && (
-          <p className="text-[11px] font-semibold text-night-200/55 mt-0.5">Hőérzet {feels.toFixed(0)}°</p>
-        )}
+          
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 pt-1">
+            <div className="flex items-start">
+              <span className="text-5xl sm:text-6xl font-light tracking-tighter text-white">
+                {temp != null ? temp.toFixed(1) : '–'}
+              </span>
+              <span className="text-xl font-light text-white/80 mt-1 select-none">°C</span>
+              {(trendUp || trendDown) && (
+                <span
+                  className={`mt-2 ml-1 text-lg font-bold ${trendUp ? 'text-rose-200' : 'text-cyan-100'}`}
+                  title={trendUp ? 'Emelkedő hőmérséklet' : 'Csökkenő hőmérséklet'}
+                >
+                  {trendUp ? '↑' : '↓'}
+                </span>
+              )}
+            </div>
+
+            {feels != null && (
+              <span className="text-[11px] font-bold text-white/75 bg-white/10 px-2.5 py-1 rounded-lg border border-white/10">
+                Hőérzet: <strong className="font-extrabold text-white">{feels.toFixed(1)} °C</strong>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Floating animated glowing orb */}
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center">
+          <div className={`absolute inset-3 rounded-full ${glowColor} blur-md animate-pulse`} />
+          <div className="absolute inset-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center">
+            {isNight ? (
+              <Moon className="w-9 h-9 text-blue-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+            ) : (
+              <Sun className="w-9 h-9 text-amber-100 drop-shadow-[0_0_12px_rgba(253,224,71,0.6)] animate-spin" style={{ animationDuration: '40s' }} />
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Bottom row: Coordinates & Elevation */}
+      <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[10px] font-extrabold text-white/50 relative z-10 w-full">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-white/40" />
+          <span>47.3971°N, 16.546°E</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <svg className="w-3.5 h-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          <span>Magasság: 274 m</span>
+        </div>
+      </div>
+      
+      {/* Background glow overlay */}
+      <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-white/5 blur-3xl pointer-events-none" />
     </div>
   );
 }
 
 export default function WeatherDashboard() {
-  const { currentData, historySeries, loading, error, lastUpdate, refresh } = useWeatherData();
+  const { currentData, historySeries, loading, error, lastUpdate, lastMeasureAt, refresh } = useWeatherData();
 
   const [forecastData, setForecastData] = useState({
     title: 'Helyzetjelentés: Betöltés...',
     content: 'Kérjük, várjon...',
+    announcement_text: '',
+    announcement_active: false,
     updated_at: new Date().toISOString()
   });
+  const [sponsors, setSponsors] = useState([]);
   const [showAdmin, setShowAdmin] = useState(false);
+
+  // Admin belépés a (közös) logóról: sikeres PIN után nyíljon a szerkesztő.
+  useAdminUnlock(() => setShowAdmin(true));
   const [adminTitle, setAdminTitle] = useState('');
   const [adminContent, setAdminContent] = useState('');
+  const [adminAnnText, setAdminAnnText] = useState('');
+  const [adminAnnActive, setAdminAnnActive] = useState(false);
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminError, setAdminError] = useState('');
-  const longPressRef = useRef(null);
+
+  // Hírmorzsák
+  const [newsBlurbs, setNewsBlurbs] = useState([]);
+  const [newBlurb, setNewBlurb] = useState('');
+  const [newBlurbFile, setNewBlurbFile] = useState(null);
+  const [newBlurbPreview, setNewBlurbPreview] = useState(null);
+  const [blurbBusy, setBlurbBusy] = useState(false);
+  const [editBlurbId, setEditBlurbId] = useState(null);
+  const [editBlurbText, setEditBlurbText] = useState('');
+  const [editBlurbFile, setEditBlurbFile] = useState(null);
+  const [editBlurbPreview, setEditBlurbPreview] = useState(null); // megjelenített előnézet (régi URL vagy új blob)
+  const [blurbZoom, setBlurbZoom] = useState(null); // publikus nagykép
+
+  // Hálózati állapot + "óránként újraszámolt" tick a relatív mérési időhöz.
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [nowTick, setNowTick] = useState(Date.now());
+  useEffect(() => {
+    const on = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    const t = setInterval(() => setNowTick(Date.now()), 60000); // percenként frissül a "X perce" felirat
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+      clearInterval(t);
+    };
+  }, []);
 
   useEffect(() => {
     getForecast().then(data => {
       setForecastData(data);
       setAdminTitle(data.title);
       setAdminContent(data.content);
+      setAdminAnnText(data.announcement_text || '');
+      setAdminAnnActive(data.announcement_active || false);
+    });
+
+    getNewsBlurbs().then(setNewsBlurbs);
+
+    getSponsors().then(data => {
+      const activeSponsors = data.filter(sp => sp.active && new Date(sp.expires_at) > new Date());
+      setSponsors(activeSponsors);
     });
   }, []);
 
-  const startLongPress = useCallback(() => {
-    longPressRef.current = setTimeout(() => {
-      setShowAdmin(true);
-    }, 2000);
+
+  // --- Pull-to-refresh (mobil) ---
+  const pullStartY = useRef(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const PULL_THRESHOLD = 64;
+
+  const onTouchStart = useCallback((e) => {
+    if (window.scrollY <= 0) pullStartY.current = e.touches[0].clientY;
+    else pullStartY.current = null;
   }, []);
 
-  const cancelLongPress = useCallback(() => {
-    if (longPressRef.current) {
-      clearTimeout(longPressRef.current);
-      longPressRef.current = null;
+  const onTouchMove = useCallback((e) => {
+    if (pullStartY.current == null) return;
+    const delta = e.touches[0].clientY - pullStartY.current;
+    if (delta > 0 && window.scrollY <= 0) {
+      // csillapított húzás, max ~90px
+      setPullDistance(Math.min(delta * 0.5, 90));
+    } else {
+      setPullDistance(0);
     }
   }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (pullStartY.current != null && pullDistance > PULL_THRESHOLD && !loading) {
+      refresh();
+    }
+    pullStartY.current = null;
+    setPullDistance(0);
+  }, [pullDistance, loading, refresh]);
 
   const handleSaveForecast = async () => {
     if (!adminTitle.trim() || !adminContent.trim()) {
@@ -123,7 +260,12 @@ export default function WeatherDashboard() {
     setSavingAdmin(true);
     setAdminError('');
     try {
-      const data = await saveForecast(adminTitle.trim(), adminContent.trim());
+      const data = await saveForecast({
+        title: adminTitle.trim(),
+        content: adminContent.trim(),
+        announcement_text: adminAnnText.trim(),
+        announcement_active: adminAnnActive
+      });
       setForecastData(data);
       setShowAdmin(false);
     } catch (err) {
@@ -131,6 +273,93 @@ export default function WeatherDashboard() {
       setAdminError(err.message || 'Hiba történt a mentés során.');
     } finally {
       setSavingAdmin(false);
+    }
+  };
+
+  const handleNewBlurbFile = (e) => {
+    const f = e.target.files?.[0];
+    if (f) { setNewBlurbFile(f); setNewBlurbPreview(URL.createObjectURL(f)); }
+  };
+
+  const handleAddBlurb = async () => {
+    const text = newBlurb.trim();
+    if (!text) return;
+    setBlurbBusy(true);
+    try {
+      let imageUrl = null;
+      if (newBlurbFile) {
+        const compressed = await compressImage(newBlurbFile);
+        imageUrl = await uploadForecastImage(compressed);
+      }
+      const created = await addNewsBlurb(text, imageUrl);
+      setNewsBlurbs(prev => [created, ...prev]);
+      setNewBlurb('');
+      setNewBlurbFile(null);
+      setNewBlurbPreview(null);
+    } catch (err) {
+      console.error(err);
+      setAdminError(err.message || 'Hiba a hírmorzsa mentésekor.');
+    } finally {
+      setBlurbBusy(false);
+    }
+  };
+
+  const handleDeleteBlurb = async (id) => {
+    setBlurbBusy(true);
+    try {
+      await deleteNewsBlurb(id);
+      setNewsBlurbs(prev => prev.filter(b => b.id !== id));
+      if (editBlurbId === id) setEditBlurbId(null);
+    } catch (err) {
+      console.error(err);
+      setAdminError(err.message || 'Hiba a hírmorzsa törlésekor.');
+    } finally {
+      setBlurbBusy(false);
+    }
+  };
+
+  const startEditBlurb = (b) => {
+    setEditBlurbId(b.id);
+    setEditBlurbText(b.content);
+    setEditBlurbFile(null);
+    setEditBlurbPreview(b.image_url || null);
+  };
+
+  const cancelEditBlurb = () => {
+    setEditBlurbId(null);
+    setEditBlurbText('');
+    setEditBlurbFile(null);
+    setEditBlurbPreview(null);
+  };
+
+  const handleEditBlurbFile = (e) => {
+    const f = e.target.files?.[0];
+    if (f) { setEditBlurbFile(f); setEditBlurbPreview(URL.createObjectURL(f)); }
+  };
+
+  const handleRemoveEditBlurbImage = () => {
+    setEditBlurbFile(null);
+    setEditBlurbPreview(null);
+  };
+
+  const handleSaveEditBlurb = async () => {
+    const text = editBlurbText.trim();
+    if (!text || !editBlurbId) return;
+    setBlurbBusy(true);
+    try {
+      let imageUrl = editBlurbPreview; // megtartott meglévő URL, vagy null ha eltávolítva
+      if (editBlurbFile) {
+        const compressed = await compressImage(editBlurbFile);
+        imageUrl = await uploadForecastImage(compressed);
+      }
+      const updated = await updateNewsBlurb(editBlurbId, text, imageUrl || null);
+      setNewsBlurbs(prev => prev.map(b => (b.id === editBlurbId ? updated : b)));
+      cancelEditBlurb();
+    } catch (err) {
+      console.error(err);
+      setAdminError(err.message || 'Hiba a hírmorzsa módosításakor.');
+    } finally {
+      setBlurbBusy(false);
     }
   };
 
@@ -195,7 +424,11 @@ export default function WeatherDashboard() {
   const moon = useMemo(() => getMoonPhase(new Date()), []);
 
   const temp = typeof lastMeasure.T === 'number' ? lastMeasure.T : null;
-  const feels = typeof lastMeasure.HEAT_INDEX === 'number' ? lastMeasure.HEAT_INDEX : null;
+  // Hőérzet: hidegben (≤10°C) a szél-index (wind chill), melegben a hőindex a helyes.
+  const windChill = typeof lastMeasure.WIND_CHILL === 'number' ? lastMeasure.WIND_CHILL : null;
+  const heatIndex = typeof lastMeasure.HEAT_INDEX === 'number' ? lastMeasure.HEAT_INDEX : null;
+  const feels = (temp != null && temp <= 10 && windChill != null) ? windChill : heatIndex;
+  const tempTrend = lastMeasure.T_TREND || null; // 'up' | 'down' | 'stable'
   const tMin = typeof lastMeasure.T_MIN === 'number' ? lastMeasure.T_MIN : null;
   const tMax = typeof lastMeasure.T_MAX === 'number' ? lastMeasure.T_MAX : null;
   const hum = typeof lastMeasure.U === 'number' ? lastMeasure.U : null;
@@ -204,6 +437,11 @@ export default function WeatherDashboard() {
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('hu-HU', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // Mennyire friss az állomás adata? (tényleges mérési idő, nem a lekérés ideje)
+  const measureAgeMin = lastMeasureAt ? Math.round((nowTick - lastMeasureAt * 1000) / 60000) : null;
+  const isStale = measureAgeMin != null && measureAgeMin >= 30;
+  const measureAgo = formatAgoHu(lastMeasureAt, nowTick);
 
   let statusColor = 'bg-emerald-400 shadow-[0_0_8px_#34d399]';
   let statusText = 'Kapcsolat stabil';
@@ -214,12 +452,18 @@ export default function WeatherDashboard() {
         <p className="text-xs font-bold uppercase tracking-widest text-night-200/60">Adatok betöltése...</p>
       </div>
     );
+  } else if (!isOnline) {
+    statusColor = 'bg-night-300 shadow-[0_0_8px_#64748b]';
+    statusText = 'Offline · mentett adat';
   } else if (loading) {
     statusColor = 'bg-amber-400 shadow-[0_0_8px_#fbbf24]';
     statusText = 'Frissítés...';
   } else if (error) {
     statusColor = 'bg-rose-400 shadow-[0_0_8px_#fb7185]';
     statusText = 'Hiba a lekérdezéskor';
+  } else if (isStale) {
+    statusColor = 'bg-amber-400 shadow-[0_0_8px_#fbbf24]';
+    statusText = 'Az állomás régen mért';
   }
 
   // Hero alatti gyors-statok
@@ -227,50 +471,65 @@ export default function WeatherDashboard() {
     { icon: ArrowDown, label: 'Min', val: tMin != null ? `${tMin.toFixed(0)}°` : '–' },
     { icon: ArrowUp, label: 'Max', val: tMax != null ? `${tMax.toFixed(0)}°` : '–' },
     { icon: Droplets, label: 'Pára', val: hum != null ? `${hum.toFixed(0)}%` : '–' },
-    { icon: Wind, label: 'Szél', val: wind != null ? `${wind.toFixed(0)} km/h` : '–' },
+    {
+      icon: Wind,
+      label: 'Szél',
+      val: wind != null
+        ? `${wind.toFixed(0)} km/h${windDir != null ? ' ' + ddToText(windDir) : ''}`
+        : '–'
+    },
   ];
 
   return (
-    <div className="max-w-3xl lg:max-w-6xl mx-auto px-4">
+    <div
+      className="max-w-3xl lg:max-w-6xl mx-auto px-4"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* --- PULL-TO-REFRESH INDIKÁTOR --- */}
+      {pullDistance > 0 && (
+        <div
+          className="flex items-center justify-center overflow-hidden text-cyan2-300"
+          style={{ height: pullDistance }}
+        >
+          <IoRefresh
+            className="text-xl"
+            style={{
+              transform: `rotate(${pullDistance * 4}deg)`,
+              opacity: Math.min(1, pullDistance / PULL_THRESHOLD)
+            }}
+          />
+          <span className="ml-2 text-[11px] font-bold uppercase tracking-widest">
+            {pullDistance > PULL_THRESHOLD ? 'Engedd el a frissítéshez' : 'Húzd le a frissítéshez'}
+          </span>
+        </div>
+      )}
 
-      {/* --- HERO: körkörös mérő --- */}
+      {/* --- HERO: landscape weather tile --- */}
       <FadeUp>
-        <div className="relative glass-card rounded-[2rem] p-6 pt-7 overflow-hidden">
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-cyan2-500/15 blur-3xl pointer-events-none" />
+        <WeatherHero
+          temp={temp}
+          feels={feels}
+          isNight={weather.isNight}
+          timeOfDay={weather.timeOfDay}
+          dateStr={dateStr}
+          tempTrend={tempTrend}
+        />
+      </FadeUp>
 
-          {/* Hely + dátum */}
-          <div className="relative text-center mb-5">
-            <div className="inline-flex items-center gap-1.5 text-sm font-bold text-white">
-              <MapPin className="w-4 h-4 text-cyan2-300" /> Kőszeg
-            </div>
-            <p className="text-[11px] font-semibold text-night-200/55 uppercase tracking-[0.15em] mt-1">{dateStr}</p>
-            {weather.isNight && (
-              <span className="inline-block mt-2 text-[10px] font-bold text-cyan2-200 uppercase tracking-widest bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
-                🌙 {moon.name}
-              </span>
-            )}
-          </div>
-
-          {/* Mérő */}
-          <TempGauge temp={temp} feels={feels} condition={weather.label} CondIcon={weather.CondIcon} />
-
-          {/* Gyors-statok */}
-          <div className="relative grid grid-cols-4 gap-2 mt-6">
-            {quick.map(({ icon: Icon, label, val }) => (
-              <div key={label} className="flex flex-col items-center gap-1 rounded-2xl bg-white/[0.04] border border-white/10 py-3">
-                <Icon className="w-4 h-4 text-cyan2-300" />
-                <span className="text-sm font-bold text-white leading-none">{val}</span>
-                <span className="text-[9px] font-semibold text-night-200/50 uppercase tracking-wider">{label}</span>
+      {/* Gyors-statok */}
+      <FadeUp delay={0.02}>
+        <div className="flex items-center justify-between gap-1 rounded-2xl bg-white/[0.03] border border-white/5 py-2.5 px-3.5 mt-4 select-none">
+          {quick.map(({ icon: Icon, label, val }) => (
+            <div key={label} className="flex items-center gap-1 text-white">
+              <Icon className="w-3.5 h-3.5 text-cyan2-300 shrink-0" />
+              <div className="flex items-baseline gap-1 leading-none">
+                <span className="text-xs sm:text-sm font-extrabold text-white">{val}</span>
+                <span className="text-[10px] sm:text-[11px] font-bold text-night-200/65 uppercase tracking-wider">{label}</span>
               </div>
-            ))}
-          </div>
-
-          {windDir != null && (
-            <p className="relative text-center text-[11px] font-semibold text-night-200/55 mt-3">
-              Szélirány: <span className="text-cyan2-200 font-bold">{ddToText(windDir)} ({windDir.toFixed(0)}°)</span>
-            </p>
-          )}
-
+            </div>
+          ))}
         </div>
       </FadeUp>
 
@@ -279,13 +538,27 @@ export default function WeatherDashboard() {
         <div className="flex items-center gap-2.5 glass-card rounded-2xl px-3.5 py-2">
           <div className={`w-2 h-2 rounded-full ${statusColor}`} />
           <span className="text-xs font-bold text-white">{statusText}</span>
-          {lastUpdate && <span className="text-[10px] font-semibold text-night-200/50">· {lastUpdate}</span>}
+          {measureAgo && (
+            <span className={`text-[11px] font-semibold ${isStale ? 'text-amber-300' : 'text-night-200/60'}`}>
+              · mérve {measureAgo}
+            </span>
+          )}
         </div>
         <button onClick={refresh} disabled={loading} className="btn-grad px-4 py-2 text-xs disabled:opacity-50">
           <IoRefresh className={`text-sm ${loading ? 'animate-spin' : ''}`} />
           Frissítés
         </button>
       </div>
+
+      {/* Elavult adat figyelmeztetés */}
+      {isStale && !error && (
+        <div className="mt-3 p-3 rounded-2xl bg-amber-400/10 border border-amber-400/25 text-amber-100 text-[11px] font-semibold flex items-center gap-2.5">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-amber-300" />
+          <span>
+            Az állomás legutóbb <strong className="font-extrabold">{measureAgo}</strong> küldött adatot – lehet, hogy átmenetileg kimaradt. Az értékek nem feltétlenül a pillanatnyi időjárást mutatják.
+          </span>
+        </div>
+      )}
 
       {error && (
         <div className="mt-4 p-4 rounded-2xl bg-rose-400/10 border border-rose-400/25 text-rose-200 text-xs font-semibold flex items-center gap-2.5">
@@ -299,22 +572,11 @@ export default function WeatherDashboard() {
         <div id="dashboard-forecast" className="relative glass-card rounded-[2rem] p-6 overflow-hidden mt-5">
           <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
           
-          <div 
-            className="flex items-center justify-between mb-4 select-none cursor-default"
-            onMouseDown={startLongPress}
-            onMouseUp={cancelLongPress}
-            onMouseLeave={cancelLongPress}
-            onTouchStart={startLongPress}
-            onTouchEnd={cancelLongPress}
-            onTouchCancel={cancelLongPress}
-          >
+          <div className="flex items-center justify-between mb-4 select-none cursor-default">
             <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
               <span>Előrejelzés az Alpokaljára</span>
             </h2>
-            <span className="text-[9px] font-bold text-night-200/35 uppercase tracking-widest">
-              Előrejelzés
-            </span>
           </div>
 
           <div className="space-y-3 relative z-10">
@@ -332,6 +594,41 @@ export default function WeatherDashboard() {
           </div>
         </div>
       </FadeUp>
+
+      {/* --- HÍRMORZSÁK --- */}
+      {newsBlurbs.length > 0 && (
+        <FadeUp delay={0.04}>
+          <SectionLabel>Hírmorzsák</SectionLabel>
+          <div className="space-y-3">
+            {newsBlurbs.map(b => (
+              <div key={b.id} className="relative glass-card rounded-2xl p-4 flex gap-3">
+                <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white shrink-0">
+                  <Newspaper className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <p className="text-sm text-night-100/90 leading-relaxed whitespace-pre-wrap font-medium">{b.content}</p>
+                  {b.image_url && (
+                    <div
+                      className="mt-1 rounded-xl overflow-hidden border border-white/10 bg-black/25 cursor-zoom-in max-w-md"
+                      onClick={() => setBlurbZoom(b.image_url)}
+                    >
+                      <img
+                        src={b.image_url}
+                        alt="Hírmorzsa kép"
+                        loading="lazy"
+                        className="w-full h-auto max-h-72 object-cover active:scale-[0.99] transition-transform"
+                      />
+                    </div>
+                  )}
+                  <p className="text-[10px] font-bold text-night-200/45 uppercase tracking-wide">
+                    Ráduly László · {new Date(b.created_at).toLocaleString('hu-HU', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </FadeUp>
+      )}
 
       {/* --- NAP-CIKLUS --- */}
       <FadeUp delay={0.05}>
@@ -376,24 +673,37 @@ export default function WeatherDashboard() {
         </div>
       </FadeUp>
 
-      {/* --- ATTRIBUTION --- */}
-      <div className="mt-8 p-5 rounded-[1.5rem] bg-brand-gradient-soft border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-        <div className="space-y-1">
-          <h3 className="text-sm font-extrabold text-white">Köszönjük az adatokat! 🙌</h3>
-          <p className="text-xs text-night-200/70 leading-relaxed max-w-xl">
-            A mérésekért köszönet <strong className="text-cyan2-200">Ráduly Lászlónak</strong> (Kőszegi Időjárás Előrejelzés)!
-          </p>
-        </div>
-        <a
-          href="https://www.facebook.com/search/top?q=k%C5%91szegi%20id%C5%91j%C3%A1r%C3%A1s%20el%C5%91rejelz%C3%A9s"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-grad px-5 py-2.5 text-xs shrink-0"
-        >
-          <span>Facebook oldal</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
-      </div>
+      {/* --- SPONSORS BAR --- */}
+      {sponsors.length > 0 && (
+        <FadeUp delay={0.06}>
+          <div className="mt-6 p-4 rounded-[1.5rem] glass-card border border-cyan2-500/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-cyan2-500/[0.02] blur-xl pointer-events-none" />
+            
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div>
+                <h4 className="text-[10px] font-extrabold text-cyan2-300 uppercase tracking-widest">Kiemelt Támogatóink</h4>
+                <p className="text-[9px] font-bold text-night-200/50 uppercase mt-0.5">Akik segítik az időjárás állomás fenntartását</p>
+              </div>
+              
+              <div className="flex flex-wrap items-center justify-center gap-3.5">
+                {sponsors.map(sp => (
+                  <a 
+                    key={sp.id} 
+                    href={sp.website_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-cyan2-400/20 transition-all select-none"
+                    title={sp.description || sp.name}
+                  >
+                    <img src={sp.logo_url} alt="" className="w-5 h-5 rounded-md object-cover" />
+                    <span className="text-xs font-bold text-white">{sp.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </FadeUp>
+      )}
 
       <StatDetailModal
         metric={activeMetric}
@@ -402,6 +712,40 @@ export default function WeatherDashboard() {
         currentValue={activeKey ? lastMeasure[activeKey] : null}
         onClose={() => setActiveKey(null)}
       />
+
+      {/* --- HÍRMORZSA NAGYKÉP (portál a body-ba) --- */}
+      {createPortal(
+        <AnimatePresence>
+          {blurbZoom && (
+            <div
+              className="fixed inset-0 z-[400] flex items-center justify-center bg-black/95 backdrop-blur-md p-4"
+              onClick={() => setBlurbZoom(null)}
+            >
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={() => setBlurbZoom(null)}
+                aria-label="Bezárás"
+                className="absolute top-5 right-5 w-12 h-12 rounded-full bg-black/70 hover:bg-rose-500 border-2 border-white/40 text-white flex items-center justify-center shadow-2xl backdrop-blur-md transition-all active:scale-90 z-[60]"
+              >
+                <X className="w-7 h-7" />
+              </motion.button>
+              <motion.img
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                src={blurbZoom}
+                alt="Hírmorzsa kép nagyítva"
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl relative z-10"
+                onClick={e => e.stopPropagation()}
+              />
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* --- FORECAST ADMIN MODAL --- */}
       <AnimatePresence>
@@ -418,7 +762,7 @@ export default function WeatherDashboard() {
               animate={{ opacity: 1, y: 0, scale: 1 }} 
               exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
+              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
@@ -449,24 +793,168 @@ export default function WeatherDashboard() {
                 <div>
                   <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Jelentés részletei</label>
                   <textarea
-                    rows={6}
+                    rows={5}
                     value={adminContent}
                     onChange={e => setAdminContent(e.target.value)}
                     placeholder="Másold be ide a Facebook poszt szövegét..."
                     className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
                   />
                 </div>
+
+                <div className="h-px bg-white/5 my-1" />
+
+                {/* Announcement fields */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest block">Sürgős Értesítés (pl. Viharjelzés)</label>
+                    <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-white">
+                      <input
+                        type="checkbox"
+                        checked={adminAnnActive}
+                        onChange={e => setAdminAnnActive(e.target.checked)}
+                        className="rounded border-white/10 bg-white/[0.04] text-cyan2-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                      />
+                      <span>Aktív</span>
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={adminAnnText}
+                    onChange={e => setAdminAnnText(e.target.value.slice(0, 150))}
+                    placeholder="Pl.: Viharjelzés! Erős széllökések várhatók..."
+                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                  />
+                </div>
               </div>
 
               {adminError && <p className="text-rose-300 text-xs font-extrabold text-center">{adminError}</p>}
 
-              <button 
-                onClick={handleSaveForecast} 
-                disabled={savingAdmin} 
+              <button
+                onClick={handleSaveForecast}
+                disabled={savingAdmin}
                 className="btn-grad w-full py-4 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {savingAdmin ? 'Mentés folyamatban...' : 'Jelentés Mentése és Publikálása'}
               </button>
+
+              {/* --- HÍRMORZSÁK KEZELÉSE --- */}
+              <div className="h-px bg-white/5" />
+              <div className="space-y-2.5">
+                <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest flex items-center gap-1.5">
+                  <Newspaper className="w-3.5 h-3.5 text-cyan2-300" /> Hírmorzsák
+                </label>
+                <textarea
+                  rows={2}
+                  value={newBlurb}
+                  onChange={e => setNewBlurb(e.target.value.slice(0, 400))}
+                  placeholder="Pl.: 2026 első trópusi éjszakája Kőszegen – a minimum 21,2 °C volt..."
+                  className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                />
+
+                {/* Kép feltöltése az új hírhez */}
+                <input type="file" accept="image/*" onChange={handleNewBlurbFile} className="hidden" id="news-blurb-file" />
+                {newBlurbPreview ? (
+                  <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                    <img src={newBlurbPreview} alt="Előnézet" className="h-full object-contain" />
+                    <button
+                      type="button"
+                      onClick={() => { setNewBlurbFile(null); setNewBlurbPreview(null); }}
+                      className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow-md"
+                      title="Kép eltávolítása"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label htmlFor="news-blurb-file" className="flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all">
+                    <ImageIcon className="w-4 h-4 text-cyan2-300" /> Kép hozzáadása (opcionális)
+                  </label>
+                )}
+
+                <button
+                  onClick={handleAddBlurb}
+                  disabled={blurbBusy || !newBlurb.trim()}
+                  className="btn-grad w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <Plus className="w-4 h-4" /> {blurbBusy ? 'Mentés...' : 'Hírmorzsa hozzáadása'}
+                </button>
+
+                {newsBlurbs.length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    {newsBlurbs.map(b => (
+                      <div key={b.id} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                        {editBlurbId === b.id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              rows={3}
+                              value={editBlurbText}
+                              onChange={e => setEditBlurbText(e.target.value.slice(0, 400))}
+                              className="w-full px-3 py-2 rounded-lg border border-cyan2-400/40 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                            />
+
+                            {/* Kép szerkesztése */}
+                            <input type="file" accept="image/*" onChange={handleEditBlurbFile} className="hidden" id={`news-edit-file-${b.id}`} />
+                            {editBlurbPreview ? (
+                              <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                                <img src={editBlurbPreview} alt="Előnézet" className="h-full object-contain" />
+                                <button
+                                  type="button"
+                                  onClick={handleRemoveEditBlurbImage}
+                                  className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow-md"
+                                  title="Kép eltávolítása"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <label htmlFor={`news-edit-file-${b.id}`} className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] cursor-pointer text-[11px] font-bold text-white transition-all">
+                                <ImageIcon className="w-3.5 h-3.5 text-cyan2-300" /> Kép hozzáadása
+                              </label>
+                            )}
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={handleSaveEditBlurb}
+                                disabled={blurbBusy || !editBlurbText.trim()}
+                                className="btn-grad flex-1 py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 disabled:opacity-50"
+                              >
+                                <Check className="w-3.5 h-3.5" /> {blurbBusy ? 'Mentés...' : 'Mentés'}
+                              </button>
+                              <button
+                                onClick={cancelEditBlurb}
+                                disabled={blurbBusy}
+                                className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-colors disabled:opacity-50"
+                              >
+                                Mégse
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-2">
+                            <p className="flex-1 text-xs text-night-100/80 leading-relaxed whitespace-pre-wrap min-w-0">{b.content}</p>
+                            <button
+                              onClick={() => startEditBlurb(b)}
+                              disabled={blurbBusy}
+                              className="shrink-0 w-7 h-7 rounded-lg bg-white/10 hover:bg-cyan2-500/30 text-white flex items-center justify-center transition-colors disabled:opacity-50"
+                              title="Hírmorzsa szerkesztése"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBlurb(b.id)}
+                              disabled={blurbBusy}
+                              className="shrink-0 w-7 h-7 rounded-lg bg-rose-500/80 hover:bg-rose-500 text-white flex items-center justify-center transition-colors disabled:opacity-50"
+                              title="Hírmorzsa törlése"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </motion.div>
           </div>
         )}

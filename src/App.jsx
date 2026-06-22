@@ -2,18 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import WeatherDashboard from './pages/WeatherDashboard/WeatherDashboard';
-import About from './pages/About/About';
+import Forecast from './pages/Forecast/Forecast';
 import Reels from './pages/Reels/Reels';
 import Cameras from './pages/Cameras/Cameras';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X } from 'lucide-react';
+import Sponsors from './pages/Sponsors/Sponsors';
+import About from './pages/About/About';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, Bell, BellOff, AlertTriangle } from 'lucide-react';
 import Logo from './components/Logo';
+import { AdminProvider, useAdminRequest } from './components/AdminContext';
+import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
+import { incrementPageViews, getForecast } from './api/supabase';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
-  { path: 'forecast', label: 'Előrejelzés', icon: Calendar, customClick: true },
+  { path: '/forecast', label: 'Előrejelzés', icon: Calendar },
   { path: '/reels', label: 'Reels', icon: Film },
   { path: '/cameras', label: 'Kamerák', icon: Camera },
-  { path: '/about', label: 'Rólunk', icon: Info },
+  { path: '/sponsors', label: 'Támogatók', icon: Heart },
+  { path: '/about', label: 'Rólam', icon: Info },
 ];
 
 function AppContent() {
@@ -22,26 +28,83 @@ function AppContent() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  // Custom features states
+  const [viewCount, setViewCount] = useState(null);
+  const [announcement, setAnnouncement] = useState({ text: '', active: false });
+  const [showAnnBanner, setShowAnnBanner] = useState(false);
+  const [notifPermission, setNotifPermission] = useState('default');
 
-  const handleForecastClick = (e) => {
-    e.preventDefault();
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const el = document.getElementById('dashboard-forecast');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
-    } else {
-      const el = document.getElementById('dashboard-forecast');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Admin belépés a logóra: 3 mp nyomás → PIN-kapu (globális kontextus).
+  const requestAdmin = useAdminRequest();
+  const logoPressFired = React.useRef(false);
+  const { progress: holdProgress, handlers: logoHoldHandlers } = useAdminLongPress(
+    () => { logoPressFired.current = true; setTimeout(() => { logoPressFired.current = false; }, 600); requestAdmin(); }
+  );
+  // A logó egyben „Főoldal" link is; hosszú nyomás után a kattintást elnyeljük,
+  // hogy ne navigáljon el (különben az admin az aktuális oldalon nem nyílna).
+  const handleLogoClick = (e) => { if (logoPressFired.current) e.preventDefault(); };
 
   useEffect(() => {
+    // 1. Register PWA install prompt
     const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); setShowInstallBtn(true); };
     window.addEventListener('beforeinstallprompt', handler);
+
+    // 2. Increment and get page views
+    incrementPageViews().then(count => {
+      if (count > 0) setViewCount(count);
+    });
+
+    // 3. Check for active announcements
+    getForecast().then(data => {
+      if (data.announcement_active && data.announcement_text) {
+        setAnnouncement({ text: data.announcement_text, active: true });
+        
+        // Only show if not dismissed in this session
+        const dismissed = sessionStorage.getItem('dismissed_announcement');
+        if (dismissed !== data.announcement_text) {
+          setShowAnnBanner(true);
+          
+          // Trigger system notification if granted
+          if (Notification.permission === 'granted') {
+            new Notification('Kőszegi Időjárás Figyelmeztetés', {
+              body: data.announcement_text,
+              icon: '/favicon.png'
+            });
+          }
+        }
+      }
+    });
+
+    // 4. Set initial notification permission status
+    if ('Notification' in window) {
+      setNotifPermission(Notification.permission);
+    }
+
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
+
+  // Request browser notification permissions
+  const handleRequestNotif = async () => {
+    if (!('Notification' in window)) {
+      alert('Ez a böngésző nem támogatja az értesítéseket.');
+      return;
+    }
+    
+    try {
+      const res = await Notification.requestPermission();
+      setNotifPermission(res);
+      
+      if (res === 'granted') {
+        new Notification('Kőszegi Időjárás', {
+          body: 'Sikeresen feliratkoztál az időjárás értesítésekre!',
+          icon: '/favicon.png'
+        });
+      }
+    } catch (err) {
+      console.error('Error requesting notification permission:', err);
+    }
+  };
 
   // Útvonalváltáskor zárjuk a menüt + lapozzunk a tetejére
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
@@ -60,8 +123,15 @@ function AppContent() {
     setShowInstallBtn(false);
   };
 
+  const handleDismissBanner = () => {
+    setShowAnnBanner(false);
+    sessionStorage.setItem('dismissed_announcement', announcement.text);
+  };
+
   return (
     <div className="relative min-h-screen text-night-100 font-sans overflow-x-hidden">
+
+      <AdminHoldBar progress={holdProgress} />
 
       {/* --- NIGHT-SKY BACKGROUND --- */}
       <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: 'linear-gradient(165deg, #0A2227 0%, #061216 48%, #030608 100%)' }}>
@@ -71,31 +141,65 @@ function AppContent() {
         <div className="blob w-[34rem] h-[34rem] bottom-0 left-1/4 bg-indigo2-500/20 animate-blob" style={{ animationDelay: '6s' }} />
       </div>
 
+      {/* --- IN-APP ANNOUNCEMENT BANNER --- */}
+      <AnimatePresence>
+        {showAnnBanner && (
+          <motion.div 
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed top-0 inset-x-0 z-[150] px-4 pt-4 pb-2 pointer-events-none flex justify-center"
+          >
+            <div className="pointer-events-auto w-full max-w-xl p-4 rounded-[1.5rem] bg-rose-500/90 text-white backdrop-blur-md border border-rose-400/30 flex items-start justify-between gap-3 shadow-lg shadow-rose-950/40">
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-4 h-4 text-white animate-pulse" />
+                </div>
+                <div className="leading-snug">
+                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-rose-100 block">Sürgős figyelmeztetés</span>
+                  <p className="text-xs font-bold mt-0.5">{announcement.text}</p>
+                </div>
+              </div>
+              <button 
+                onClick={handleDismissBanner} 
+                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0 text-white"
+                aria-label="Bezárás"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* --- DESKTOP SIDEBAR RAIL --- */}
       <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-screen w-64 flex-col p-4">
         <div className="flex-1 flex flex-col glass-card rounded-[2rem] p-5">
-          <Link to="/" className="flex items-center gap-3 mb-8 select-none active:scale-95 transition-transform">
-            <div className="w-11 h-11 rounded-2xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
+          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 mb-8 select-none active:scale-95 transition-transform">
+            <div
+              {...logoHoldHandlers}
+              title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
+              className="w-11 h-11 rounded-2xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
+            >
               <Logo className="w-6 h-6" />
             </div>
-            <div className="leading-tight">
-              <h1 className="text-[15px] font-extrabold tracking-tight text-white">Kőszeg</h1>
-              <span className="text-[10px] font-bold text-night-200/60 uppercase tracking-[0.18em]">Időjárás</span>
+            <div className="leading-tight select-none">
+              <h1 className="text-[13px] font-black tracking-tight text-white leading-none">
+                <span className="text-cyan2-300">K</span>őszegi
+              </h1>
+              <div className="text-[10px] font-bold text-white/90 uppercase tracking-wide leading-none mt-0.5">
+                <span className="text-cyan2-300">I</span>dőjárás
+              </div>
+              <div className="text-[9px] font-bold text-night-200/50 uppercase tracking-wider leading-none mt-0.5">
+                <span className="text-cyan2-300">E</span>lőrejelzés!
+              </div>
             </div>
           </Link>
 
           <nav className="flex flex-col gap-1.5">
-            {NAV_ITEMS.map(({ path, label, icon: Icon, customClick }) => {
+            {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
               const active = location.pathname === path;
-              if (customClick) {
-                return (
-                  <button key={path} onClick={handleForecastClick}
-                    className="relative w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-night-200/70 hover:bg-white/10 hover:text-white transition-all text-left">
-                    <Icon className="w-[18px] h-[18px] shrink-0 relative z-10" />
-                    <span className="relative z-10">{label}</span>
-                  </button>
-                );
-              }
               return (
                 <Link key={path} to={path}
                   className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${active ? 'text-white' : 'text-night-200/70 hover:bg-white/10 hover:text-white'}`}>
@@ -109,35 +213,88 @@ function AppContent() {
             })}
           </nav>
 
-          <div className="mt-auto pt-6 space-y-3">
+          <div className="mt-auto pt-6 space-y-4">
+            {/* Notification Subscription Button */}
+            <button 
+              onClick={handleRequestNotif}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
+                notifPermission === 'granted' 
+                  ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-300' 
+                  : 'bg-white/5 border border-white/10 text-night-200/80 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              {notifPermission === 'granted' ? (
+                <>
+                  <Bell className="w-4 h-4 text-emerald-400" />
+                  <span>Értesítések aktívak</span>
+                </>
+              ) : (
+                <>
+                  <BellOff className="w-4 h-4 text-night-300" />
+                  <span>Kérem a viharjelzéseket</span>
+                </>
+              )}
+            </button>
+            <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed -mt-1.5">
+              {notifPermission === 'granted'
+                ? 'Figyelmeztetést kapsz, amikor megnyitod az appot.'
+                : 'Az értesítés a megnyitott app böngészőjén keresztül érkezik.'}
+            </p>
+
             {showInstallBtn && (
               <button onClick={handleInstall} className="btn-grad w-full py-2.5 text-xs">
                 <Download className="w-4 h-4" /> Telepítés
               </button>
             )}
+            
             <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
-              © 2026 · Ráduly László<br />SmartMixin · ID 72461
+              © 2026 · Ráduly László
+              {viewCount !== null && (
+                <>
+                  <br />
+                  <span className="text-cyan2-400/80 font-extrabold tracking-wider">Látogatók: {viewCount.toLocaleString('hu-HU')}</span>
+                </>
+              )}
             </p>
           </div>
         </div>
       </aside>
 
-      {/* --- MOBILE TOP BAR + HAMBURGER --- */}
-      <header className="lg:hidden sticky top-0 z-40 px-4 pt-4 pointer-events-none">
+      {/* --- MOBILE TOP BAR + HAMBURGER (fixen rögzítve, alatta görög minden) --- */}
+      <header className="lg:hidden fixed top-0 inset-x-0 z-40 px-4 pt-4 pointer-events-none">
         <div className="pointer-events-auto flex items-center justify-between px-4 py-2.5 rounded-[1.5rem] glass-card">
-          <Link to="/" className="flex items-center gap-2.5 active:scale-95 transition-transform">
-            <div className="w-9 h-9 rounded-xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
+          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5 active:scale-95 transition-transform">
+            <div
+              {...logoHoldHandlers}
+              title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
+              className="w-9 h-9 rounded-xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
+            >
               <Logo className="w-5 h-5" />
             </div>
-            <span className="text-sm font-extrabold tracking-tight text-white">Kőszegi<span className="text-gradient"> Időjárás</span></span>
+            <span className="text-[10px] sm:text-xs font-black tracking-tight text-white whitespace-nowrap">
+              <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés!
+            </span>
           </Link>
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 border border-white/10 text-white active:scale-95 transition-all"
-            aria-label="Menü megnyitása"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Mobile notification toggle bell */}
+            <button 
+              onClick={handleRequestNotif}
+              className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all ${
+                notifPermission === 'granted' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-white/10 text-white/70'
+              }`}
+              title="Viharjelzés értesítések"
+            >
+              {notifPermission === 'granted' ? <Bell className="w-4 h-4 text-emerald-400" /> : <BellOff className="w-4 h-4" />}
+            </button>
+
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 border border-white/10 text-white active:scale-95 transition-all"
+              aria-label="Menü megnyitása"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -164,9 +321,16 @@ function AppContent() {
                     <div className="w-10 h-10 rounded-xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
                       <Logo className="w-5 h-5" />
                     </div>
-                    <div className="leading-tight">
-                      <h1 className="text-sm font-extrabold tracking-tight text-white">Kőszeg</h1>
-                      <span className="text-[9px] font-bold text-night-200/55 uppercase tracking-[0.18em]">Időjárás</span>
+                    <div className="leading-tight select-none">
+                      <h1 className="text-xs font-black tracking-tight text-white leading-none">
+                        <span className="text-cyan2-300">K</span>őszegi
+                      </h1>
+                      <div className="text-[9px] font-bold text-white/90 uppercase tracking-wide leading-none mt-0.5">
+                        <span className="text-cyan2-300">I</span>dőjárás
+                      </div>
+                      <div className="text-[8px] font-bold text-night-200/50 uppercase tracking-wider leading-none mt-0.5">
+                        <span className="text-cyan2-300">E</span>lőrejelzés!
+                      </div>
                     </div>
                   </div>
                   <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-white active:scale-95" aria-label="Bezárás">
@@ -175,24 +339,8 @@ function AppContent() {
                 </div>
 
                 <nav className="flex flex-col gap-1.5">
-                  {NAV_ITEMS.map(({ path, label, icon: Icon, customClick }, i) => {
+                  {NAV_ITEMS.map(({ path, label, icon: Icon }, i) => {
                     const active = location.pathname === path;
-                    if (customClick) {
-                      return (
-                        <motion.div
-                          key={path}
-                          initial={{ opacity: 0, x: 30 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.08 + i * 0.05 }}
-                        >
-                          <button onClick={(e) => { handleForecastClick(e); setMenuOpen(false); }}
-                            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-night-200/75 hover:bg-white/10 hover:text-white transition-all text-left">
-                            <Icon className="w-[18px] h-[18px] shrink-0" />
-                            <span>{label}</span>
-                          </button>
-                        </motion.div>
-                      );
-                    }
                     return (
                       <motion.div
                         key={path}
@@ -216,8 +364,15 @@ function AppContent() {
                       <Download className="w-4 h-4" /> Telepítés a kezdőképernyőre
                     </button>
                   )}
+                  
                   <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed text-center">
-                    © 2026 · Ráduly László<br />SmartMixin · ID 72461
+                    © 2026 · Ráduly László
+                    {viewCount !== null && (
+                      <>
+                        <br />
+                        <span className="text-cyan2-400 font-extrabold tracking-wider">Látogatók: {viewCount.toLocaleString('hu-HU')}</span>
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -226,15 +381,35 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      {/* --- MAIN --- */}
-      <main className="lg:pl-64 relative z-10 pt-4 lg:pt-6 pb-12">
+      {/* --- MAIN --- (nincs z-10: így a modálok a fix navbar fölé tudnak kerülni) */}
+      <main className="lg:pl-64 relative pt-[5.5rem] lg:pt-6 pb-12">
         <Routes>
           <Route path="/" element={<WeatherDashboard />} />
+          <Route path="/forecast" element={<Forecast />} />
           <Route path="/reels" element={<Reels />} />
           <Route path="/cameras" element={<Cameras />} />
+          <Route path="/sponsors" element={<Sponsors />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </main>
+
+      {/* --- GLOBÁLIS FOOTER --- */}
+      <footer className="lg:pl-64 relative z-10 px-4 pb-10">
+        <div className="max-w-6xl mx-auto border-t border-white/10 pt-6 flex flex-col items-center gap-1.5 text-center">
+          <p className="text-[11px] font-bold text-night-200/65">
+            Designed &amp; developed by{' '}
+            <a
+              href="mailto:avar.szilveszter@gmail.com"
+              className="text-gradient font-extrabold tracking-tight hover:brightness-125 transition-all"
+            >
+              SA software
+            </a>
+          </p>
+          <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
+            © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -242,7 +417,9 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <AppContent />
+      <AdminProvider>
+        <AppContent />
+      </AdminProvider>
     </Router>
   );
 }
