@@ -7,7 +7,8 @@ import Reels from './pages/Reels/Reels';
 import Cameras from './pages/Cameras/Cameras';
 import Sponsors from './pages/Sponsors/Sponsors';
 import About from './pages/About/About';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, Bell, BellOff, AlertTriangle } from 'lucide-react';
+import Radar from './pages/Radar/Radar';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, Bell, BellOff, AlertTriangle, Map } from 'lucide-react';
 import Logo from './components/Logo';
 import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
@@ -16,6 +17,7 @@ import { incrementPageViews, getForecast } from './api/supabase';
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
   { path: '/forecast', label: 'Előrejelzés', icon: Calendar },
+  { path: '/radar', label: 'Radar & Felhők', icon: Map },
   { path: '/reels', label: 'Reels', icon: Film },
   { path: '/cameras', label: 'Kamerák', icon: Camera },
   { path: '/sponsors', label: 'Támogatók', icon: Heart },
@@ -386,6 +388,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<WeatherDashboard />} />
           <Route path="/forecast" element={<Forecast />} />
+          <Route path="/radar" element={<Radar />} />
           <Route path="/reels" element={<Reels />} />
           <Route path="/cameras" element={<Cameras />} />
           <Route path="/sponsors" element={<Sponsors />} />

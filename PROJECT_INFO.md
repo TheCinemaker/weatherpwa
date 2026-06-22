@@ -32,6 +32,7 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ## 🛠️ Jelenlegi Állapot & Legutóbbi Fejlesztések
 
+* **Windy.com Térkép Integráció**: Külön „Radar & Felhők” aloldal beágyazott Windy.com interaktív térképpel. Négy választható réteggel (Műhold/Felhők, Csapadékradar, Szél, Hőmérséklet) Kőszegre fókuszálva (`lat=47.389`, `lon=16.541`), loaderrel és segédlettel.
 * **Routing Frissítés**: A korábbi `HashRouter` le lett cserélve modern HTML5-alapú `BrowserRouter`-re. A linkekből eltűnt a hashtag (`/#/` helyett sima `/` útvonalak vannak). A Netlify átirányítások be vannak állítva.
 * **PWA Caching Javítás**: A Service Worker (`sw.js`) verziója `v2`-re frissült. A korábbi agreszív `Cache-First` stratégia helyett a főoldal/HTML kérések `Network-First` módban futnak (hálózatról frissít, ha elérhető), a Supabase API kérések pedig nincsenek gyorsítótárazva.
 * **Admin Funkció**: A dashboardon az „Előrejelzés az Alpokaljára” kártya fejlécének **2 másodperces nyomva tartásával** nyitható meg az adminisztrátori mentési felület.
