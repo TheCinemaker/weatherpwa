@@ -60,7 +60,7 @@ export default function Sponsors() {
     logo_url: '/sasoftware.png',
     description: 'Egyedi szoftverfejlesztés, felhő-infrastruktúrák tervezése és prémium IT hálózati megoldások az Ön vállalkozására szabva. Ez az időjárás-alkalmazás is a mi munkánk.',
     website_url: null,
-    contact: developerEmail,
+    contact: 'avar.szilveszter@gmail.com',
     services: [
       { title: 'Web & Mobilappok', desc: 'Gyors, modern és reszponzív rendszerek (mint ez az app).' },
       { title: 'Felhő & Adatbázis', desc: 'Biztonságos Supabase és PostgreSQL integrációk.' },
@@ -255,7 +255,7 @@ export default function Sponsors() {
             Az alkalmazást Kőszeg lakói és a környékre látogató turisták ezrei használják nap mint nap. Jelenítsd meg vállalkozásodat saját hirdetési felületen – plakáttal, leírással és elérhetőséggel.
           </p>
           <a
-            href={`mailto:${developerEmail}?subject=Hirdetési lehetőség - Kőszegi Időjárás`}
+            href="mailto:avar.szilveszter@gmail.com?subject=Hirdetési lehetőség - Kőszegi Időjárás"
             className="btn-grad px-6 py-3 text-xs mt-5 inline-flex"
           >
             <Mail className="w-4 h-4" />
@@ -336,7 +336,11 @@ export default function Sponsors() {
                       className="btn-grad w-full py-3 text-xs"
                     >
                       <Mail className="w-4 h-4" />
-                      <span>{selectedAd.contact}</span>
+                      <span>
+                        {selectedAd.isDeveloper && selectedAd.contact.includes('@')
+                          ? 'Írj e-mailt'
+                          : selectedAd.contact}
+                      </span>
                     </a>
                   )}
                   {selectedAd.website_url && (
