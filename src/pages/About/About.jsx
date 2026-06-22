@@ -164,7 +164,7 @@ export default function About() {
               target="_blank" rel="noopener noreferrer" className="btn-grad px-6 py-3 text-xs w-full sm:w-auto">
               <span>Facebook Oldalam</span><ExternalLink className="w-4 h-4" />
             </a>
-            <a href="mailto:koszegidojaras@gmail.com"
+            <a href="mailto:idojaraskoszeg@gmail.com"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all active:scale-95 w-full sm:w-auto">
               <Mail className="w-4 h-4" /><span>Kapcsolatfelvétel</span>
             </a>
