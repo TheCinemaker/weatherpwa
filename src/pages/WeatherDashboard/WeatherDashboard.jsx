@@ -9,7 +9,7 @@ import StatDetailModal from './StatDetailModal';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
-import { getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage } from '../../api/supabase';
+import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage } from '../../api/supabase';
 import {
   AlertTriangle, MapPin, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
   Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
@@ -192,6 +192,10 @@ export default function WeatherDashboard() {
   // Hálózati állapot + "óránként újraszámolt" tick a relatív mérési időhöz.
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [nowTick, setNowTick] = useState(Date.now());
+  const activeNewsBlurbs = useMemo(() => {
+    const tickTime = new Date(nowTick);
+    return newsBlurbs.filter(b => !b.expires_at || new Date(b.expires_at) > tickTime);
+  }, [newsBlurbs, nowTick]);
   useEffect(() => {
     const on = () => setIsOnline(true);
     const off = () => setIsOnline(false);
@@ -214,12 +218,39 @@ export default function WeatherDashboard() {
       setAdminAnnActive(data.announcement_active || false);
     });
 
-    getNewsBlurbs().then(setNewsBlurbs);
+    getNewsBlurbs().then(data => {
+      const now = new Date();
+      const active = data.filter(b => !b.expires_at || new Date(b.expires_at) > now);
+      setNewsBlurbs(active);
+    });
+
+    let blurbChannel = null;
+    if (supabase) {
+      blurbChannel = supabase
+        .channel('realtime_news_blurbs')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'news_blurbs' }, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setNewsBlurbs((prev) => {
+              if (prev.some(b => b.id === payload.new.id)) return prev;
+              return [payload.new, ...prev];
+            });
+          } else if (payload.eventType === 'DELETE') {
+            setNewsBlurbs((prev) => prev.filter((b) => b.id !== payload.old.id));
+          } else if (payload.eventType === 'UPDATE') {
+            setNewsBlurbs((prev) => prev.map((b) => b.id === payload.new.id ? payload.new : b));
+          }
+        })
+        .subscribe();
+    }
 
     getSponsors().then(data => {
       const activeSponsors = data.filter(sp => sp.active && new Date(sp.expires_at) > new Date());
       setSponsors(activeSponsors);
     });
+
+    return () => {
+      if (blurbChannel) supabase.removeChannel(blurbChannel);
+    };
   }, []);
 
 
@@ -596,11 +627,11 @@ export default function WeatherDashboard() {
       </FadeUp>
 
       {/* --- HÍRMORZSÁK --- */}
-      {newsBlurbs.length > 0 && (
+      {activeNewsBlurbs.length > 0 && (
         <FadeUp delay={0.04}>
           <SectionLabel>Villámhírek</SectionLabel>
           <div className="space-y-3">
-            {newsBlurbs.map(b => (
+            {activeNewsBlurbs.map(b => (
               <div key={b.id} className="relative glass-card rounded-2xl p-4 flex gap-3">
                 <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white shrink-0">
                   <Newspaper className="w-4 h-4" />
@@ -879,9 +910,9 @@ export default function WeatherDashboard() {
                   <Plus className="w-4 h-4" /> {blurbBusy ? 'Mentés...' : 'Villámhír hozzáadása'}
                 </button>
 
-                {newsBlurbs.length > 0 && (
+                {activeNewsBlurbs.length > 0 && (
                   <div className="space-y-2 pt-1">
-                    {newsBlurbs.map(b => (
+                    {activeNewsBlurbs.map(b => (
                       <div key={b.id} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
                         {editBlurbId === b.id ? (
                           <div className="space-y-2">
