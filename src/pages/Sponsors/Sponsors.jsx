@@ -23,7 +23,7 @@ function compressLogo(file, maxW = 400) {
 }
 
 export default function Sponsors() {
-  const developerEmail = "avar.szilveszter@gmail.com";
+  const developerEmail = "idojaraskoszeg@gmail.com";
   const [sponsors, setSponsors] = useState([]);
   const [loading, setLoading] = useState(true);
   
