@@ -193,7 +193,7 @@ function AppContent() {
               <div className="text-[10px] font-bold text-white/90 uppercase tracking-wide leading-none mt-0.5">
                 <span className="text-cyan2-300">I</span>dőjárás
               </div>
-              <div className="text-[9px] font-bold text-night-200/50 uppercase tracking-wider leading-none mt-0.5">
+              <div className="text-[9px] font-bold text-white/60 uppercase tracking-wider leading-none mt-0.5">
                 <span className="text-cyan2-300">E</span>lőrejelzés
               </div>
             </div>
@@ -204,7 +204,7 @@ function AppContent() {
               const active = location.pathname === path;
               return (
                 <Link key={path} to={path}
-                  className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${active ? 'text-white' : 'text-night-200/70 hover:bg-white/10 hover:text-white'}`}>
+                  className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${active ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
                   {active && (
                     <motion.span layoutId="nav-active-desktop" className="absolute inset-0 rounded-2xl bg-brand-gradient shadow-glow" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
                   )}
@@ -237,7 +237,7 @@ function AppContent() {
                 </>
               )}
             </button>
-            <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed -mt-1.5">
+            <p className="text-[10px] font-semibold text-white/50 leading-relaxed -mt-1.5">
               {notifPermission === 'granted'
                 ? 'Figyelmeztetést kapsz, amikor megnyitod az appot.'
                 : 'Az értesítés a megnyitott app böngészőjén keresztül érkezik.'}
@@ -249,7 +249,7 @@ function AppContent() {
               </button>
             )}
             
-            <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
+            <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
               © 2026 · Ráduly László
               {viewCount !== null && (
                 <>
@@ -330,7 +330,7 @@ function AppContent() {
                       <div className="text-[9px] font-bold text-white/90 uppercase tracking-wide leading-none mt-0.5">
                         <span className="text-cyan2-300">I</span>dőjárás
                       </div>
-                      <div className="text-[8px] font-bold text-night-200/50 uppercase tracking-wider leading-none mt-0.5">
+                      <div className="text-[8px] font-bold text-white/60 uppercase tracking-wider leading-none mt-0.5">
                         <span className="text-cyan2-300">E</span>lőrejelzés
                       </div>
                     </div>
@@ -351,7 +351,7 @@ function AppContent() {
                         transition={{ delay: 0.04 + i * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                       >
                         <Link to={path}
-                          className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-night-200/75 hover:bg-white/10 hover:text-white'}`}>
+                          className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-white hover:bg-white/10 hover:text-white'}`}>
                           <Icon className="w-[18px] h-[18px] shrink-0" />
                           <span>{label}</span>
                         </Link>
@@ -367,7 +367,7 @@ function AppContent() {
                     </button>
                   )}
                   
-                  <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed text-center">
+                  <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
                     © 2026 · Ráduly László
                     {viewCount !== null && (
                       <>
@@ -399,7 +399,7 @@ function AppContent() {
       {/* --- GLOBÁLIS FOOTER --- */}
       <footer className="lg:pl-64 relative z-10 px-4 pb-10">
         <div className="max-w-6xl mx-auto border-t border-white/10 pt-6 flex flex-col items-center gap-1.5 text-center">
-          <p className="text-[11px] font-bold text-night-200/65">
+          <p className="text-[11px] font-bold text-white/70">
             Designed &amp; developed by{' '}
             <a
               href="mailto:avar.szilveszter@gmail.com"
@@ -408,11 +408,11 @@ function AppContent() {
               SA software
             </a>
           </p>
-          <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
+          <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
-          <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
-            Version: 2.0.2
+          <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
+            Version: 2.0.5
           </p>
           <a
             href="https://visitkoszeg.hu"

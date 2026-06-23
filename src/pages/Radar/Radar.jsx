@@ -3,14 +3,14 @@ import { Map, Cloud, CloudRain, Wind, Thermometer, Loader2, AlertCircle } from '
 import { FadeUp } from '../../components/AppleMotion';
 
 const OVERLAYS = [
-  { id: 'satellite', label: 'Műhold / Felhők', icon: Cloud, desc: 'Valós idejű műholdfelvételek és felhőzet az Alpokalján.' },
   { id: 'radar', label: 'Csapadékradar', icon: CloudRain, desc: 'Aktuális csapadékintenzitás és zivatarcellák mozgása.' },
+  { id: 'satellite', label: 'Műhold / Felhők', icon: Cloud, desc: 'Valós idejű műholdfelvételek és felhőzet az Alpokalján.' },
   { id: 'wind', label: 'Széláramlás', icon: Wind, desc: 'Pillanatnyi szélirány és szélerősség vizualizáció.' },
   { id: 'temp', label: 'Hőmérsékleti térkép', icon: Thermometer, desc: 'Hőtérkép a régió aktuális és várható hőmérsékletéről.' },
 ];
 
 export default function Radar() {
-  const [activeOverlay, setActiveOverlay] = useState('satellite');
+  const [activeOverlay, setActiveOverlay] = useState('radar');
   const [loading, setLoading] = useState(true);
 
   // Az oldal betöltésekor állítsuk be a címet és görgessünk a tetejére
@@ -41,7 +41,7 @@ export default function Radar() {
               <Map className="w-6 h-6 text-cyan2-300" />
               <span>Radar &amp; <span className="text-gradient">Felhők</span></span>
             </h1>
-            <p className="text-xs text-night-200/55 font-semibold mt-0.5">
+            <p className="text-xs text-white/60 font-semibold mt-0.5">
               Windy.com interaktív műhold- és csapadékradar Kőszeg térségére hangolva
             </p>
           </div>
@@ -60,7 +60,7 @@ export default function Radar() {
                 className={`flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
                   active
                     ? 'bg-brand-gradient text-white border-cyan2-400/30 shadow-glow'
-                    : 'glass-card text-night-200/75 hover:text-white border-white/5 hover:border-white/10 hover:bg-white/5'
+                    : 'glass-card text-white/80 hover:text-white border-white/5 hover:border-white/10 hover:bg-white/5'
                 }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-cyan2-400'}`} />
@@ -73,7 +73,7 @@ export default function Radar() {
 
       {/* Aktív overlay leírása */}
       <FadeUp delay={0.08}>
-        <p className="text-xs font-semibold text-night-200/60 pl-1">
+        <p className="text-xs font-semibold text-white/60 pl-1">
           {currentOverlayInfo ? currentOverlayInfo.desc : ''}
         </p>
       </FadeUp>
@@ -109,7 +109,7 @@ export default function Radar() {
           <AlertCircle className="w-5 h-5 text-cyan2-300 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="text-xs font-extrabold text-white">Hogyan használd a térképet?</h4>
-            <p className="text-[11px] text-night-200/60 leading-relaxed font-semibold">
+            <p className="text-[11px] text-white/60 leading-relaxed font-semibold">
               • **Adatforrás**: Ezek az interaktív térképes adatok nem a saját időjárás állomásunk közvetlen mérései, a vizualizációt és az előrejelzéseket a **Windy.com** szolgáltatja.<br />
               • A térkép bal alsó sarkában található **lejátszás gombbal** (Play) indíthatod el a felhők vagy csapadék mozgásának animációját.<br />
               • A térképet szabadon **húzhatod és nagyíthatod / kicsinyítheted** (egér görgővel vagy mobilon két ujjal).<br />

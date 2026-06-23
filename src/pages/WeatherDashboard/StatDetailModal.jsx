@@ -68,10 +68,10 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                       {Icon && <Icon className="w-6 h-6" />}
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-night-200/55 mb-0.5">Aktuális</div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-0.5">Aktuális</div>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-extrabold text-white tracking-tight">{fmt(currentValue)}</span>
-                        <span className="text-sm font-bold text-night-200/45">{metric.unit}</span>
+                        <span className="text-sm font-bold text-white/50">{metric.unit}</span>
                       </div>
                       <div className="text-sm font-bold text-white/90 mt-0.5">{metric.label}</div>
                     </div>
@@ -93,9 +93,9 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                       { label: 'Maximum', val: stats.max },
                     ].map((s) => (
                       <div key={s.label} className="bg-white/[0.04] rounded-2xl px-3 py-2.5 text-center border border-white/10">
-                        <div className="text-[9px] font-bold uppercase tracking-widest text-night-200/55 mb-1">{s.label}</div>
+                        <div className="text-[9px] font-bold uppercase tracking-widest text-white/70 mb-1">{s.label}</div>
                         <div className="text-base font-extrabold text-white">
-                          {fmt(s.val)}<span className="text-[10px] font-bold text-night-200/45 ml-0.5">{metric.unit}</span>
+                          {fmt(s.val)}<span className="text-[10px] font-bold text-white/50 ml-0.5">{metric.unit}</span>
                         </div>
                       </div>
                     ))}
@@ -111,7 +111,7 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                   {chartData ? (
                     <Chart data={chartData} options={options} />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-night-200/45">
+                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white/50">
                       Nincs mérési adat az elmúlt 24 órában.
                     </div>
                   )}

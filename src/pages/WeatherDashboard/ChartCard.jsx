@@ -131,14 +131,14 @@ export function makeChartOptions(config) {
         ticks: {
           maxTicksLimit: 6,
           maxRotation: 0,
-          color: 'rgba(159, 192, 189, 0.6)',
+          color: 'rgba(255, 255, 255, 0.85)',
           font: { family: '"Plus Jakarta Sans", system-ui, sans-serif', size: 10, weight: '600' }
         }
       },
       y: {
         grid: { color: 'rgba(255, 255, 255, 0.06)' },
         ticks: {
-          color: 'rgba(159, 192, 189, 0.6)',
+          color: 'rgba(255, 255, 255, 0.85)',
           font: { family: '"Plus Jakarta Sans", system-ui, sans-serif', size: 10, weight: '600' },
           callback: (value) => `${value}${unit ? ' ' + unit : ''}`
         }

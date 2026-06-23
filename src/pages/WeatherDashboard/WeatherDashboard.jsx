@@ -90,11 +90,14 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
   return (
     <div className={`relative rounded-[2rem] p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/10 flex flex-col justify-between min-h-[190px]`}>
       
+      {/* Subtle overlay gradient to enhance readability of left-aligned text */}
+      <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-black/25 to-transparent pointer-events-none z-0" />
+
       {/* Middle row: Temp & Details & Graphic */}
       <div className="flex justify-between items-center relative z-10 w-full flex-1 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
           <div>
-            <p className="text-[9px] font-black text-white/55 uppercase tracking-[0.2em]">{dateStr}</p>
+            <p className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em]">{dateStr}</p>
             <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mt-0.5">Kőszeg · Időjárás</h2>
           </div>
           
@@ -115,7 +118,7 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
             </div>
 
             {feels != null && (
-              <span className="text-[11px] font-bold text-white/75 bg-white/10 px-2.5 py-1 rounded-lg border border-white/10">
+              <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-lg border border-white/20 backdrop-blur-sm">
                 Hőérzet: <strong className="font-extrabold text-white">{feels.toFixed(1)} °C</strong>
               </span>
             )}
@@ -136,13 +139,13 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
       </div>
 
       {/* Bottom row: Coordinates & Elevation */}
-      <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[10px] font-extrabold text-white/50 relative z-10 w-full">
+      <div className="mt-5 pt-3 border-t border-white/20 flex items-center justify-between text-[10px] font-extrabold text-white/75 relative z-10 w-full drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.4)]">
         <div className="flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-white/40" />
+          <MapPin className="w-3.5 h-3.5 text-white/60" />
           <span>47.3971°N, 16.546°E</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <svg className="w-3.5 h-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg className="w-3.5 h-3.5 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
           <span>Magasság: 274 m</span>
