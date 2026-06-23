@@ -46,7 +46,7 @@ export default function useWeatherData() {
   const [lastMeasureAt, setLastMeasureAt] = useState(null); // az állomás tényleges mérési ideje (unix mp)
 
   const fetchCurrent = useCallback(async () => {
-    const res = await fetch(CURRENT_URL, { headers: CURRENT_HEADERS });
+    const res = await fetch(`${CURRENT_URL}&_=${Date.now()}`, { headers: CURRENT_HEADERS, cache: 'no-store' });
     if (!res.ok) throw new Error(`Aktuális API hiba: ${res.status}`);
     return res.json();
   }, []);
