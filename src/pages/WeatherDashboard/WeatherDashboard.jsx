@@ -301,6 +301,27 @@ export default function WeatherDashboard() {
         announcement_active: adminAnnActive
       });
       setForecastData(data);
+
+      // --- Send Web Push notification if emergency alert is active ---
+      if (adminAnnActive && adminAnnText.trim().length > 0) {
+        try {
+          const pushRes = await fetch('/.netlify/functions/send-push-alert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: 'Kőszeg Weather',
+              body: adminAnnText.trim(),
+              url: '/'
+            })
+          });
+          const pushData = await pushRes.json();
+          console.log('[Admin] Push alert sent:', pushData);
+        } catch (pushErr) {
+          // Push failure is non-fatal — the forecast is already saved
+          console.warn('[Admin] Push notification failed (non-fatal):', pushErr.message);
+        }
+      }
+
       setShowAdmin(false);
     } catch (err) {
       console.error(err);

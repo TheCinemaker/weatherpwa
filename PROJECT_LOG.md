@@ -97,3 +97,31 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.0.9`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache kulcs: `koszeg-weather-cache-v2.0.9`).
 
+---
+
+### 🏷️ Version 2.0.10 (Kizárólag lokálisan elmentve / Nincs pusholva)
+*   **Saját Web Push értesítési rendszer bevezetése (OneSignal nélkül)**:
+    *   **Fájl**: [supabase_migrations/15_create_push_subscriptions.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/15_create_push_subscriptions.sql) [ÚJ]
+    *   **Változtatás**: Létrehoztam a `push_subscriptions` adatbázistáblát a felhasználói push feliratkozások tárolásához. A tábla tartalmazza a `endpoint`, `p256dh` és `auth` mezőket. RLS szabályok: publikus INSERT (feliratkozás), SELECT (állapot ellenőrzés) és DELETE (leiratkozás) engedélyezve.
+    *   **Fájl**: [netlify/functions/send-push-alert.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify/functions/send-push-alert.js) [ÚJ]
+    *   **Változtatás**: Új Netlify serverless funkció a push értesítések szétküldéséhez. VAPID kulcsokkal hitelesíti magát. Lekéri az összes aktív feliratkozást a Supabase-ből, majd párhuzamosan küldi a push értesítéseket. Lejárt (HTTP 410/404) endpointokat automatikusan törli.
+    *   **Fájl**: [src/components/PushNotificationButton.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/PushNotificationButton.jsx) [ÚJ]
+    *   **Változtatás**: Új React komponens, amely kezeli a böngészős PushManager feliratkozási életciklust. Kétféle módban használható: `mode="desktop"` (teljes szélességű gomb + leírás az oldalsávban) és `mode="mobile"` (harang ikon a felső sávban). A feliratkozás adatait (endpoint, p256dh, auth) UPSERT-tel tárolja a Supabase-ben. Leiratkozáskor törli a rekordot.
+    *   **Fájl**: [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx)
+    *   **Változtatás**: A régi, csak böngészőalapú `Notification.requestPermission()` értesítési gombokat (`handleRequestNotif`, `notifPermission` state) eltávolítottam. Mindkét helyen (asztali oldalsáv aljában és mobil fejléc harang ikonja) az új `<PushNotificationButton>` komponenst alkalmazzuk.
+    *   **Fájl**: [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx)
+    *   **Változtatás**: A `handleSaveForecast` függvénybe beépítettem a push küldést: ha `adminAnnActive === true` és az `adminAnnText` nem üres, az adatbázis mentése után meghívja a `/.netlify/functions/send-push-alert` végpontot `POST` kéréssel, a sürgős értesítés szövegével. A push küldés hibája nem-fatális (a forecast ettől még elmentésre kerül).
+    *   **Fájl**: [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml)
+    *   **Változtatás**: Új redirect szabály: `/api/send-push-alert` → `/.netlify/functions/send-push-alert` (200).
+    *   **Fájl**: [.env](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/.env) és [.env.example](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/.env.example)
+    *   **Változtatás**: VAPID kulcspár hozzáadva. Generálva: `npx web-push generate-vapid-keys` (2026-06-23). `VITE_VAPID_PUBLIC_KEY` a kliensnek, `VAPID_PRIVATE_KEY` kizárólag szerver oldali (Netlify env var). A privát kulcsot a Netlify dashboard → Site configuration → Environment variables felületen kell beállítani.
+    *   **Csomag**: `web-push` npm csomag hozzáadva (`npm install web-push --save`) — a Netlify Function használja a push szétküldéshez.
+
+> [!IMPORTANT]
+> **Élesítéshez szükséges teendők:**
+> 1. Futtasd le a `15_create_push_subscriptions.sql` migrációs fájlt a Supabase SQL editorában.
+> 2. Add meg a Netlify dashboard → Site configuration → Environment variables felületen:
+>    - `VAPID_PUBLIC_KEY` = `BF3uUHcsgrbtfH8KpgmSHr2qsKzgRhdxuFzQIEpvOoE7Y3t-ztjg5lFJ_gYVcESXjBZhM_jEVZjuBjBA_HVnwEY`
+>    - `VAPID_PRIVATE_KEY` = `XMdDZbcmXblBRIzkBuepDcyN3xQeC4BxX6jac9-JApQ`
+>    - `SUPABASE_URL` = (a Supabase projekt URL-je)
+>    - `SUPABASE_SERVICE_ROLE_KEY` = (a Supabase service role key, nem az anon key!)

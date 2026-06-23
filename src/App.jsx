@@ -8,11 +8,12 @@ import Cameras from './pages/Cameras/Cameras';
 import Sponsors from './pages/Sponsors/Sponsors';
 import About from './pages/About/About';
 import Radar from './pages/Radar/Radar';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, Bell, BellOff, AlertTriangle, Map } from 'lucide-react';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map } from 'lucide-react';
 import Logo from './components/Logo';
 import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
 import { incrementPageViews, getForecast } from './api/supabase';
+import PushNotificationButton from './components/PushNotificationButton';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
@@ -35,7 +36,6 @@ function AppContent() {
   const [viewCount, setViewCount] = useState(null);
   const [announcement, setAnnouncement] = useState({ text: '', active: false });
   const [showAnnBanner, setShowAnnBanner] = useState(false);
-  const [notifPermission, setNotifPermission] = useState('default');
 
   // Admin belépés a logóra: 3 mp nyomás → PIN-kapu (globális kontextus).
   const requestAdmin = useAdminRequest();
@@ -78,35 +78,8 @@ function AppContent() {
       }
     });
 
-    // 4. Set initial notification permission status
-    if ('Notification' in window) {
-      setNotifPermission(Notification.permission);
-    }
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
-
-  // Request browser notification permissions
-  const handleRequestNotif = async () => {
-    if (!('Notification' in window)) {
-      alert('Ez a böngésző nem támogatja az értesítéseket.');
-      return;
-    }
-    
-    try {
-      const res = await Notification.requestPermission();
-      setNotifPermission(res);
-      
-      if (res === 'granted') {
-        new Notification('Kőszegi Időjárás', {
-          body: 'Sikeresen feliratkoztál az időjárás értesítésekre!',
-          icon: '/favicon.png'
-        });
-      }
-    } catch (err) {
-      console.error('Error requesting notification permission:', err);
-    }
-  };
 
   // Útvonalváltáskor zárjuk a menüt + lapozzunk a tetejére
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
@@ -216,32 +189,8 @@ function AppContent() {
           </nav>
 
           <div className="mt-auto pt-6 space-y-4">
-            {/* Notification Subscription Button */}
-            <button 
-              onClick={handleRequestNotif}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-apple-inner text-xs font-bold transition-all ${
-                notifPermission === 'granted' 
-                  ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-300' 
-                  : 'bg-white/5 border border-white/10 text-night-200/80 hover:bg-white/10 hover:text-white'
-              }`}
-            >
-              {notifPermission === 'granted' ? (
-                <>
-                  <Bell className="w-4 h-4 text-emerald-400" />
-                  <span>Értesítések aktívak</span>
-                </>
-              ) : (
-                <>
-                  <BellOff className="w-4 h-4 text-night-300" />
-                  <span>Kérem a viharjelzéseket</span>
-                </>
-              )}
-            </button>
-            <p className="text-[10px] font-semibold text-white/50 leading-relaxed -mt-1.5">
-              {notifPermission === 'granted'
-                ? 'Figyelmeztetést kapsz, amikor megnyitod az appot.'
-                : 'Az értesítés a megnyitott app böngészőjén keresztül érkezik.'}
-            </p>
+            {/* Web Push Notification Button */}
+            <PushNotificationButton mode="desktop" />
 
             {showInstallBtn && (
               <button onClick={handleInstall} className="btn-grad w-full py-2.5 text-xs">
@@ -278,16 +227,8 @@ function AppContent() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            {/* Mobile notification toggle bell */}
-            <button 
-              onClick={handleRequestNotif}
-              className={`w-9 h-9 flex items-center justify-center rounded-apple-inner transition-all ${
-                notifPermission === 'granted' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-white/10 text-white/70'
-              }`}
-              title="Viharjelzés értesítések"
-            >
-              {notifPermission === 'granted' ? <Bell className="w-4 h-4 text-emerald-400" /> : <BellOff className="w-4 h-4" />}
-            </button>
+            {/* Web Push Notification Button */}
+            <PushNotificationButton mode="mobile" />
 
             <button
               onClick={() => setMenuOpen(true)}
@@ -412,7 +353,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.0.9
+            Version: 2.0.10
           </p>
           <a
             href="https://visitkoszeg.hu"
