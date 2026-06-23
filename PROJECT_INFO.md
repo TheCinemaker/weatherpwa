@@ -1,3 +1,10 @@
+# ⚠️ FONTOS: Olvasd el mielőtt bármit csinálsz!
+
+> [!IMPORTANT]
+> Mielőtt bármilyen módosítást végeznél a kódon vagy a projekten, KÖTELEZŐ elolvasnod ezt a dokumentumot és a [PROJECT_LOG.md](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/PROJECT_LOG.md) fájlt! **Senki nem csinálhat semmit, amíg ezeket el nem olvasta!**
+
+---
+
 # Projekt Információk - Kőszeg Weather PWA
 
 Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési útjait és konfigurációs kulcsait.

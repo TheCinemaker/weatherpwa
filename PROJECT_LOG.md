@@ -1,3 +1,10 @@
+# ⚠️ FONTOS: Olvasd el mielőtt bármit csinálsz!
+
+> [!IMPORTANT]
+> **Senki nem csinálhat semmit ezen a projekten, amíg ezt a Fejlesztési Naplót és a [PROJECT_INFO.md](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/PROJECT_INFO.md) fájlt teljes egészében el nem olvasta!**
+
+---
+
 # Fejlesztési Napló - Kőszeg Weather PWA
 
 Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, verzióemelést és fejlesztési részletet kronológiai sorrendben, hogy a hibák visszakövethetőek legyenek.
