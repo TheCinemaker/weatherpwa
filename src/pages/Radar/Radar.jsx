@@ -57,7 +57,7 @@ export default function Radar() {
               <button
                 key={id}
                 onClick={() => handleOverlayChange(id)}
-                className={`flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
+                className={`flex items-center justify-center gap-2.5 px-4 py-3 rounded-apple-inner text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
                   active
                     ? 'bg-brand-gradient text-white border-cyan2-400/30 shadow-glow'
                     : 'glass-card text-white/80 hover:text-white border-white/5 hover:border-white/10 hover:bg-white/5'
@@ -80,7 +80,7 @@ export default function Radar() {
 
       {/* Térkép kártya */}
       <FadeUp delay={0.1}>
-        <div className="relative glass-card rounded-[2rem] p-3 overflow-hidden aspect-[4/3] md:aspect-[16/9] w-full min-h-[400px] md:min-h-[500px]">
+        <div className="relative glass-card rounded-apple-outer p-3 overflow-hidden aspect-[4/3] md:aspect-[16/9] w-full min-h-[400px] md:min-h-[500px]">
           {/* Betöltés jelző */}
           {loading && (
             <div className="absolute inset-0 z-20 bg-night-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
@@ -96,7 +96,7 @@ export default function Radar() {
             key={activeOverlay}
             src={windyEmbedUrl}
             onLoad={() => setLoading(false)}
-            className="w-full h-full rounded-[1.5rem] border-0"
+            className="w-full h-full rounded-apple-card border-0"
             title={`Windy ${activeOverlay} overlay`}
             allowFullScreen
           />
@@ -105,7 +105,7 @@ export default function Radar() {
 
       {/* Segítség / Használati útmutató */}
       <FadeUp delay={0.15}>
-        <div className="p-5 rounded-[1.5rem] bg-cyan2-400/5 border border-cyan2-400/15 max-w-4xl mx-auto flex gap-3 text-left">
+        <div className="p-5 rounded-apple-card bg-cyan2-400/5 border border-cyan2-400/15 max-w-4xl mx-auto flex gap-3 text-left">
           <AlertCircle className="w-5 h-5 text-cyan2-300 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="text-xs font-extrabold text-white">Hogyan használd a térképet?</h4>

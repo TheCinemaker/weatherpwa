@@ -211,7 +211,7 @@ export default function Sponsors() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-44 rounded-[1.75rem] bg-white/[0.04] animate-pulse" />
+              <div key={i} className="h-44 rounded-apple-card bg-white/[0.04] animate-pulse" />
             ))}
           </div>
         ) : (
@@ -220,11 +220,11 @@ export default function Sponsors() {
               <button
                 key={ad.id}
                 onClick={() => setSelectedAd(ad)}
-                className={`glass-card rounded-[1.75rem] p-5 text-left flex flex-col h-full transition-all duration-300 relative overflow-hidden group active:scale-[0.99] ${ad.isDeveloper ? 'border-cyan2-500/30 shadow-glow' : 'hover:border-cyan2-400/30'}`}
+                className={`glass-card rounded-apple-card p-5 text-left flex flex-col h-full transition-all duration-300 relative overflow-hidden group active:scale-[0.99] ${ad.isDeveloper ? 'border-cyan2-500/30 shadow-glow' : 'hover:border-cyan2-400/30'}`}
               >
                 <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan2-500/5 blur-xl pointer-events-none" />
                 <div className="flex items-center gap-3 relative z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="w-14 h-14 rounded-apple-inner bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
                     <img src={ad.logo_url} alt={ad.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="min-w-0">
@@ -248,7 +248,7 @@ export default function Sponsors() {
 
       {/* --- HIRDETÉSI CTA (fizetős felület) --- */}
       <FadeUp delay={0.1}>
-        <div className="relative overflow-hidden rounded-[2rem] glass-card p-6 sm:p-8 text-center border border-cyan2-500/20 bg-[#0a1e22]/60 mt-2">
+        <div className="relative overflow-hidden rounded-apple-outer glass-card p-6 sm:p-8 text-center border border-cyan2-500/20 bg-[#0a1e22]/60 mt-2">
           <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
           <h3 className="text-lg font-extrabold text-white">Hirdess a Kőszegi Időjárásban!</h3>
           <p className="text-xs text-night-200/70 max-w-md mx-auto leading-relaxed mt-2">
@@ -280,7 +280,7 @@ export default function Sponsors() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-lg bg-night-800 rounded-apple-outer shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               <button
@@ -293,12 +293,12 @@ export default function Sponsors() {
 
               {/* Flyer / plakát (ha van), különben a logó nagyban */}
               {selectedAd.flyer_url ? (
-                <div className="w-full bg-black/30 flex items-center justify-center rounded-t-[2rem] overflow-hidden">
+                <div className="w-full bg-black/30 flex items-center justify-center rounded-t-apple-outer overflow-hidden">
                   <img src={selectedAd.flyer_url} alt={selectedAd.name} className="w-full h-auto max-h-[55vh] object-contain" />
                 </div>
               ) : (
                 <div className="pt-8 flex justify-center">
-                  <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-apple-card bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
                     <img src={selectedAd.logo_url} alt={selectedAd.name} className="w-full h-full object-cover" />
                   </div>
                 </div>
@@ -320,7 +320,7 @@ export default function Sponsors() {
                 {selectedAd.isDeveloper && selectedAd.services && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
                     {selectedAd.services.map((s) => (
-                      <div key={s.title} className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                      <div key={s.title} className="p-3 rounded-apple-inner bg-white/[0.03] border border-white/5 space-y-1">
                         <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">{s.title}</h4>
                         <p className="text-[10px] text-night-200/60 leading-relaxed">{s.desc}</p>
                       </div>
@@ -348,7 +348,7 @@ export default function Sponsors() {
                       href={selectedAd.website_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all active:scale-95"
+                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-apple-inner bg-white/10 border border-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all active:scale-95"
                     >
                       <Globe className="w-4 h-4" /><span>Weboldal megnyitása</span>
                     </a>
@@ -375,7 +375,7 @@ export default function Sponsors() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-lg bg-night-800 rounded-apple-outer p-6 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
@@ -392,7 +392,7 @@ export default function Sponsors() {
               </div>
 
               {/* Form to add/edit sponsor */}
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-3">
+              <div className="p-4 rounded-apple-card bg-white/[0.03] border border-white/5 space-y-3">
                 <h4 className="text-xs font-bold text-cyan2-200 uppercase tracking-widest">
                   {editingSponsor ? 'Támogató Módosítása' : 'Új Támogató Hozzáadása'}
                 </h4>
@@ -405,7 +405,7 @@ export default function Sponsors() {
                       value={sponsorName}
                       onChange={e => setSponsorName(e.target.value.slice(0, 50))}
                       placeholder="Pl.: Kuszala Ablak"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
+                      className="w-full px-3.5 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
                     />
                   </div>
                   <div>
@@ -415,7 +415,7 @@ export default function Sponsors() {
                       value={sponsorUrl}
                       onChange={e => setSponsorUrl(e.target.value)}
                       placeholder="https://example.hu"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
+                      className="w-full px-3.5 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
                     />
                   </div>
                 </div>
@@ -430,7 +430,7 @@ export default function Sponsors() {
                     value={sponsorDesc}
                     onChange={e => setSponsorDesc(e.target.value.slice(0, 1000))}
                     placeholder="Pl.: Minőségi műanyag nyílászárók beépítése Kőszegen. Ingyenes helyszíni felmérés, akár 10 év garancia..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                    className="w-full px-3.5 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50 resize-none leading-relaxed"
                   />
                 </div>
 
@@ -441,7 +441,7 @@ export default function Sponsors() {
                     value={sponsorContact}
                     onChange={e => setSponsorContact(e.target.value.slice(0, 60))}
                     placeholder="Pl.: info@kuszala.hu vagy +36 30 123 4567"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
+                    className="w-full px-3.5 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/30 focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
                   />
                 </div>
 
@@ -452,7 +452,7 @@ export default function Sponsors() {
                     <select
                       value={sponsorDurationWeeks}
                       onChange={e => setSponsorDurationWeeks(parseInt(e.target.value, 10))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-[#070c14] text-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
+                      className="w-full px-3.5 py-2.5 rounded-apple-inner border border-white/10 bg-[#070c14] text-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-cyan2-400/50"
                       disabled={!!editingSponsor && !selectedFile}
                     >
                       <option value={1}>1 Hét (7 nap)</option>
@@ -466,7 +466,7 @@ export default function Sponsors() {
                   {/* Logo Upload */}
                   <div>
                     <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1 block">Logó feltöltése</label>
-                    <label className="w-full flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-night-200/60 hover:text-white cursor-pointer justify-center text-xs font-semibold transition-colors duration-200">
+                    <label className="w-full flex items-center gap-2 px-3.5 py-2 rounded-apple-inner border border-white/10 bg-white/[0.04] text-night-200/60 hover:text-white cursor-pointer justify-center text-xs font-semibold transition-colors duration-200">
                       {logoPreview ? (
                         <div className="flex items-center gap-2">
                           <img src={logoPreview} alt="" className="w-6 h-6 object-cover rounded-md" />
@@ -487,7 +487,7 @@ export default function Sponsors() {
                 <div>
                   <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1 block">Plakát / flyer (opcionális, nagy kép a részletekhez)</label>
                   {flyerPreview ? (
-                    <div className="relative w-full h-28 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                    <div className="relative w-full h-28 rounded-apple-inner overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
                       <img src={flyerPreview} alt="Flyer előnézet" className="h-full object-contain" />
                       <button
                         type="button"
@@ -499,7 +499,7 @@ export default function Sponsors() {
                       </button>
                     </div>
                   ) : (
-                    <label className="w-full flex items-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] text-night-200/60 hover:text-white cursor-pointer justify-center text-xs font-semibold transition-colors">
+                    <label className="w-full flex items-center gap-2 px-3.5 py-3 rounded-apple-inner border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] text-night-200/60 hover:text-white cursor-pointer justify-center text-xs font-semibold transition-colors">
                       <ImageIcon className="w-4 h-4 text-cyan2-300" />
                       <span>Plakát feltöltése</span>
                       <input type="file" accept="image/*" onChange={handleFlyerChange} className="hidden" />
@@ -530,7 +530,7 @@ export default function Sponsors() {
                         setFlyerFile(null);
                         setFlyerPreview(null);
                       }}
-                      className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold"
+                      className="px-4 py-3 rounded-apple-inner bg-white/10 hover:bg-white/15 text-white text-xs font-bold"
                     >
                       Mégse
                     </button>
@@ -546,26 +546,26 @@ export default function Sponsors() {
 
                 <div className="space-y-1.5 max-h-[40vh] overflow-y-auto">
                   {sponsors.map(sp => (
-                    <div key={sp.id} className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div key={sp.id} className="flex items-center justify-between p-2.5 rounded-apple-card bg-white/[0.02] border border-white/5">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <img src={sp.logo_url} alt="" className="w-8 h-8 object-cover rounded-md border border-white/10 shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-white truncate">{sp.name}</p>
-                          <p className="text-[8px] font-bold text-night-200/40 uppercase">Lejár: {new Date(sp.expires_at).toLocaleDateString('hu-HU')}</p>
+                           <p className="text-xs font-bold text-white truncate">{sp.name}</p>
+                           <p className="text-[8px] font-bold text-night-200/40 uppercase">Lejár: {new Date(sp.expires_at).toLocaleDateString('hu-HU')}</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => handleEditSponsorClick(sp)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-cyan2-500/20 hover:text-cyan2-200 text-white transition-colors"
+                          className="w-7 h-7 flex items-center justify-center rounded-apple-inner bg-white/5 hover:bg-cyan2-500/20 hover:text-cyan2-200 text-white transition-colors"
                           title="Szerkesztés"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteSponsor(sp.id)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-rose-500/20 hover:text-rose-200 text-white transition-colors"
+                          className="w-7 h-7 flex items-center justify-center rounded-apple-inner bg-white/5 hover:bg-rose-500/20 hover:text-rose-200 text-white transition-colors"
                           title="Törlés"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

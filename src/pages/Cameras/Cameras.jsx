@@ -109,7 +109,7 @@ function CameraCard({ cam, onSelect }) {
   };
 
   return (
-    <div className="glass-card rounded-[1.75rem] overflow-hidden active:scale-[0.99] transition-all group flex flex-col">
+    <div className="glass-card rounded-apple-card overflow-hidden active:scale-[0.99] transition-all group flex flex-col">
       <div 
         onClick={() => errorCount < 2 && onSelect(cam, imgUrl)}
         className={`relative h-[200px] bg-night-900 overflow-hidden flex items-center justify-center ${errorCount < 2 ? 'cursor-pointer' : ''}`}
@@ -142,10 +142,10 @@ function CameraCard({ cam, onSelect }) {
         )}
 
         <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-none">
-          <span className="text-[8px] font-extrabold uppercase tracking-widest bg-black/40 backdrop-blur-md px-2 py-1 rounded-lg text-white/95 flex items-center gap-1">
+          <span className="text-[8px] font-extrabold uppercase tracking-widest bg-black/40 backdrop-blur-md px-2 py-1 rounded-apple-inner text-white/95 flex items-center gap-1">
             <Clock className="w-2.5 h-2.5" /> {timestamp}
           </span>
-          <span className="text-[8px] font-extrabold uppercase tracking-widest bg-black/40 backdrop-blur-md px-2 py-1 rounded-lg text-emerald-400">Online</span>
+          <span className="text-[8px] font-extrabold uppercase tracking-widest bg-black/40 backdrop-blur-md px-2 py-1 rounded-apple-inner text-emerald-400">Online</span>
         </div>
       </div>
 
@@ -158,7 +158,7 @@ function CameraCard({ cam, onSelect }) {
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cam.coords.replace(';', ','))}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[9px] font-bold text-cyan2-300 bg-cyan2-500/10 px-2 py-0.5 rounded border border-cyan2-500/25 hover:bg-cyan2-500/20 transition-colors shrink-0 flex items-center gap-1"
+                className="text-[9px] font-bold text-cyan2-300 bg-cyan2-500/10 px-2 py-0.5 rounded-apple-inner border border-cyan2-500/25 hover:bg-cyan2-500/20 transition-colors shrink-0 flex items-center gap-1"
               >
                 <MapPin className="w-2.5 h-2.5" /> Térkép
               </a>
@@ -217,7 +217,7 @@ export default function Cameras() {
       </div>
 
       <FadeUp delay={0.2}>
-        <div className="mt-7 p-5 rounded-[1.5rem] bg-cyan2-400/10 border border-cyan2-400/25 max-w-2xl mx-auto flex gap-3 text-left">
+        <div className="mt-7 p-5 rounded-apple-card bg-cyan2-400/10 border border-cyan2-400/25 max-w-2xl mx-auto flex gap-3 text-left">
           <AlertCircle className="w-5 h-5 text-cyan2-300 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h4 className="text-xs font-extrabold text-white">Figyelmeztetés a közvetítésekről:</h4>
@@ -239,7 +239,7 @@ export default function Cameras() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative max-w-4xl w-full glass-card rounded-[2rem] overflow-hidden flex flex-col shadow-2xl border border-white/10 cursor-default"
+              className="relative max-w-4xl w-full glass-card rounded-apple-outer overflow-hidden flex flex-col shadow-2xl border border-white/10 cursor-default"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}

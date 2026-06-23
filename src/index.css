@@ -57,7 +57,7 @@
 
   /* Elsődleges gomb — törtfehér, sötét háttérrel */
   .btn-grad {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-gradient text-white font-bold shadow-glow transition-all hover:brightness-110 hover:scale-[1.03] active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-apple-inner bg-brand-gradient text-white font-bold shadow-glow transition-all hover:brightness-110 hover:scale-[1.03] active:scale-95;
   }
 
   /* Szintjelző csík (Air Quality / Wind stílus) */

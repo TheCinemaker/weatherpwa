@@ -292,14 +292,14 @@ export default function Forecast() {
 
       {/* --- FORECAST CARD WITH TABS --- */}
       <FadeUp delay={0.05}>
-        <div className="relative glass-card rounded-[2rem] p-6 overflow-hidden">
+        <div className="relative glass-card rounded-apple-outer p-6 overflow-hidden">
           <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
 
           {/* Card Header: Title, Tabs & Admin Hold Hint */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/5">
             <div className="flex flex-wrap items-center gap-4">
               <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2 shrink-0">
-                <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white">
+                <span className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white">
                   <Calendar className="w-4 h-4" />
                 </span>
                 <span className="hidden xs:inline">Előrejelzés az Alpokaljára</span>
@@ -307,16 +307,16 @@ export default function Forecast() {
               </h2>
 
               {/* TABS COMPONENT */}
-              <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-0.5">
+              <div className="flex items-center bg-white/5 border border-white/10 rounded-apple-inner p-0.5">
                 <button
                   onClick={(e) => { e.stopPropagation(); setActiveTab('1day'); }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 ${activeTab === '1day' ? 'bg-brand-gradient text-white shadow-glow' : 'text-night-200 hover:text-white'}`}
+                  className={`px-3.5 py-1.5 rounded-apple-inner text-xs font-black uppercase tracking-wider transition-all duration-300 ${activeTab === '1day' ? 'bg-brand-gradient text-white shadow-glow' : 'text-night-200 hover:text-white'}`}
                 >
                   1 Napos
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setActiveTab('3day'); }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 ${activeTab === '3day' ? 'bg-brand-gradient text-white shadow-glow' : 'text-night-200 hover:text-white'}`}
+                  className={`px-3.5 py-1.5 rounded-apple-inner text-xs font-black uppercase tracking-wider transition-all duration-300 ${activeTab === '3day' ? 'bg-brand-gradient text-white shadow-glow' : 'text-night-200 hover:text-white'}`}
                 >
                   3 Napos
                 </button>
@@ -341,7 +341,7 @@ export default function Forecast() {
                 
                 {/* 1-day manual forecast image display */}
                 {forecastData.image_url && (
-                  <div className="mt-6 rounded-2xl overflow-hidden border border-white/10 bg-black/25 max-w-2xl mx-auto hover:border-cyan2-400/40 transition-colors duration-300 cursor-zoom-in">
+                  <div className="mt-6 rounded-apple-inner overflow-hidden border border-white/10 bg-black/25 max-w-2xl mx-auto hover:border-cyan2-400/40 transition-colors duration-300 cursor-zoom-in">
                     <img 
                       src={forecastData.image_url} 
                       alt="Napi előrejelzési térkép" 
@@ -367,9 +367,9 @@ export default function Forecast() {
                 {/* Manual 3-day cards layout */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                   {/* Card 1: Today */}
-                  <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white/[0.01] hover:border-white/20 transition-colors duration-300">
+                  <div className="glass-card rounded-apple-card p-4 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white/[0.01] hover:border-white/20 transition-colors duration-300">
                     <span className="text-[10px] font-bold text-night-200/40 uppercase tracking-widest">Ma</span>
-                    <div className="my-3.5 w-12 h-12 rounded-xl bg-cyan2-400/[0.07] flex items-center justify-center text-cyan2-300">
+                    <div className="my-3.5 w-12 h-12 rounded-apple-inner bg-cyan2-400/[0.07] flex items-center justify-center text-cyan2-300">
                       {(() => {
                         const IconComp = WEATHER_ICONS[forecastData.card1_icon]?.Icon || Sun;
                         return <IconComp className="w-6 h-6" />;
@@ -400,9 +400,9 @@ export default function Forecast() {
                   </div>
 
                   {/* Card 2: Tomorrow */}
-                  <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white/[0.01] hover:border-white/20 transition-colors duration-300">
+                  <div className="glass-card rounded-apple-card p-4 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white/[0.01] hover:border-white/20 transition-colors duration-300">
                     <span className="text-[10px] font-bold text-night-200/40 uppercase tracking-widest">Holnap</span>
-                    <div className="my-3.5 w-12 h-12 rounded-xl bg-cyan2-400/[0.07] flex items-center justify-center text-cyan2-300">
+                    <div className="my-3.5 w-12 h-12 rounded-apple-inner bg-cyan2-400/[0.07] flex items-center justify-center text-cyan2-300">
                       {(() => {
                         const IconComp = WEATHER_ICONS[forecastData.card2_icon]?.Icon || Sun;
                         return <IconComp className="w-6 h-6" />;
@@ -433,9 +433,9 @@ export default function Forecast() {
                   </div>
 
                   {/* Card 3: Day After */}
-                  <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white/[0.01] hover:border-white/20 transition-colors duration-300">
+                  <div className="glass-card rounded-apple-card p-4 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white/[0.01] hover:border-white/20 transition-colors duration-300">
                     <span className="text-[10px] font-bold text-night-200/40 uppercase tracking-widest">Holnapután</span>
-                    <div className="my-3.5 w-12 h-12 rounded-xl bg-cyan2-400/[0.07] flex items-center justify-center text-cyan2-300">
+                    <div className="my-3.5 w-12 h-12 rounded-apple-inner bg-cyan2-400/[0.07] flex items-center justify-center text-cyan2-300">
                       {(() => {
                         const IconComp = WEATHER_ICONS[forecastData.card3_icon]?.Icon || Sun;
                         return <IconComp className="w-6 h-6" />;
@@ -468,7 +468,7 @@ export default function Forecast() {
                 
                 {/* 3-day manual forecast image display */}
                 {forecastData.image_url_3day && (
-                  <div className="mt-6 rounded-2xl overflow-hidden border border-white/10 bg-black/25 max-w-2xl mx-auto hover:border-cyan2-400/40 transition-colors duration-300 cursor-zoom-in">
+                  <div className="mt-6 rounded-apple-inner overflow-hidden border border-white/10 bg-black/25 max-w-2xl mx-auto hover:border-cyan2-400/40 transition-colors duration-300 cursor-zoom-in">
                     <img 
                       src={forecastData.image_url_3day} 
                       alt="3 napos előrejelzési térkép" 
@@ -503,7 +503,7 @@ export default function Forecast() {
               <img
                 src={zoomImage}
                 alt="Előrejelzés térkép nagyítva"
-                className="max-w-full max-h-[80vh] object-contain rounded-xl border border-white/10"
+                className="max-w-full max-h-[80vh] object-contain rounded-apple-inner border border-white/10"
               />
               <button
                 onClick={() => setZoomImage(null)}
@@ -531,12 +531,12 @@ export default function Forecast() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-5 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-lg bg-night-800 rounded-apple-outer p-5 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-white/5 pb-3">
                 <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white">
+                  <span className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white">
                     <Calendar className="w-4 h-4" />
                   </span>
                   <span>Előrejelzések szerkesztése (Laci)</span>
@@ -552,7 +552,7 @@ export default function Forecast() {
               <div className="space-y-4">
                 
                 {/* --- 1 NAPOS GROUP --- */}
-                <div className="space-y-2.5 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="space-y-2.5 p-3 rounded-apple-card bg-white/[0.02] border border-white/5">
                   <span className="text-[10px] font-black uppercase text-cyan2-300 tracking-wider">1 Napos Előrejelzés</span>
                   <div>
                     <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Cím</label>
@@ -561,7 +561,7 @@ export default function Forecast() {
                       value={adminTitle}
                       onChange={e => setAdminTitle(e.target.value.slice(0, 80))}
                       placeholder="Pl.: Lassú felmelegedés és záporok..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                      className="w-full px-4 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                     />
                   </div>
                   <div>
@@ -571,7 +571,7 @@ export default function Forecast() {
                       value={adminContent}
                       onChange={e => setAdminContent(e.target.value)}
                       placeholder="Elemzés szövege..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
+                      className="w-full px-4 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
                     />
                   </div>
 
@@ -587,7 +587,7 @@ export default function Forecast() {
                     />
                     <div className="flex flex-col gap-3">
                       {imagePreview1 ? (
-                        <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                        <div className="relative w-full h-24 rounded-apple-inner overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
                           <img src={imagePreview1} alt="Forecast 1 előnézet" className="h-full object-contain" />
                           <button
                             type="button"
@@ -601,7 +601,7 @@ export default function Forecast() {
                       ) : (
                         <label
                           htmlFor="forecast-img-file-1"
-                          className="flex items-center justify-center gap-2 p-3.5 rounded-xl border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all text-center"
+                          className="flex items-center justify-center gap-2 p-3.5 rounded-apple-inner border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all text-center"
                         >
                           <ImageIcon className="w-4 h-4 text-cyan2-300" />
                           <span>Kép feltöltése (1 Napos)</span>
@@ -612,7 +612,7 @@ export default function Forecast() {
                 </div>
 
                 {/* --- 3 NAPOS GROUP --- */}
-                <div className="space-y-2.5 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="space-y-2.5 p-3 rounded-apple-card bg-white/[0.02] border border-white/5">
                   <span className="text-[10px] font-black uppercase text-cyan2-300 tracking-wider">3 Napos Előrejelzés</span>
                   <div>
                     <label className="text-[9px] font-bold text-night-200/50 uppercase tracking-widest mb-1.5 block">Cím</label>
@@ -621,7 +621,7 @@ export default function Forecast() {
                       value={adminTitle3day}
                       onChange={e => setAdminTitle3day(e.target.value.slice(0, 80))}
                       placeholder="Pl.: 3 napos elemzés: Hétvégi lehűlés..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                      className="w-full px-4 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                     />
                   </div>
                   <div>
@@ -631,7 +631,7 @@ export default function Forecast() {
                       value={adminContent3day}
                       onChange={e => setAdminContent3day(e.target.value)}
                       placeholder="3 napos elemzés szövege..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
+                      className="w-full px-4 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
                     />
                   </div>
 
@@ -647,7 +647,7 @@ export default function Forecast() {
                     />
                     <div className="flex flex-col gap-3">
                       {imagePreview3 ? (
-                        <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                        <div className="relative w-full h-24 rounded-apple-inner overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
                           <img src={imagePreview3} alt="Forecast 3 előnézet" className="h-full object-contain" />
                           <button
                             type="button"
@@ -661,7 +661,7 @@ export default function Forecast() {
                       ) : (
                         <label
                           htmlFor="forecast-img-file-3"
-                          className="flex items-center justify-center gap-2 p-3.5 rounded-xl border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all text-center"
+                          className="flex items-center justify-center gap-2 p-3.5 rounded-apple-inner border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all text-center"
                         >
                           <ImageIcon className="w-4 h-4 text-cyan2-300" />
                           <span>Kép feltöltése (3 Napos)</span>
@@ -672,11 +672,11 @@ export default function Forecast() {
                 </div>
 
                 {/* --- 3 NAPOS NAPI BONTÁS KÁRTYÁK --- */}
-                <div className="space-y-3.5 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="space-y-3.5 p-3 rounded-apple-card bg-white/[0.02] border border-white/5">
                   <span className="text-[10px] font-black uppercase text-cyan2-300 tracking-wider">3 Napos Kártyák Szerkesztése</span>
                   
                   {/* Day 1: Ma */}
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-2.5">
+                  <div className="p-3 rounded-apple-inner bg-white/[0.03] border border-white/5 space-y-2.5">
                     <span className="text-[9px] font-bold text-white/70 block uppercase">1. Nap (Ma)</span>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -684,7 +684,7 @@ export default function Forecast() {
                         <select
                           value={adminCard1Icon}
                           onChange={e => setAdminCard1Icon(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-night-800 text-white text-xs font-bold focus:outline-none"
+                          className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-night-800 text-white text-xs font-bold focus:outline-none"
                         >
                           {Object.entries(WEATHER_ICONS).map(([key, item]) => (
                             <option key={key} value={key}>{item.label}</option>
@@ -698,7 +698,7 @@ export default function Forecast() {
                           value={adminCard1Desc}
                           onChange={e => setAdminCard1Desc(e.target.value.slice(0, 30))}
                           placeholder="Pl.: Napos, szeles"
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
+                          className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
                         />
                       </div>
                     </div>
@@ -711,7 +711,7 @@ export default function Forecast() {
                             value={adminCard1TempMin}
                             onChange={e => setAdminCard1TempMin(e.target.value)}
                             placeholder="tól"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
@@ -719,7 +719,7 @@ export default function Forecast() {
                             value={adminCard1TempMin2}
                             onChange={e => setAdminCard1TempMin2(e.target.value)}
                             placeholder="ig"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
                         </div>
                       </div>
@@ -731,7 +731,7 @@ export default function Forecast() {
                             value={adminCard1TempMax}
                             onChange={e => setAdminCard1TempMax(e.target.value)}
                             placeholder="tól"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
@@ -739,7 +739,7 @@ export default function Forecast() {
                             value={adminCard1TempMax2}
                             onChange={e => setAdminCard1TempMax2(e.target.value)}
                             placeholder="ig"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
                         </div>
                       </div>
@@ -747,7 +747,7 @@ export default function Forecast() {
                   </div>
 
                   {/* Day 2: Holnap */}
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-2.5">
+                  <div className="p-3 rounded-apple-inner bg-white/[0.03] border border-white/5 space-y-2.5">
                     <span className="text-[9px] font-bold text-white/70 block uppercase">2. Nap (Holnap)</span>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -755,7 +755,7 @@ export default function Forecast() {
                         <select
                           value={adminCard2Icon}
                           onChange={e => setAdminCard2Icon(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-night-800 text-white text-xs font-bold focus:outline-none"
+                          className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-night-800 text-white text-xs font-bold focus:outline-none"
                         >
                           {Object.entries(WEATHER_ICONS).map(([key, item]) => (
                             <option key={key} value={key}>{item.label}</option>
@@ -769,7 +769,7 @@ export default function Forecast() {
                           value={adminCard2Desc}
                           onChange={e => setAdminCard2Desc(e.target.value.slice(0, 30))}
                           placeholder="Pl.: Borult, záporok"
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
+                          className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
                         />
                       </div>
                     </div>
@@ -782,7 +782,7 @@ export default function Forecast() {
                             value={adminCard2TempMin}
                             onChange={e => setAdminCard2TempMin(e.target.value)}
                             placeholder="tól"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
@@ -790,7 +790,7 @@ export default function Forecast() {
                             value={adminCard2TempMin2}
                             onChange={e => setAdminCard2TempMin2(e.target.value)}
                             placeholder="ig"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
                         </div>
                       </div>
@@ -802,7 +802,7 @@ export default function Forecast() {
                             value={adminCard2TempMax}
                             onChange={e => setAdminCard2TempMax(e.target.value)}
                             placeholder="tól"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
@@ -810,7 +810,7 @@ export default function Forecast() {
                             value={adminCard2TempMax2}
                             onChange={e => setAdminCard2TempMax2(e.target.value)}
                             placeholder="ig"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
                         </div>
                       </div>
@@ -818,7 +818,7 @@ export default function Forecast() {
                   </div>
 
                   {/* Day 3: Holnapután */}
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-2.5">
+                  <div className="p-3 rounded-apple-inner bg-white/[0.03] border border-white/5 space-y-2.5">
                     <span className="text-[9px] font-bold text-white/70 block uppercase">3. Nap (Holnapután)</span>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -826,7 +826,7 @@ export default function Forecast() {
                         <select
                           value={adminCard3Icon}
                           onChange={e => setAdminCard3Icon(e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-night-800 text-white text-xs font-bold focus:outline-none"
+                          className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-night-800 text-white text-xs font-bold focus:outline-none"
                         >
                           {Object.entries(WEATHER_ICONS).map(([key, item]) => (
                             <option key={key} value={key}>{item.label}</option>
@@ -840,7 +840,7 @@ export default function Forecast() {
                           value={adminCard3Desc}
                           onChange={e => setAdminCard3Desc(e.target.value.slice(0, 30))}
                           placeholder="Pl.: Zápor, zivatar"
-                          className="w-full px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
+                          className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
                         />
                       </div>
                     </div>
@@ -853,7 +853,7 @@ export default function Forecast() {
                             value={adminCard3TempMin}
                             onChange={e => setAdminCard3TempMin(e.target.value)}
                             placeholder="tól"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
@@ -861,7 +861,7 @@ export default function Forecast() {
                             value={adminCard3TempMin2}
                             onChange={e => setAdminCard3TempMin2(e.target.value)}
                             placeholder="ig"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
                         </div>
                       </div>
@@ -873,7 +873,7 @@ export default function Forecast() {
                             value={adminCard3TempMax}
                             onChange={e => setAdminCard3TempMax(e.target.value)}
                             placeholder="tól"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
@@ -881,7 +881,7 @@ export default function Forecast() {
                             value={adminCard3TempMax2}
                             onChange={e => setAdminCard3TempMax2(e.target.value)}
                             placeholder="ig"
-                            className="flex-1 px-2 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
+                            className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
                         </div>
                       </div>
@@ -890,7 +890,7 @@ export default function Forecast() {
                 </div>
 
                 {/* --- SÜRGŐS ÉRTESÍTÉS --- */}
-                <div className="space-y-2.5 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div className="space-y-2.5 p-3 rounded-apple-card bg-white/[0.02] border border-white/5">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase text-rose-400 tracking-wider">Sürgős Értesítés (Viharjelzés)</span>
                     <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-white">
@@ -908,7 +908,7 @@ export default function Forecast() {
                     value={adminAnnText}
                     onChange={e => setAdminAnnText(e.target.value.slice(0, 150))}
                     placeholder="Pl.: Viharjelzés! Erős széllökések várhatóak..."
-                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                    className="w-full px-4 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
                 </div>
               </div>

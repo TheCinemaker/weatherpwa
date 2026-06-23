@@ -48,12 +48,12 @@ export default function AdminPinModal({ open, onSuccess, onCancel }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
             transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-            className="relative w-full max-w-xs bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
+            className="relative w-full max-w-xs bg-night-800 rounded-apple-outer p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white">
+                <span className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white">
                   <Lock className="w-4 h-4" />
                 </span>
                 <span>Admin belépés</span>
@@ -80,7 +80,7 @@ export default function AdminPinModal({ open, onSuccess, onCancel }) {
               value={pin}
               onChange={e => { setPin(e.target.value); setError(false); }}
               placeholder="••••"
-              className={`w-full px-4 py-3 rounded-2xl border bg-white/[0.04] text-white text-center text-lg font-extrabold tracking-[0.5em] placeholder:tracking-normal placeholder:text-night-200/35 focus:outline-none focus:ring-2 ${
+              className={`w-full px-4 py-3 rounded-apple-inner border bg-white/[0.04] text-white text-center text-lg font-extrabold tracking-[0.5em] placeholder:tracking-normal placeholder:text-night-200/35 focus:outline-none focus:ring-2 ${
                 error ? 'border-rose-500/60 focus:ring-rose-400/50' : 'border-white/10 focus:ring-cyan2-400/50'
               }`}
             />

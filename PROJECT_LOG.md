@@ -79,3 +79,21 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
     *   **Változtatás**: A `fetchCurrent` API lekérdezést kiegészítettem egy dinamikus időbélyegzővel (`&_=${Date.now()}`) és beállítottam a `cache: 'no-store'` fejlécet, hogy a kliens böngészője soha ne a cache-ből jelenítse meg a méréseket, ha az API éppen nem küld adatot.
 *   **Verzióemelés `2.0.8`-ra**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.8`).
+
+---
+
+### 🏷️ Version 2.0.9 (Kizárólag lokálisan elmentve / Nincs pusholva)
+*   **Apple iOS HIG lekerekítési stílusok bevezetése (szintvonalak és koncentrikus illeszkedések)**:
+    *   **Fájl**: [tailwind.config.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/tailwind.config.js)
+    *   **Változtatás**: Létrehoztam az Apple dizájn-szabvány szerinti lekerekítési tokeneket az `extend.borderRadius` szekcióban: `apple-outer: '22px'` (fő elrendezési panelek, modális ablakok, kiemelt kártyák), `apple-card: '14px'` (standard dashboard csempék és rácsos kártyák), és `apple-inner: '10px'` (gombok, beviteli mezők, belső apró tárolók).
+    *   **Fájl**: [src/index.css](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/index.css)
+    *   **Változtatás**: A `.btn-grad` osztály lekerekítését átírtam `rounded-apple-inner` osztályra.
+    *   **Fájl**: [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx)
+    *   **Változtatás**: Frissítettem a fő elrendezést (oldalsávok, fiókok/drawer menü, aktív menüpontok kiemelése, figyelmeztető banner és fejléc) a megfelelő Apple lekerekítési osztályokra.
+    *   **Fájl**: [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx)
+    *   **Változtatás**: A WeatherHero kártyát, a prognózis dobozt, a statisztikai rácscsempéket, a keresőmezőt és a modális ablakokat a megfelelő `rounded-apple-outer` / `-card` / `-inner` értékekkel láttam el a koncentrikus arányok megőrzése mellett.
+    *   **További aloldalak és komponensek egységesítése**:
+        *   [src/pages/WeatherDashboard/ChartCard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/ChartCard.jsx), [src/pages/WeatherDashboard/StatCard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/StatCard.jsx), [src/pages/WeatherDashboard/StatDetailModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/StatDetailModal.jsx), [src/pages/WeatherDashboard/SunBar.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/SunBar.jsx), [src/pages/Sponsors/Sponsors.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Sponsors/Sponsors.jsx), [src/pages/Radar/Radar.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Radar/Radar.jsx), [src/pages/Reels/Reels.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Reels/Reels.jsx), [src/pages/Forecast/Forecast.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Forecast/Forecast.jsx), [src/pages/Cameras/Cameras.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Cameras/Cameras.jsx), [src/pages/About/About.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/About/About.jsx), és [src/components/AdminPinModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/AdminPinModal.jsx). Mindenhol kicseréltem a régi `rounded-2xl`, `rounded-xl`, `rounded-lg` lekerekítéseket a megfelelő új koncentrikus Apple tokenekre.
+*   **Verzióemelés `2.0.9`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache kulcs: `koszeg-weather-cache-v2.0.9`).
+

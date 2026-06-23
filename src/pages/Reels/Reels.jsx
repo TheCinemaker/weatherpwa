@@ -310,7 +310,7 @@ export default function Reels() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25"
+            className="flex items-center justify-between gap-3 px-4 py-3 rounded-apple-card bg-emerald-500/10 border border-emerald-500/25"
           >
             <div className="flex items-center gap-2.5 text-emerald-200">
               <ShieldCheck className="w-4 h-4 shrink-0" />
@@ -320,7 +320,7 @@ export default function Reels() {
             </div>
             <button
               onClick={() => setAdminMode(false)}
-              className="shrink-0 text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="shrink-0 text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-apple-inner bg-white/10 hover:bg-white/20 text-white transition-colors"
             >
               Kilépés
             </button>
@@ -332,13 +332,13 @@ export default function Reels() {
       {loading ? (
         <div className="space-y-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="aspect-[4/5] rounded-[2rem] bg-white/[0.04] animate-pulse border border-white/5" />
+            <div key={i} className="aspect-[4/5] rounded-apple-outer bg-white/[0.04] animate-pulse border border-white/5" />
           ))}
         </div>
       ) : moments.length === 0 ? (
         <FadeUp>
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-cyan2-300">
+            <div className="w-16 h-16 rounded-apple-card bg-white/[0.04] border border-white/10 flex items-center justify-center text-cyan2-300">
               <Camera className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-extrabold text-white">Még nincs egy pillanat sem!</h3>
@@ -361,7 +361,7 @@ export default function Reels() {
 
             return (
               <FadeUp key={m.id} delay={i * 0.02}>
-                <div className="glass-card rounded-[2rem] overflow-hidden border border-white/10 relative flex flex-col">
+                <div className="glass-card rounded-apple-outer overflow-hidden border border-white/10 relative flex flex-col">
                   
                   {/* Visual overlay for 5 seconds holding deletion process */}
                   {isThisDeleting && (
@@ -400,7 +400,7 @@ export default function Reels() {
                     </div>
 
                     {/* Location or Expiry */}
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/5">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-apple-inner bg-white/[0.04] border border-white/5">
                       <IoTimeOutline className="text-[10px] text-cyan2-300" />
                       <span className="text-[9px] font-extrabold text-cyan2-200 uppercase tracking-wider">
                         {timeLeft(m.expires_at)}
@@ -448,7 +448,7 @@ export default function Reels() {
                   <div className="p-3 flex items-center justify-between border-t border-white/5 bg-[#0a1b1f]/20">
                     <button 
                       onClick={() => handleLike(m.id)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all ${
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-apple-inner transition-all ${
                         hasLiked ? 'text-rose-400 bg-rose-400/10' : 'text-night-200 hover:bg-white/5'
                       }`}
                     >
@@ -458,7 +458,7 @@ export default function Reels() {
 
                     <button 
                       onClick={() => handleShare(m)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-night-200 hover:bg-white/5 transition-all"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-apple-inner text-night-200 hover:bg-white/5 transition-all"
                     >
                       <Share2 className="w-4 h-4" />
                       <span className="text-xs font-bold">Megosztás</span>
@@ -503,7 +503,7 @@ export default function Reels() {
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               src={activeLightboxImage} 
               alt="Moment nagyítva" 
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl relative z-10"
+              className="max-w-full max-h-full object-contain rounded-apple-inner shadow-2xl relative z-10"
               onClick={e => e.stopPropagation()}
             />
           </div>
@@ -523,7 +523,7 @@ export default function Reels() {
               initial={{ opacity: 0, y: 40, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-              className="relative w-full max-w-md bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
+              className="relative w-full max-w-md bg-night-800 rounded-apple-outer p-6 flex flex-col gap-4 shadow-2xl border border-white/10"
               onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
@@ -537,15 +537,15 @@ export default function Reels() {
 
               <label className="cursor-pointer">
                 {preview ? (
-                  <div className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                  <div className="relative rounded-apple-card overflow-hidden aspect-[4/3] border border-white/10">
                     <img src={preview} alt="" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                       <IoCameraOutline className="text-white text-4xl" />
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-2xl border-2 border-dashed border-cyan2-400/40 aspect-[4/3] flex flex-col items-center justify-center gap-3 text-night-200/50 hover:border-cyan2-400 hover:text-cyan2-200 bg-brand-gradient-soft transition-all duration-300">
-                    <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center text-white shadow-glow">
+                  <div className="rounded-apple-card border-2 border-dashed border-cyan2-400/40 aspect-[4/3] flex flex-col items-center justify-center gap-3 text-night-200/50 hover:border-cyan2-400 hover:text-cyan2-200 bg-brand-gradient-soft transition-all duration-300">
+                    <div className="w-16 h-16 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white shadow-glow">
                       <IoCameraOutline className="text-3xl" />
                     </div>
                     <div className="text-center px-4">
@@ -562,7 +562,7 @@ export default function Reels() {
                 value={caption}
                 onChange={e => { setCaption(e.target.value.slice(0, 120)); setPostError(''); }}
                 placeholder="Rövid felirat... (opcionális)"
-                className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -573,7 +573,7 @@ export default function Reels() {
                     value={authorName}
                     onChange={e => { setAuthorName(e.target.value.slice(0, 40)); setPostError(''); }}
                     placeholder="Neved (opcionális)"
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                    className="w-full pl-10 pr-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
                 </div>
                 <div className="relative">
@@ -583,14 +583,14 @@ export default function Reels() {
                     value={placeName}
                     onChange={e => { setPlaceName(e.target.value.slice(0, 50)); setPostError(''); }}
                     placeholder="Helyszín – hol készült?"
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                    className="w-full pl-10 pr-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/40 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
                 </div>
               </div>
 
               <button
                 onClick={handleLocationToggle}
-                className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-sm font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-3 rounded-apple-inner border text-sm font-bold transition-all ${
                   useLocation ? 'bg-brand-gradient-soft border-cyan2-400/40 text-cyan2-200' : 'border-white/10 text-night-200/50'
                 }`}
               >

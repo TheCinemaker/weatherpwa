@@ -153,9 +153,9 @@ function AppContent() {
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className="fixed top-0 inset-x-0 z-[150] px-4 pt-4 pb-2 pointer-events-none flex justify-center"
           >
-            <div className="pointer-events-auto w-full max-w-xl p-4 rounded-[1.5rem] bg-rose-500/90 text-white backdrop-blur-md border border-rose-400/30 flex items-start justify-between gap-3 shadow-lg shadow-rose-950/40">
+            <div className="pointer-events-auto w-full max-w-xl p-4 rounded-apple-card bg-rose-500/90 text-white backdrop-blur-md border border-rose-400/30 flex items-start justify-between gap-3 shadow-lg shadow-rose-950/40">
               <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-apple-inner bg-white/10 flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-4 h-4 text-white animate-pulse" />
                 </div>
                 <div className="leading-snug">
@@ -165,7 +165,7 @@ function AppContent() {
               </div>
               <button 
                 onClick={handleDismissBanner} 
-                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0 text-white"
+                className="w-7 h-7 rounded-apple-inner bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0 text-white"
                 aria-label="Bezárás"
               >
                 <X className="w-4 h-4" />
@@ -177,12 +177,12 @@ function AppContent() {
 
       {/* --- DESKTOP SIDEBAR RAIL --- */}
       <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-screen w-64 flex-col p-4">
-        <div className="flex-1 flex flex-col glass-card rounded-[2rem] p-5">
+        <div className="flex-1 flex flex-col glass-card rounded-apple-outer p-5">
           <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 mb-8 select-none active:scale-95 transition-transform">
             <div
               {...logoHoldHandlers}
               title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
-              className="w-11 h-11 rounded-2xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
+              className="w-11 h-11 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
             >
               <Logo className="w-6 h-6" />
             </div>
@@ -204,9 +204,9 @@ function AppContent() {
               const active = location.pathname === path;
               return (
                 <Link key={path} to={path}
-                  className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${active ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
+                  className={`relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold transition-all ${active ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
                   {active && (
-                    <motion.span layoutId="nav-active-desktop" className="absolute inset-0 rounded-2xl bg-brand-gradient shadow-glow" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
+                    <motion.span layoutId="nav-active-desktop" className="absolute inset-0 rounded-apple-inner bg-brand-gradient shadow-glow" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
                   )}
                   <Icon className="w-[18px] h-[18px] shrink-0 relative z-10" />
                   <span className="relative z-10">{label}</span>
@@ -219,7 +219,7 @@ function AppContent() {
             {/* Notification Subscription Button */}
             <button 
               onClick={handleRequestNotif}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-apple-inner text-xs font-bold transition-all ${
                 notifPermission === 'granted' 
                   ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-300' 
                   : 'bg-white/5 border border-white/10 text-night-200/80 hover:bg-white/10 hover:text-white'
@@ -264,12 +264,12 @@ function AppContent() {
 
       {/* --- MOBILE TOP BAR + HAMBURGER (fixen rögzítve, alatta görög minden) --- */}
       <header className="lg:hidden fixed top-0 inset-x-0 z-40 px-4 pt-4 pointer-events-none">
-        <div className="pointer-events-auto flex items-center justify-between px-4 py-2.5 rounded-[1.5rem] glass-card">
+        <div className="pointer-events-auto flex items-center justify-between px-4 py-2.5 rounded-apple-card glass-card">
           <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5 active:scale-95 transition-transform">
             <div
               {...logoHoldHandlers}
               title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
-              className="w-9 h-9 rounded-xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
+              className="w-9 h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
             >
               <Logo className="w-5 h-5" />
             </div>
@@ -281,7 +281,7 @@ function AppContent() {
             {/* Mobile notification toggle bell */}
             <button 
               onClick={handleRequestNotif}
-              className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all ${
+              className={`w-9 h-9 flex items-center justify-center rounded-apple-inner transition-all ${
                 notifPermission === 'granted' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-white/10 text-white/70'
               }`}
               title="Viharjelzés értesítések"
@@ -291,7 +291,7 @@ function AppContent() {
 
             <button
               onClick={() => setMenuOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 border border-white/10 text-white active:scale-95 transition-all"
+              className="w-10 h-10 flex items-center justify-center rounded-apple-inner bg-white/10 border border-white/10 text-white active:scale-95 transition-all"
               aria-label="Menü megnyitása"
             >
               <Menu className="w-5 h-5" />
@@ -317,10 +317,10 @@ function AppContent() {
               transition={{ type: 'spring', stiffness: 480, damping: 42, mass: 0.7 }}
               className="absolute top-0 right-0 h-full w-[80%] max-w-xs p-4"
             >
-              <div className="h-full flex flex-col glass-card rounded-[1.75rem] p-5">
+              <div className="h-full flex flex-col glass-card rounded-apple-outer p-5">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
+                    <div className="w-10 h-10 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
                       <Logo className="w-5 h-5" />
                     </div>
                     <div className="leading-tight select-none">
@@ -335,7 +335,7 @@ function AppContent() {
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-white active:scale-95" aria-label="Bezárás">
+                  <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-apple-inner bg-white/10 text-white active:scale-95" aria-label="Bezárás">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -351,7 +351,7 @@ function AppContent() {
                         transition={{ delay: 0.04 + i * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                       >
                         <Link to={path}
-                          className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-white hover:bg-white/10 hover:text-white'}`}>
+                          className={`flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-white hover:bg-white/10 hover:text-white'}`}>
                           <Icon className="w-[18px] h-[18px] shrink-0" />
                           <span>{label}</span>
                         </Link>
@@ -412,7 +412,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.0.8
+            Version: 2.0.9
           </p>
           <a
             href="https://visitkoszeg.hu"

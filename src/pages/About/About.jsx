@@ -23,7 +23,7 @@ export default function About() {
 
       {/* --- HERO / INTRO --- */}
       <FadeUp>
-        <div className="relative overflow-hidden rounded-[2rem] glass-card p-6 sm:p-8">
+        <div className="relative overflow-hidden rounded-apple-outer glass-card p-6 sm:p-8">
           <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-cyan2-500/15 blur-3xl" />
           <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
             <div className="w-24 h-24 rounded-full bg-brand-gradient flex items-center justify-center shrink-0 shadow-glow">
@@ -45,10 +45,10 @@ export default function About() {
       {/* --- STATION DETAILS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <FadeUp delay={0.08}>
-          <div className="glass-card rounded-[2rem] p-6 h-full flex flex-col justify-between">
+          <div className="glass-card rounded-apple-outer p-6 h-full flex flex-col justify-between">
             <div className="space-y-4">
               <h3 className="text-base font-extrabold text-white flex items-center gap-2.5">
-                <span className="w-9 h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Radio className="w-5 h-5" /></span>
+                <span className="w-9 h-9 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white"><Radio className="w-5 h-5" /></span>
                 <span>Mérőállomás Technológia</span>
               </h3>
               <p className="text-xs text-night-200/70 leading-relaxed">
@@ -74,10 +74,10 @@ export default function About() {
         </FadeUp>
 
         <FadeUp delay={0.12}>
-          <div className="glass-card rounded-[2rem] p-6 h-full flex flex-col justify-between">
+          <div className="glass-card rounded-apple-outer p-6 h-full flex flex-col justify-between">
             <div className="space-y-4">
               <h3 className="text-base font-extrabold text-white flex items-center gap-2.5">
-                <span className="w-9 h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Award className="w-5 h-5" /></span>
+                <span className="w-9 h-9 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white"><Award className="w-5 h-5" /></span>
                 <span>Közösségi Küldetés</span>
               </h3>
               <p className="text-xs text-night-200/70 leading-relaxed">
@@ -96,11 +96,11 @@ export default function About() {
 
       {/* --- TÁMOGATÁS --- */}
       <FadeUp delay={0.16}>
-        <div className="relative overflow-hidden glass-card rounded-[2rem] p-6 sm:p-8 space-y-5">
+        <div className="relative overflow-hidden glass-card rounded-apple-outer p-6 sm:p-8 space-y-5">
           <div className="absolute -bottom-16 -left-10 w-56 h-56 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
           <div className="relative z-10 space-y-1.5 text-center sm:text-left">
             <h3 className="text-base font-extrabold text-white flex items-center justify-center sm:justify-start gap-2.5">
-              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white shadow-glow">
+              <span className="w-9 h-9 rounded-apple-inner bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white shadow-glow">
                 <Heart className="w-5 h-5" />
               </span>
               <span>Az oldal támogatása</span>
@@ -112,14 +112,14 @@ export default function About() {
 
           <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Bankszámlaszám */}
-            <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 flex items-center justify-between gap-3">
+            <div className="rounded-apple-card bg-white/[0.04] border border-white/10 p-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[10px] font-bold text-night-200/55 uppercase tracking-widest mb-1">Bankszámlaszám</div>
                 <div className="text-sm font-extrabold text-white tracking-wide break-all">{BANK_ACCOUNT}</div>
               </div>
               <button
                 onClick={() => handleCopy(BANK_ACCOUNT, 'bank')}
-                className="shrink-0 w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all active:scale-95"
+                className="shrink-0 w-9 h-9 rounded-apple-inner bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all active:scale-95"
                 title="Számlaszám másolása"
                 aria-label="Számlaszám másolása"
               >
@@ -128,14 +128,14 @@ export default function About() {
             </div>
 
             {/* Wise */}
-            <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 flex items-center justify-between gap-3">
+            <div className="rounded-apple-card bg-white/[0.04] border border-white/10 p-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[10px] font-bold text-night-200/55 uppercase tracking-widest mb-1">Wise</div>
                 <div className="text-sm font-extrabold text-white tracking-wide break-all">{WISE_HANDLE}</div>
               </div>
               <button
                 onClick={() => handleCopy(WISE_HANDLE, 'wise')}
-                className="shrink-0 w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all active:scale-95"
+                className="shrink-0 w-9 h-9 rounded-apple-inner bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all active:scale-95"
                 title="Wise azonosító másolása"
                 aria-label="Wise azonosító másolása"
               >
@@ -154,7 +154,7 @@ export default function About() {
 
       {/* --- CONTACT --- */}
       <FadeUp delay={0.2}>
-        <div className="glass-card rounded-[2rem] p-6 sm:p-8 text-center space-y-5">
+        <div className="glass-card rounded-apple-outer p-6 sm:p-8 text-center space-y-5">
           <h3 className="text-base font-extrabold text-white">Lépj velem kapcsolatba!</h3>
           <p className="text-xs text-night-200/60 max-w-lg mx-auto leading-relaxed">
             Kövesd a közösségi oldalamat a legfrissebb helyi előrejelzésekért és viharjelentésekért!
@@ -165,7 +165,7 @@ export default function About() {
               <span>Facebook Oldalam</span><ExternalLink className="w-4 h-4" />
             </a>
             <a href="mailto:idojaraskoszeg@gmail.com"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all active:scale-95 w-full sm:w-auto">
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-apple-inner bg-white/10 border border-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all active:scale-95 w-full sm:w-auto">
               <Mail className="w-4 h-4" /><span>Kapcsolatfelvétel</span>
             </a>
           </div>

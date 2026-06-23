@@ -54,7 +54,7 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
             transition={{ type: 'spring', stiffness: 460, damping: 36, mass: 0.7 }}
-            className="relative w-full max-w-2xl bg-night-800 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden"
+            className="relative w-full max-w-2xl bg-night-800 rounded-apple-outer border border-white/10 shadow-2xl overflow-hidden"
           >
             {/* Gradiens-akcentus felül */}
             <div className="h-2 w-full" style={{ background: gradient }} />
@@ -64,7 +64,7 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                 {/* Fejléc */}
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-sm shrink-0" style={{ background: gradient }}>
+                    <div className="w-12 h-12 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0" style={{ background: gradient }}>
                       {Icon && <Icon className="w-6 h-6" />}
                     </div>
                     <div>
@@ -92,7 +92,7 @@ export default function StatDetailModal({ metric, timestamps, data, currentValue
                       { label: 'Átlag', val: stats.avg },
                       { label: 'Maximum', val: stats.max },
                     ].map((s) => (
-                      <div key={s.label} className="bg-white/[0.04] rounded-2xl px-3 py-2.5 text-center border border-white/10">
+                      <div key={s.label} className="bg-white/[0.04] rounded-apple-inner px-3 py-2.5 text-center border border-white/10">
                         <div className="text-[9px] font-bold uppercase tracking-widest text-white/70 mb-1">{s.label}</div>
                         <div className="text-base font-extrabold text-white">
                           {fmt(s.val)}<span className="text-[10px] font-bold text-white/50 ml-0.5">{metric.unit}</span>

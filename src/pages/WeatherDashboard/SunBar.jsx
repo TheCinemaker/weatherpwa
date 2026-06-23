@@ -25,8 +25,8 @@ export default function SunBar({ sunInfo, loading }) {
         const Icon = item.icon;
         const gradient = `linear-gradient(135deg, ${item.grad[0]}, ${item.grad[1]})`;
         return (
-          <div key={item.label} className="glass-card rounded-2xl p-3.5 flex items-center gap-3 transition-all active:scale-[0.98]">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0" style={{ background: gradient }}>
+          <div key={item.label} className="glass-card rounded-apple-card p-3.5 flex items-center gap-3 transition-all active:scale-[0.98]">
+            <div className="w-10 h-10 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0" style={{ background: gradient }}>
               <Icon className="w-5 h-5" />
             </div>
             <div className="min-w-0">

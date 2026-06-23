@@ -157,10 +157,10 @@ export default function ChartCard({ config, timestamps, data, loading }) {
   const options = useMemo(() => makeChartOptions(config), [config]);
 
   return (
-    <div className="glass-card rounded-[1.75rem] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft flex flex-col justify-between overflow-hidden">
+    <div className="glass-card rounded-apple-card p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft flex flex-col justify-between overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-sm" style={{ background: gradient }}>
+          <div className="w-9 h-9 rounded-apple-inner flex items-center justify-center text-white shadow-sm" style={{ background: gradient }}>
             <Icon className="w-[18px] h-[18px]" />
           </div>
           <span className="text-sm font-extrabold text-white">{label}</span>
@@ -173,12 +173,12 @@ export default function ChartCard({ config, timestamps, data, loading }) {
         {hasData && chartData ? (
           isBar ? <Bar data={chartData} options={options} /> : <Line data={chartData} options={options} />
         ) : loading ? (
-          <div className="w-full h-full bg-white/[0.03] rounded-2xl flex flex-col items-center justify-center gap-2">
+          <div className="w-full h-full bg-white/[0.03] rounded-apple-inner flex flex-col items-center justify-center gap-2">
             <div className="w-6 h-6 rounded-full border-[3px] border-cyan2-400 border-t-transparent animate-spin" />
             <span className="text-[10px] font-bold text-night-200/45 uppercase tracking-widest">Diagram betöltése...</span>
           </div>
         ) : (
-          <div className="w-full h-full bg-white/[0.03] rounded-2xl flex flex-col items-center justify-center p-4 text-center">
+          <div className="w-full h-full bg-white/[0.03] rounded-apple-inner flex flex-col items-center justify-center p-4 text-center">
             <span className="text-xs font-bold text-night-200/55 mb-1">Nincs mérési adat</span>
             <span className="text-[10px] text-night-200/45 max-w-[200px] leading-relaxed">
               Az elmúlt 24 órában nem érkezett adat ettől a szenzortól.

@@ -88,7 +88,7 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
   }
 
   return (
-    <div className={`relative rounded-[2rem] p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/10 flex flex-col justify-between min-h-[190px]`}>
+    <div className={`relative rounded-apple-outer p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/10 flex flex-col justify-between min-h-[190px]`}>
       
       {/* Subtle overlay gradient to enhance readability of left-aligned text */}
       <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-black/25 to-transparent pointer-events-none z-0" />
@@ -118,7 +118,7 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
             </div>
 
             {feels != null && (
-              <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-lg border border-white/20 backdrop-blur-sm">
+              <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-apple-inner border border-white/20 backdrop-blur-sm">
                 Hőérzet: <strong className="font-extrabold text-white">{feels.toFixed(1)} °C</strong>
               </span>
             )}
@@ -554,7 +554,7 @@ export default function WeatherDashboard() {
 
       {/* Gyors-statok */}
       <FadeUp delay={0.02}>
-        <div className="flex items-center justify-between gap-1 rounded-2xl bg-white/[0.03] border border-white/5 py-2.5 px-3.5 mt-4 select-none">
+        <div className="flex items-center justify-between gap-1 rounded-apple-inner bg-white/[0.03] border border-white/5 py-2.5 px-3.5 mt-4 select-none">
           {quick.map(({ icon: Icon, label, val }) => (
             <div key={label} className="flex items-center gap-1 text-white">
               <Icon className="w-3.5 h-3.5 text-cyan2-300 shrink-0" />
@@ -569,7 +569,7 @@ export default function WeatherDashboard() {
 
       {/* --- STATUS / REFRESH --- */}
       <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-        <div className="flex items-center gap-2.5 glass-card rounded-2xl px-3.5 py-2">
+        <div className="flex items-center gap-2.5 glass-card rounded-apple-inner px-3.5 py-2">
           <div className={`w-2 h-2 rounded-full ${statusColor}`} />
           <span className="text-xs font-bold text-white">{statusText}</span>
           {measureAgo && (
@@ -586,7 +586,7 @@ export default function WeatherDashboard() {
 
       {/* Elavult adat figyelmeztetés */}
       {isStale && !error && (
-        <div className="mt-3 p-3 rounded-2xl bg-amber-400/10 border border-amber-400/25 text-amber-100 text-[11px] font-semibold flex items-center gap-2.5">
+        <div className="mt-3 p-3 rounded-apple-card bg-amber-400/10 border border-amber-400/25 text-amber-100 text-[11px] font-semibold flex items-center gap-2.5">
           <AlertTriangle className="w-4 h-4 shrink-0 text-amber-300" />
           <span>
             Az állomás legutóbb <strong className="font-extrabold">{measureAgo}</strong> küldött adatot – lehet, hogy átmenetileg kimaradt. Az értékek nem feltétlenül a pillanatnyi időjárást mutatják.
@@ -595,7 +595,7 @@ export default function WeatherDashboard() {
       )}
 
       {error && (
-        <div className="mt-4 p-4 rounded-2xl bg-rose-400/10 border border-rose-400/25 text-rose-200 text-xs font-semibold flex items-center gap-2.5">
+        <div className="mt-4 p-4 rounded-apple-card bg-rose-400/10 border border-rose-400/25 text-rose-200 text-xs font-semibold flex items-center gap-2.5">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>API hiba: {error}</span>
         </div>
@@ -603,12 +603,12 @@ export default function WeatherDashboard() {
 
       {/* --- HELYI ELŐREJELZÉS / HELYZETJELENTÉS --- */}
       <FadeUp delay={0.02}>
-        <div id="dashboard-forecast" className="relative glass-card rounded-[2rem] p-6 overflow-hidden mt-5">
+        <div id="dashboard-forecast" className="relative glass-card rounded-apple-outer p-6 overflow-hidden mt-5">
           <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
           
           <div className="flex items-center justify-between mb-4 select-none cursor-default">
             <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
+              <span className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
               <span>Előrejelzés az Alpokaljára</span>
             </h2>
           </div>
@@ -635,15 +635,15 @@ export default function WeatherDashboard() {
           <SectionLabel>Villámhírek</SectionLabel>
           <div className="space-y-3">
             {activeNewsBlurbs.map(b => (
-              <div key={b.id} className="relative glass-card rounded-2xl p-4 flex gap-3">
-                <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white shrink-0">
+              <div key={b.id} className="relative glass-card rounded-apple-card p-4 flex gap-3">
+                <div className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white shrink-0">
                   <Newspaper className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <p className="text-sm text-night-100/90 leading-relaxed whitespace-pre-wrap font-medium">{b.content}</p>
                   {b.image_url && (
                     <div
-                      className="mt-1 rounded-xl overflow-hidden border border-white/10 bg-black/25 cursor-zoom-in max-w-md"
+                      className="mt-1 rounded-apple-inner overflow-hidden border border-white/10 bg-black/25 cursor-zoom-in max-w-md"
                       onClick={() => setBlurbZoom(b.image_url)}
                     >
                       <img
@@ -688,7 +688,7 @@ export default function WeatherDashboard() {
       {/* --- ELŐZMÉNYEK --- */}
       <FadeUp delay={0.05}>
         <SectionLabel>24 órás előzmények</SectionLabel>
-        <div className="mb-3 p-3.5 rounded-2xl bg-cyan2-400/[0.07] border border-cyan2-400/15 flex items-start gap-2.5">
+        <div className="mb-3 p-3.5 rounded-apple-card bg-cyan2-400/[0.07] border border-cyan2-400/15 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-cyan2-300 shrink-0 mt-0.5" />
           <p className="text-[11px] text-night-100/80 leading-relaxed">
             Az állomás szervere <strong className="font-bold text-white">nem mindig küld folyamatos adatot</strong>, ezért egy-egy grafikon átmenetileg üres lehet. Ilyenkor nyomd meg párszor a <strong className="font-bold text-cyan2-200">Frissítés</strong> gombot.
@@ -710,7 +710,7 @@ export default function WeatherDashboard() {
       {/* --- SPONSORS BAR --- */}
       {sponsors.length > 0 && (
         <FadeUp delay={0.06}>
-          <div className="mt-6 p-4 rounded-[1.5rem] glass-card border border-cyan2-500/10 relative overflow-hidden">
+          <div className="mt-6 p-4 rounded-apple-card glass-card border border-cyan2-500/10 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-cyan2-500/[0.02] blur-xl pointer-events-none" />
             
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
@@ -726,7 +726,7 @@ export default function WeatherDashboard() {
                     href={sp.website_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-cyan2-400/20 transition-all select-none"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-apple-inner bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-cyan2-400/20 transition-all select-none"
                     title={sp.description || sp.name}
                   >
                     <img src={sp.logo_url} alt="" className="w-5 h-5 rounded-md object-cover" />
@@ -796,12 +796,12 @@ export default function WeatherDashboard() {
               animate={{ opacity: 1, y: 0, scale: 1 }} 
               exit={{ opacity: 0, y: 24, scale: 0.96, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 440, damping: 34, mass: 0.7 }}
-              className="relative w-full max-w-lg bg-night-800 rounded-[2rem] p-6 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-lg bg-night-800 rounded-apple-outer p-6 flex flex-col gap-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
+                  <span className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
                   <span>Jelentés Módosítása (Laci)</span>
                 </h3>
                 <button 
@@ -820,7 +820,7 @@ export default function WeatherDashboard() {
                     value={adminTitle}
                     onChange={e => setAdminTitle(e.target.value.slice(0, 80))}
                     placeholder="Pl.: Lassú felmelegedés és záporok..."
-                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                    className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
                 </div>
 
@@ -831,7 +831,7 @@ export default function WeatherDashboard() {
                     value={adminContent}
                     onChange={e => setAdminContent(e.target.value)}
                     placeholder="Másold be ide a Facebook poszt szövegét..."
-                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
+                    className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-y leading-relaxed"
                   />
                 </div>
 
@@ -856,7 +856,7 @@ export default function WeatherDashboard() {
                     value={adminAnnText}
                     onChange={e => setAdminAnnText(e.target.value.slice(0, 150))}
                     placeholder="Pl.: Viharjelzés! Erős széllökések várhatók..."
-                    className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
+                    className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
                 </div>
               </div>
@@ -882,13 +882,13 @@ export default function WeatherDashboard() {
                   value={newBlurb}
                   onChange={e => setNewBlurb(e.target.value.slice(0, 400))}
                   placeholder="Pl.: 2026 első trópusi éjszakája Kőszegen – a minimum 21,2 °C volt..."
-                  className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                  className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
                 />
 
                 {/* Kép feltöltése az új hírhez */}
                 <input type="file" accept="image/*" onChange={handleNewBlurbFile} className="hidden" id="news-blurb-file" />
                 {newBlurbPreview ? (
-                  <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                  <div className="relative w-full h-24 rounded-apple-inner overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
                     <img src={newBlurbPreview} alt="Előnézet" className="h-full object-contain" />
                     <button
                       type="button"
@@ -900,7 +900,7 @@ export default function WeatherDashboard() {
                     </button>
                   </div>
                 ) : (
-                  <label htmlFor="news-blurb-file" className="flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all">
+                  <label htmlFor="news-blurb-file" className="flex items-center justify-center gap-2 p-3 rounded-apple-inner border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer text-xs font-bold text-white transition-all">
                     <ImageIcon className="w-4 h-4 text-cyan2-300" /> Kép hozzáadása (opcionális)
                   </label>
                 )}
@@ -916,20 +916,20 @@ export default function WeatherDashboard() {
                 {activeNewsBlurbs.length > 0 && (
                   <div className="space-y-2 pt-1">
                     {activeNewsBlurbs.map(b => (
-                      <div key={b.id} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                      <div key={b.id} className="p-2.5 rounded-apple-card bg-white/[0.03] border border-white/5">
                         {editBlurbId === b.id ? (
                           <div className="space-y-2">
                             <textarea
                               rows={3}
                               value={editBlurbText}
                               onChange={e => setEditBlurbText(e.target.value.slice(0, 400))}
-                              className="w-full px-3 py-2 rounded-lg border border-cyan2-400/40 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
+                              className="w-full px-3 py-2 rounded-apple-inner border border-cyan2-400/40 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
                             />
 
                             {/* Kép szerkesztése */}
                             <input type="file" accept="image/*" onChange={handleEditBlurbFile} className="hidden" id={`news-edit-file-${b.id}`} />
                             {editBlurbPreview ? (
-                              <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                              <div className="relative w-full h-24 rounded-apple-inner overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
                                 <img src={editBlurbPreview} alt="Előnézet" className="h-full object-contain" />
                                 <button
                                   type="button"
@@ -941,7 +941,7 @@ export default function WeatherDashboard() {
                                 </button>
                               </div>
                             ) : (
-                              <label htmlFor={`news-edit-file-${b.id}`} className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] cursor-pointer text-[11px] font-bold text-white transition-all">
+                              <label htmlFor={`news-edit-file-${b.id}`} className="flex items-center justify-center gap-2 p-2.5 rounded-apple-inner border border-dashed border-white/20 hover:border-cyan2-400/40 bg-white/[0.02] cursor-pointer text-[11px] font-bold text-white transition-all">
                                 <ImageIcon className="w-3.5 h-3.5 text-cyan2-300" /> Kép hozzáadása
                               </label>
                             )}
@@ -957,7 +957,7 @@ export default function WeatherDashboard() {
                               <button
                                 onClick={cancelEditBlurb}
                                 disabled={blurbBusy}
-                                className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-colors disabled:opacity-50"
+                                className="px-3 py-2 rounded-apple-inner bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-colors disabled:opacity-50"
                               >
                                 Mégse
                               </button>
@@ -969,7 +969,7 @@ export default function WeatherDashboard() {
                             <button
                               onClick={() => startEditBlurb(b)}
                               disabled={blurbBusy}
-                              className="shrink-0 w-7 h-7 rounded-lg bg-white/10 hover:bg-cyan2-500/30 text-white flex items-center justify-center transition-colors disabled:opacity-50"
+                              className="shrink-0 w-7 h-7 rounded-apple-inner bg-white/10 hover:bg-cyan2-500/30 text-white flex items-center justify-center transition-colors disabled:opacity-50"
                               title="Villámhír szerkesztése"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -977,7 +977,7 @@ export default function WeatherDashboard() {
                             <button
                               onClick={() => handleDeleteBlurb(b.id)}
                               disabled={blurbBusy}
-                              className="shrink-0 w-7 h-7 rounded-lg bg-rose-500/80 hover:bg-rose-500 text-white flex items-center justify-center transition-colors disabled:opacity-50"
+                              className="shrink-0 w-7 h-7 rounded-apple-inner bg-rose-500/80 hover:bg-rose-500 text-white flex items-center justify-center transition-colors disabled:opacity-50"
                               title="Villámhír törlése"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
