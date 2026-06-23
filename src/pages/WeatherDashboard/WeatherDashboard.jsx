@@ -312,9 +312,9 @@ export default function WeatherDashboard() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              title: 'Kőszeg Weather',
+              title: 'Rendkívüli Riasztás!',
               body: adminAnnText.trim(),
-              url: '/'
+              url: `/?alert=true&title=${encodeURIComponent('Rendkívüli Riasztás!')}&body=${encodeURIComponent(adminAnnText.trim())}`
             })
           });
           const pushData = await pushRes.json();

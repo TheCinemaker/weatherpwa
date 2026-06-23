@@ -14,6 +14,7 @@ import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
 import { incrementPageViews, getForecast } from './api/supabase';
 import PushNotificationButton from './components/PushNotificationButton';
+import PushAlertModal from './components/PushAlertModal';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
@@ -36,6 +37,7 @@ function AppContent() {
   const [viewCount, setViewCount] = useState(null);
   const [announcement, setAnnouncement] = useState({ text: '', active: false });
   const [showAnnBanner, setShowAnnBanner] = useState(false);
+  const [pushAlert, setPushAlert] = useState(null);
 
   // Admin belépés a logóra: 3 mp nyomás → PIN-kapu (globális kontextus).
   const requestAdmin = useAdminRequest();
@@ -48,6 +50,19 @@ function AppContent() {
   const handleLogoClick = (e) => { if (logoPressFired.current) e.preventDefault(); };
 
   useEffect(() => {
+    // 0. Check query params for push alert click
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('alert') === 'true') {
+      const title = params.get('title') || 'Riasztás - Kőszeg';
+      const body = params.get('body');
+      if (body) {
+        setPushAlert({ title, body });
+        // Clean URL query parameters
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+
     // 1. Register PWA install prompt
     const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); setShowInstallBtn(true); };
     window.addEventListener('beforeinstallprompt', handler);
@@ -365,6 +380,7 @@ function AppContent() {
           </a>
         </div>
       </footer>
+      <PushAlertModal alert={pushAlert} onClose={() => setPushAlert(null)} />
     </div>
   );
 }
