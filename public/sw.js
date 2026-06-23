@@ -1,5 +1,5 @@
-// Version: 2.0.14
-const CACHE_NAME = 'koszeg-weather-cache-v2.0.14';
+// Version: 2.1.0
+const CACHE_NAME = 'koszeg-weather-cache-v2.1.0';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

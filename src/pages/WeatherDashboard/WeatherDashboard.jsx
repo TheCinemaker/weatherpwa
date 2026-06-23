@@ -6,12 +6,14 @@ import SunBar from './SunBar';
 import StatCard, { STAT_CARDS_CONFIG } from './StatCard';
 import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
+import UvCard from '../../components/UvCard';
+import HeroSky from '../../components/HeroSky';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
 import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount } from '../../api/supabase';
 import {
-  AlertTriangle, MapPin, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
+  AlertTriangle, MapPin, Info, CloudRain, CloudDrizzle, CloudFog,
   Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
   ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell
 } from 'lucide-react';
@@ -74,17 +76,13 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
   const trendUp = tempTrend === 'up';
   const trendDown = tempTrend === 'down';
   let gradientClass = 'from-cyan-600 via-cyan-500 to-teal-500';
-  let glowColor = 'bg-yellow-300/40 shadow-[0_0_80px_40px_rgba(253,224,71,0.3)]';
-  
+
   if (timeOfDay === 'night') {
     gradientClass = 'from-indigo-950 via-slate-900 to-blue-950';
-    glowColor = 'bg-slate-200/30 shadow-[0_0_80px_40px_rgba(226,232,240,0.2)]';
   } else if (timeOfDay === 'dawn') {
     gradientClass = 'from-orange-500 via-rose-500 to-indigo-700';
-    glowColor = 'bg-amber-400/40 shadow-[0_0_80px_40px_rgba(251,191,36,0.3)]';
   } else if (timeOfDay === 'dusk') {
     gradientClass = 'from-indigo-900 via-purple-800 to-pink-700';
-    glowColor = 'bg-rose-400/40 shadow-[0_0_80px_40px_rgba(251,113,133,0.3)]';
   }
 
   return (
@@ -125,17 +123,8 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
           </div>
         </div>
 
-        {/* Floating animated glowing orb */}
-        <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center">
-          <div className={`absolute inset-3 rounded-full ${glowColor} blur-md animate-pulse`} />
-          <div className="absolute inset-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center">
-            {isNight ? (
-              <Moon className="w-9 h-9 text-blue-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
-            ) : (
-              <Sun className="w-9 h-9 text-amber-100 drop-shadow-[0_0_12px_rgba(253,224,71,0.6)] animate-spin" style={{ animationDuration: '40s' }} />
-            )}
-          </div>
-        </div>
+        {/* Animált égbolt: nap / valódi holdfázis + felhőzöttség (Open-Meteo) */}
+        <HeroSky isNight={isNight} />
       </div>
 
       {/* Bottom row: Coordinates & Elevation */}
@@ -588,6 +577,13 @@ export default function WeatherDashboard() {
               </div>
             </div>
           ))}
+        </div>
+      </FadeUp>
+
+      {/* --- UV-INDEX (külső forrás: Open-Meteo) — közvetlenül a hero alatt --- */}
+      <FadeUp delay={0.03}>
+        <div className="mt-4">
+          <UvCard />
         </div>
       </FadeUp>
 

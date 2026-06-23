@@ -18,7 +18,18 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
+## 📌 TODO / Tervezett fejlesztések
+*   **Hero hold — rendes holdképekkel**: jelenleg a hero-ban a holdfázist SVG/CSS terminátor-árnyékkal rajzoljuk ([src/components/HeroSky.jsx](src/components/HeroSky.jsx)), lágyított (blur) fény-árnyék határral. **Cél:** lecserélni **valódi holdfázis-képekre** (fotó/illusztráció szett a fő fázisokhoz, vagy fázis-szögre paraméterezve), hogy élethűbb legyen. (Felmerült: 2026.06.) — A felhőzöttség-alapú nap/hold/felhő logika és az UV-index (Open-Meteo) már elkészült.
+
+---
+
 ## 📅 2026. 06. 23.
+
+### 🏷️ Version 2.1.0 (Élesítve / Pusholva) — UV-index + animált égbolt
+*   **UV-index kártya (Open-Meteo)**: új [src/components/UvCard.jsx](src/components/UvCard.jsx) — Kőszeg koordinátáira (kulcs nélküli, ingyenes Open-Meteo `uv_index` + `uv_index_max`). WHO szín-kódolt szint + tanács + napi csúcs, „Forrás: Open-Meteo · modellezett" jelöléssel és HungaroMet (met.hu) hivatkozással. A kártya **közvetlenül a hero alatt** jelenik meg.
+*   **Animált égbolt a hero-ban**: új [src/components/HeroSky.jsx](src/components/HeroSky.jsx) — nappal SVG nap (forgó sugarak), éjjel **valódi holdfázis** (terminátor-árnyék, lágyított/blurelt fény-árnyék határral), és az Open-Meteo `cloud_cover` alapján **sodródó felhők** (számuk/átlátszatlanságuk a felhőzöttséghez igazodik, framer-motion mozgással). A csapadék/köd továbbra is a helyi SmartMixin szenzorból jön.
+*   **Verzióemelés 2.0.14 → 2.1.0**: [package.json](package.json), [public/sw.js](public/sw.js) (`CACHE_NAME` is), [public/manifest.json](public/manifest.json) (`version` mező), és a footer ([src/App.jsx](src/App.jsx)).
+*   *Megjegyzés:* a hero hold későbbi finomítása (valódi holdképek) a fenti TODO blokkban szerepel.
 
 ### 🏷️ Version 2.0.2 (Élesítve / Pusholva)
 *   **Szürke betűszínek javítása (színpaletta módosítás)**:
