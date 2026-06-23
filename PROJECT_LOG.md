@@ -125,3 +125,21 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 >    - `VAPID_PRIVATE_KEY` = `XMdDZbcmXblBRIzkBuepDcyN3xQeC4BxX6jac9-JApQ`
 >    - `SUPABASE_URL` = (a Supabase projekt URL-je)
 >    - `SUPABASE_SERVICE_ROLE_KEY` = (a Supabase service role key, nem az anon key!)
+
+---
+
+### 🏷️ Version 2.0.11 (Kizárólag lokálisan elmentve / Nincs pusholva)
+*   **Push előfizetők platform azonosítása és számlálója**:
+    *   **Fájl**: [supabase_migrations/16_add_platform_to_push_subscriptions.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/16_add_platform_to_push_subscriptions.sql) [ÚJ]
+    *   **Változtatás**: `ALTER TABLE push_subscriptions ADD COLUMN user_agent TEXT, ADD COLUMN platform TEXT` — bővíti a már létrehozott táblát a platformazonosítás mezőivel.
+    *   **Fájl**: [supabase_migrations/15_create_push_subscriptions.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/15_create_push_subscriptions.sql)
+    *   **Változtatás**: A `CREATE TABLE` definíciót frissítettem, hogy a `user_agent` és `platform` mezőket tartalmazza — így tiszta installálásoknál is helyes a séma.
+    *   **Fájl**: [src/components/PushNotificationButton.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/PushNotificationButton.jsx)
+    *   **Változtatás**: Hozzáadtam a `detectPlatform()` helper függvényt, amely a `navigator.userAgent` karakterláncból olvasható platformnevet állít elő (pl. `Android Chrome`, `iPhone Safari`, `Windows Edge`, `iPad Safari`). A Supabase-be mentéskor immár a `user_agent` (teljes UA string) és a `platform` (emberbarát névbélyeg) mezők is tárolásra kerülnek.
+    *   **Fájl**: [src/api/supabase.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/api/supabase.js)
+    *   **Változtatás**: Új `getPushSubscriberCount()` export függvény: `SELECT count(*) FROM push_subscriptions` (Supabase `count: 'exact', head: true` opcióval) — a feliratkozott eszközök darabszámát adja vissza.
+    *   **Fájl**: [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx)
+    *   **Változtatás**: Az admin modal fejlécébe bekerült egy `🔔 Feliratkozott eszközök: N` sáv, amely az admin megnyitásakor lekéri és megjeleníti az aktuális feliratkozók számát.
+*   **Verzióemelés `2.0.11`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.11`).
+
