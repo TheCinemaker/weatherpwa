@@ -58,13 +58,13 @@ export default function Sponsors() {
     name: 'SA software',
     subtitle: '& Network Solutions',
     logo_url: '/sasoftware.png',
-    description: 'Egyedi szoftverfejlesztés (VisitKőszeg, KőszegEats, TheTicket, VoltDesk, KőszegWeather) és prémium IT hálózati infrastruktúra-tervezés luxusszállodák számára belföldön és külföldön egyaránt.',
+    description: 'Szeretne vállalkozásának egyedi, modern szoftvert vagy prémium, stabil IT hálózatot? Olyan sikeres és ismert rendszereket terveztünk és építettünk, mint a VisitKőszeg, KőszegEats, TheTicket, VoltDesk és a KőszegWeather. Valósítsuk meg az Ön igényeit is!',
     website_url: null,
     contact: 'avar.szilveszter@gmail.com',
     services: [
-      { title: 'Szoftverfejlesztés', desc: 'Egyedi web- és mobilalkalmazások fejlesztése (pl. VisitKőszeg, KőszegEats, TheTicket, VoltDesk, KőszegWeather).' },
-      { title: 'Hotel IT & Hálózatok', desc: 'IPTV, internet és komplex WiFi rendszerek tervezése, kiépítése luxushotelek számára.' },
-      { title: 'Nemzetközi Referenciák', desc: 'Rendszerintegrációs munkák neves szállodákban: InterContinental (Budapest, Bukarest, Bécs, Berlin), Kempinski (Frankfurt), Bem Kimpton.' }
+      { title: 'Egyedi Szoftverek', desc: 'Üzleti rendszerek, web- és mobilalkalmazások fejlesztése az ötlettől a kulcsrakész átadásig (mint ez a PWA app).' },
+      { title: 'Hotel IT & Rendszerek', desc: 'Prémium WiFi, IPTV, internet és komplex hálózati infrastruktúrák tervezése, kiépítése hoteleknek és irodáknak.' },
+      { title: 'Nemzetközi Hálózati Munkák', desc: 'Több évtizedes szakmai háttér neves hotelekben: InterContinental (Bécs, Berlin, Budapest, Bukarest), Kempinski, Bem Kimpton.' }
     ]
   };
 

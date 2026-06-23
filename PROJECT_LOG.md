@@ -174,3 +174,12 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.0.13`-ra**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.13`).
 
+---
+
+### 🏷️ Version 2.0.14 (Fejlesztői értékesítési szöveg finomhangolása)
+*   **Hirdetés meggyőzőbbé tétele (lead generálás)**:
+    *   **Fájl**: [src/pages/Sponsors/Sponsors.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Sponsors/Sponsors.jsx)
+    *   **Változtatás**: Átfogalmaztam a bemutatkozó/értékesítési szöveget, hogy közvetlen cselekvésre ösztönözze (call-to-action) a szoftver- vagy hálózatfejlesztést tervező látogatókat.
+*   **Verzióemelés `2.0.14`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.14`).
+
