@@ -11,6 +11,13 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
+## 🔗 Hasznos Hivatkozások
+*   **SmartMixin API Bázis**: `https://api2.smartmixin.io`
+*   **Kőszegi Állomás Mérési URL**: [Stations API](https://api2.smartmixin.io/api/stations/72461/?refresh=1)
+*   **Kőszegi Állomás Történeti URL (History)**: `https://api2.smartmixin.io/api/measures/` (Station ID: `72461`)
+
+---
+
 ## 📅 2026. 06. 23.
 
 ### 🏷️ Version 2.0.2 (Élesítve / Pusholva)
