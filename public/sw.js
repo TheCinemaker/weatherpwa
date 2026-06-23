@@ -1,9 +1,10 @@
-// Version: 2.0.6
-const CACHE_NAME = 'koszeg-weather-cache-v2.0.6';
+// Version: 2.0.7
+const CACHE_NAME = 'koszeg-weather-cache-v2.0.7';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/favicon.png',
+  '/android-chrome-192x192.png',
   '/android-chrome-512x512.png',
   '/noise.svg'
 ];
