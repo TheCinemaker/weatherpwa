@@ -165,3 +165,12 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.0.12`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.12`).
 
+---
+
+### 🏷️ Version 2.0.13 (Fejlesztői bemutatkozás frissítése)
+*   **Hirdetés és referenciák frissítése**:
+    *   **Fájl**: [src/pages/Sponsors/Sponsors.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Sponsors/Sponsors.jsx)
+    *   **Változtatás**: Átfogalmaztam az SA software fejlesztői hirdetést. Mostantól megnevezi a saját projekteket (VisitKőszeg, KőszegEats, TheTicket, VoltDesk, KőszegWeather), valamint a nemzetközi luxusszállodákban (InterContinental, Kempinski, Bem Kimpton) végzett IT/hálózati (IPTV, internet, WiFi) munkákat.
+*   **Verzióemelés `2.0.13`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.13`).
+

@@ -58,13 +58,13 @@ export default function Sponsors() {
     name: 'SA software',
     subtitle: '& Network Solutions',
     logo_url: '/sasoftware.png',
-    description: 'Egyedi szoftverfejlesztés, felhő-infrastruktúrák tervezése és prémium IT hálózati megoldások az Ön vállalkozására szabva. Ez az időjárás-alkalmazás is a mi munkánk.',
+    description: 'Egyedi szoftverfejlesztés (VisitKőszeg, KőszegEats, TheTicket, VoltDesk, KőszegWeather) és prémium IT hálózati infrastruktúra-tervezés luxusszállodák számára belföldön és külföldön egyaránt.',
     website_url: null,
     contact: 'avar.szilveszter@gmail.com',
     services: [
-      { title: 'Web & Mobilappok', desc: 'Gyors, modern és reszponzív rendszerek (mint ez az app).' },
-      { title: 'Felhő & Adatbázis', desc: 'Biztonságos Supabase és PostgreSQL integrációk.' },
-      { title: 'IT Hálózatok', desc: 'VPN kiépítés, távoli elérés és rendszerfelügyelet.' }
+      { title: 'Szoftverfejlesztés', desc: 'Egyedi web- és mobilalkalmazások fejlesztése (pl. VisitKőszeg, KőszegEats, TheTicket, VoltDesk, KőszegWeather).' },
+      { title: 'Hotel IT & Hálózatok', desc: 'IPTV, internet és komplex WiFi rendszerek tervezése, kiépítése luxushotelek számára.' },
+      { title: 'Nemzetközi Referenciák', desc: 'Rendszerintegrációs munkák neves szállodákban: InterContinental (Budapest, Bukarest, Bécs, Berlin), Kempinski (Frankfurt), Bem Kimpton.' }
     ]
   };
 
