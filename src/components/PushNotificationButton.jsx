@@ -163,7 +163,7 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
         setIsSubscribed(true);
 
         // Confirmation notification
-        new Notification('Kőszegi Időjárás', {
+        reg.showNotification('Kőszegi Időjárás', {
           body: 'Sikeresen feliratkoztál a viharjelzésekre!',
           icon: '/favicon.png',
         });

@@ -84,10 +84,16 @@ function AppContent() {
           
           // Trigger system notification if granted
           if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Kőszegi Időjárás Figyelmeztetés', {
-              body: data.announcement_text,
-              icon: '/favicon.png'
-            });
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification('Kőszegi Időjárás Figyelmeztetés', {
+                  body: data.announcement_text,
+                  icon: '/favicon.png'
+                });
+              }).catch(err => {
+                console.error('Failed to show notification via Service Worker:', err);
+              });
+            }
           }
         }
       }
