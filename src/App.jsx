@@ -68,7 +68,7 @@ function AppContent() {
           setShowAnnBanner(true);
           
           // Trigger system notification if granted
-          if (Notification.permission === 'granted') {
+          if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('Kőszegi Időjárás Figyelmeztetés', {
               body: data.announcement_text,
               icon: '/favicon.png'

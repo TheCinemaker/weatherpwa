@@ -106,7 +106,7 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
   // Check if push is already active on mount
   useEffect(() => {
     async function checkSubscription() {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
         setIsSupported(false);
         setLoading(false);
         return;
