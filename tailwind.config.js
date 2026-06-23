@@ -18,11 +18,11 @@ export default {
         indigo2: { 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1' },
         emerald2:{ 300: '#6ee7b7', 400: '#34d399', 500: '#10b981' },
         // Deep dark slate-cyan tones
-        night:   { 50: '#f8fafc', 100: '#e2e8f0', 200: '#94a3b8', 300: '#64748b', 700: '#0f172a', 800: '#070c14', 900: '#020408' },
+        night:   { 50: '#f8fafc', 100: '#e2e8f0', 200: '#e2e8f0', 300: '#cbd5e1', 700: '#0f172a', 800: '#070c14', 900: '#020408' },
         canvas:  '#050d10',
         cream:   '#ffffff',
         sage:    '#06b6d4',
-        pebble:  '#94a3b8',
+        pebble:  '#e2e8f0',
       },
       boxShadow: {
         glow: '0 16px 40px -14px rgba(6, 182, 212, 0.45)',

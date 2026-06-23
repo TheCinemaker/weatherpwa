@@ -273,7 +273,7 @@ function AppContent() {
             >
               <Logo className="w-5 h-5" />
             </div>
-            <span className="text-[10px] sm:text-xs font-black tracking-tight text-white whitespace-nowrap">
+            <span className="text-[13px] sm:text-[15px] font-black tracking-tight text-white whitespace-nowrap">
               <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés
             </span>
           </Link>
@@ -410,6 +410,9 @@ function AppContent() {
           </p>
           <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
+          </p>
+          <p className="text-[10px] font-semibold text-night-200/45 leading-relaxed">
+            Version: 2.0.2
           </p>
           <a
             href="https://visitkoszeg.hu"
