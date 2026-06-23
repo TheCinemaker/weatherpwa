@@ -128,18 +128,33 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
-### 🏷️ Version 2.0.11 (Kizárólag lokálisan elmentve / Nincs pusholva)
+### 🏷️ Version 2.0.11
 *   **Push előfizetők platform azonosítása és számlálója**:
     *   **Fájl**: [supabase_migrations/16_add_platform_to_push_subscriptions.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/16_add_platform_to_push_subscriptions.sql) [ÚJ]
     *   **Változtatás**: `ALTER TABLE push_subscriptions ADD COLUMN user_agent TEXT, ADD COLUMN platform TEXT` — bővíti a már létrehozott táblát a platformazonosítás mezőivel.
     *   **Fájl**: [supabase_migrations/15_create_push_subscriptions.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/15_create_push_subscriptions.sql)
-    *   **Változtatás**: A `CREATE TABLE` definíciót frissítettem, hogy a `user_agent` és `platform` mezőket tartalmazza — így tiszta installálásoknál is helyes a séma.
+    *   **Változtatás**: A `CREATE TABLE` definíciót frissítettem, hogy a `user_agent` és `platform` mezőket tartalmazza.
     *   **Fájl**: [src/components/PushNotificationButton.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/PushNotificationButton.jsx)
-    *   **Változtatás**: Hozzáadtam a `detectPlatform()` helper függvényt, amely a `navigator.userAgent` karakterláncból olvasható platformnevet állít elő (pl. `Android Chrome`, `iPhone Safari`, `Windows Edge`, `iPad Safari`). A Supabase-be mentéskor immár a `user_agent` (teljes UA string) és a `platform` (emberbarát névbélyeg) mezők is tárolásra kerülnek.
+    *   **Változtatás**: Hozzáadtam a `detectPlatform()` helper függvényt a platform azonosításához. A Supabase-be mentéskor a `user_agent` és a `platform` mezők is tárolásra kerülnek.
     *   **Fájl**: [src/api/supabase.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/api/supabase.js)
-    *   **Változtatás**: Új `getPushSubscriberCount()` export függvény: `SELECT count(*) FROM push_subscriptions` (Supabase `count: 'exact', head: true` opcióval) — a feliratkozott eszközök darabszámát adja vissza.
+    *   **Változtatás**: Új `getPushSubscriberCount()` export függvény.
     *   **Fájl**: [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx)
-    *   **Változtatás**: Az admin modal fejlécébe bekerült egy `🔔 Feliratkozott eszközök: N` sáv, amely az admin megnyitásakor lekéri és megjeleníti az aktuális feliratkozók számát.
+    *   **Változtatás**: Az admin modal fejlécébe bekerült egy `🔔 Feliratkozott eszközök: N` sáv.
 *   **Verzióemelés `2.0.11`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.11`).
+
+---
+
+### 🏷️ Version 2.0.12 (Safari és Android Chrome stabilitási frissítés)
+*   **Safari és Android Chrome kompatibilitási hibák elhárítása**:
+    *   **Fájl**: [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx) és [src/components/PushNotificationButton.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/PushNotificationButton.jsx)
+    *   **Változtatás**: Beépítettem a `'Notification' in window` biztonsági ellenőrzést az összes lekérdezés és constructor elé. Ezzel elhárítottuk a Safari (nem-PWA módú) betöltési fázisában lévő összeomlást.
+    *   **Változtatás**: Kicseréltem a `new Notification` hívásokat a Service Worker `reg.showNotification()` metódusára, amivel elhárítottuk az Android Chrome böngészőkben fellépő "Failed to construct Notification: Illegal constructor" hibát.
+*   **Riasztás megtekintése kattintás után (Rich Push URL & Modal)**:
+    *   **Fájl**: [src/components/PushAlertModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/PushAlertModal.jsx) [ÚJ]
+    *   **Változtatás**: Létrehoztam egy prémium megjelenésű riasztási ablakot, ami a push értesítésre kattintás után jelenik meg a felhasználóknak.
+    *   **Fájl**: [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx)
+    *   **Változtatás**: A szétküldött push értesítés URL-jében URL-kódoltan átadjuk a riasztás teljes tartalmát (`/?alert=true&title=...&body=...`), amit az app betöltődéskor észlel, kiolvas, és megjelenít a fenti modálban.
+*   **Verzióemelés `2.0.12`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.12`).
 
