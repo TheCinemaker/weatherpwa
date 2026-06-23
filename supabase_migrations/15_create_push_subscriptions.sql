@@ -4,12 +4,15 @@
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.push_subscriptions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    endpoint TEXT NOT NULL UNIQUE,
-    p256dh TEXT NOT NULL,
-    auth TEXT NOT NULL,
+    id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    endpoint   TEXT        NOT NULL UNIQUE,
+    p256dh     TEXT        NOT NULL,
+    auth       TEXT        NOT NULL,
+    user_agent TEXT,
+    platform   TEXT,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
+
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;

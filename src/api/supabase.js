@@ -340,3 +340,18 @@ export async function uploadForecastImage(file) {
   return data?.publicUrl;
 }
 
+export async function getPushSubscriberCount() {
+  if (!supabase) return 0;
+  try {
+    const { count, error } = await supabase
+      .from('push_subscriptions')
+      .select('*', { count: 'exact', head: true });
+    if (error) throw error;
+    return count ?? 0;
+  } catch (err) {
+    console.error('Failed to get push subscriber count:', err);
+    return 0;
+  }
+}
+
+

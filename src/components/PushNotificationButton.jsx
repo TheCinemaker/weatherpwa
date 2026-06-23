@@ -18,6 +18,46 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 /**
+ * Detects a human-readable platform label from navigator.userAgent.
+ * Examples: "Android Chrome", "iPhone Safari", "Windows Edge", "iPad Safari"
+ */
+function detectPlatform() {
+  const ua = navigator.userAgent || '';
+
+  const isIPhone  = /iPhone/i.test(ua);
+  const isIPad    = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const isWindows = /Windows/i.test(ua);
+  const isMac     = /Macintosh/i.test(ua) && !isIPad;
+  const isLinux   = /Linux/i.test(ua) && !isAndroid;
+
+  const isChrome  = /Chrome/i.test(ua)  && !/Edg/i.test(ua) && !/OPR/i.test(ua);
+  const isEdge    = /Edg/i.test(ua);
+  const isFirefox = /Firefox/i.test(ua);
+  const isSamsung = /SamsungBrowser/i.test(ua);
+  const isSafari  = /Safari/i.test(ua)  && !/Chrome/i.test(ua);
+  const isOpera   = /OPR/i.test(ua);
+
+  const browser = isEdge ? 'Edge'
+    : isSamsung ? 'Samsung'
+    : isChrome  ? 'Chrome'
+    : isFirefox ? 'Firefox'
+    : isSafari  ? 'Safari'
+    : isOpera   ? 'Opera'
+    : 'Browser';
+
+  const os = isIPhone  ? 'iPhone'
+    : isIPad    ? 'iPad'
+    : isAndroid ? 'Android'
+    : isWindows ? 'Windows'
+    : isMac     ? 'Mac'
+    : isLinux   ? 'Linux'
+    : 'Ismeretlen';
+
+  return `${os} ${browser}`;
+}
+
+/**
  * Saves a push subscription to Supabase, upserting on endpoint conflict.
  */
 async function saveSubscriptionToSupabase(sub) {
@@ -27,14 +67,17 @@ async function saveSubscriptionToSupabase(sub) {
     .from('push_subscriptions')
     .upsert(
       {
-        endpoint: sub.endpoint,
-        p256dh: subJson.keys.p256dh,
-        auth: subJson.keys.auth,
+        endpoint:   sub.endpoint,
+        p256dh:     subJson.keys.p256dh,
+        auth:       subJson.keys.auth,
+        user_agent: navigator.userAgent || null,
+        platform:   detectPlatform(),
       },
       { onConflict: 'endpoint' }
     );
   if (error) throw error;
 }
+
 
 /**
  * Removes a push subscription from Supabase by endpoint.

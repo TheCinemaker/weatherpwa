@@ -9,11 +9,11 @@ import StatDetailModal from './StatDetailModal';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
-import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage } from '../../api/supabase';
+import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount } from '../../api/supabase';
 import {
   AlertTriangle, MapPin, Info, Moon, Sun, CloudRain, CloudDrizzle, CloudFog,
   Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
-  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X
+  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell
 } from 'lucide-react';
 
 // Kép tömörítése feltöltés előtt (max 1000px széles, JPEG).
@@ -179,6 +179,7 @@ export default function WeatherDashboard() {
   const [adminAnnActive, setAdminAnnActive] = useState(false);
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminError, setAdminError] = useState('');
+  const [pushSubCount, setPushSubCount] = useState(null);
 
   // Hírmorzsák
   const [newsBlurbs, setNewsBlurbs] = useState([]);
@@ -219,6 +220,8 @@ export default function WeatherDashboard() {
       setAdminContent(data.content);
       setAdminAnnText(data.announcement_text || '');
       setAdminAnnActive(data.announcement_active || false);
+      // Load push subscriber count when admin opens
+      getPushSubscriberCount().then(setPushSubCount);
     });
 
     getNewsBlurbs().then(data => {
@@ -831,6 +834,15 @@ export default function WeatherDashboard() {
                 >
                   <X className="w-5 h-5" />
                 </button>
+              </div>
+
+              {/* Push subscriber counter */}
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-apple-inner bg-white/[0.04] border border-white/10">
+                <Bell className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="text-xs font-bold text-white/80">Feliratkozott eszközök:</span>
+                <span className="text-xs font-extrabold text-emerald-300 ml-auto">
+                  {pushSubCount === null ? '…' : pushSubCount.toLocaleString('hu-HU')}
+                </span>
               </div>
 
               <div className="space-y-3">
