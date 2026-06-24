@@ -217,3 +217,9 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
     *   **Megvalósítás**: Egy új Netlify function (pl. `fetch-metnet-backup`) lekéri a `https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155` oldalt, HTML parsing segítségével kiszedi a legfrissebb mérési adatokat (T, U, FF, DD, SLP, RR_1H), és végigpásztázza a mai napi adatokat a minimum/maximum kiszámítására. A `useWeatherData.js` hibakezelőjébe beépítjük a failover lekérést.
     *   **Státusz**: Tervezve (Todo), a kőszegi állomás MetNet ID-je: `1155`.
 
+*   [ ] **PWA Háttérből Visszatérés és Auto-Frissítés (PWA Resume & Auto-Update)**:
+    *   **Leírás**: iOS-en háttérbe küldött (fagyasztott), majd újra előtérbe hozott PWA appoknál a mérések (és a kattintásszámláló) elavultak maradnak, mert nem futnak le újra a React mount eseményei. Továbbá a verziófrissítések sem települnek azonnal.
+    *   **Megvalósítás**: Iratkozzunk fel a `visibilitychange` eseményre a böngészőben. Amikor a dokumentum állapota újra `visible` lesz, indítsuk el a legfrissebb időjárás adatok kényszerített újratöltését (reload), és hívjuk meg a Service Worker `update()` metódusát (`navigator.serviceWorker.ready.then(reg => reg.update())`), hogy a PWA a háttérből visszatérve ellenőrizze az esetleges új verziókat.
+    *   **Státusz**: Tervezve (Todo).
+
+
