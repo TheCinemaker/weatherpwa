@@ -364,7 +364,7 @@ function AppContent() {
           <p className="text-[11px] font-bold text-white/70">
             Designed &amp; developed by{' '}
             <a
-              href="mailto:avar.szilveszter@gmail.com"
+              href="mailto:koszegapp@gmail.com"
               className="text-gradient font-extrabold tracking-tight hover:brightness-125 transition-all"
             >
               SA software
@@ -374,7 +374,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.1.0
+            Version: 2.1.1
           </p>
           <a
             href="https://visitkoszeg.hu"

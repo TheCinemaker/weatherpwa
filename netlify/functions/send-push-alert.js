@@ -18,7 +18,7 @@
 import webpush from 'web-push';
 import { createClient } from '@supabase/supabase-js';
 
-const CONTACT_EMAIL = 'mailto:avar.szilveszter@gmail.com';
+const CONTACT_EMAIL = 'mailto:koszegapp@gmail.com';
 
 export async function handler(event, context) {
   // --- CORS Preflight ---

@@ -60,7 +60,7 @@ export default function Sponsors() {
     logo_url: '/sasoftware.png',
     description: 'Szeretne vállalkozásának egyedi, modern szoftvert vagy prémium, stabil IT hálózatot? Olyan sikeres és ismert rendszereket terveztünk és építettünk, mint a VisitKőszeg, KőszegEats, TheTicket, VoltDesk és a KőszegWeather. Valósítsuk meg az Ön igényeit is!',
     website_url: null,
-    contact: 'avar.szilveszter@gmail.com',
+    contact: 'koszegapp@gmail.com',
     services: [
       { title: 'Egyedi Szoftverek', desc: 'Üzleti rendszerek, web- és mobilalkalmazások fejlesztése az ötlettől a kulcsrakész átadásig (mint ez a PWA app).' },
       { title: 'Hotel IT & Rendszerek', desc: 'Prémium WiFi, IPTV, internet és komplex hálózati infrastruktúrák tervezése, kiépítése hoteleknek és irodáknak.' },
@@ -255,7 +255,7 @@ export default function Sponsors() {
             Az alkalmazást Kőszeg lakói és a környékre látogató turisták ezrei használják nap mint nap. Jelenítsd meg vállalkozásodat saját hirdetési felületen – plakáttal, leírással és elérhetőséggel.
           </p>
           <a
-            href="mailto:avar.szilveszter@gmail.com?subject=Hirdetési lehetőség - Kőszegi Időjárás"
+            href="mailto:koszegapp@gmail.com?subject=Hirdetési lehetőség - Kőszegi Időjárás"
             className="btn-grad px-6 py-3 text-xs mt-5 inline-flex"
           >
             <Mail className="w-4 h-4" />
