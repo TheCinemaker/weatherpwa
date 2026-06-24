@@ -194,3 +194,26 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.0.14`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.0.14`).
 
+---
+
+### 🏷️ Version 2.1.0 (UV-index és Animált Égbolt - Laci otthoni fejlesztése)
+*   **Dinamikus csillagászati égbolt**:
+    *   **Fájl**: [src/components/HeroSky.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/HeroSky.jsx) [ÚJ]
+    *   **Változtatás**: Létrehozva egy `HeroSky` komponens, ami az Open-Meteo felhőzet adatára építve napot (forgó sugarakkal) vagy valódi holdfázist (mai terminátor-árnyék számítással) rajzol ki, sodródó felhőkkel.
+    *   **Fájl**: [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx)
+    *   **Változtatás**: A korábbi izzó narancs/fehér köröket kicseréltük az új `<HeroSky>` égboltra a WeatherHero-ban.
+*   **UV-index widget**:
+    *   **Fájl**: [src/components/UvCard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/UvCard.jsx) [ÚJ]
+    *   **Változtatás**: Új, esztétikus UV kártya, ami az Open-Meteo modellezett aktuális és napi max UV adatait jeleníti meg, színkódolt szintjelzéssel, biztonsági javaslatokkal és HungaroMet linkkel. Helye: a WeatherHero alatt, a páratartalom felett.
+*   **Verzióemelés `2.1.0`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.1.0`).
+
+---
+
+## 📌 Tervezett Fejlesztések (TODO)
+
+*   [ ] **MetNet Failover Redundancia (Weather station fallback)**:
+    *   **Leírás**: Ha a fő SmartMixin API lehal vagy időtúllépést ad vissza, a rendszer automatikusan és észrevétlenül váltson át a MetNet online állomás adatainak scrapingjére.
+    *   **Megvalósítás**: Egy új Netlify function (pl. `fetch-metnet-backup`) lekéri a `https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155` oldalt, HTML parsing segítségével kiszedi a legfrissebb mérési adatokat (T, U, FF, DD, SLP, RR_1H), és végigpásztázza a mai napi adatokat a minimum/maximum kiszámítására. A `useWeatherData.js` hibakezelőjébe beépítjük a failover lekérést.
+    *   **Státusz**: Tervezve (Todo), a kőszegi állomás MetNet ID-je: `1155`.
+
