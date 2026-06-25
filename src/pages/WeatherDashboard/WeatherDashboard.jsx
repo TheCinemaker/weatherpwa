@@ -883,7 +883,7 @@ export default function WeatherDashboard() {
                   <input
                     type="text"
                     value={adminAnnText}
-                    onChange={e => setAdminAnnText(e.target.value.slice(0, 150))}
+                    onChange={e => setAdminAnnText(e.target.value.slice(0, 200))}
                     placeholder="Pl.: Viharjelzés! Erős széllökések várhatók..."
                     className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
@@ -909,7 +909,7 @@ export default function WeatherDashboard() {
                 <textarea
                   rows={2}
                   value={newBlurb}
-                  onChange={e => setNewBlurb(e.target.value.slice(0, 400))}
+                  onChange={e => setNewBlurb(e.target.value)}
                   placeholder="Pl.: 2026 első trópusi éjszakája Kőszegen – a minimum 21,2 °C volt..."
                   className="w-full px-4 py-3 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-sm font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
                 />
@@ -951,7 +951,7 @@ export default function WeatherDashboard() {
                             <textarea
                               rows={3}
                               value={editBlurbText}
-                              onChange={e => setEditBlurbText(e.target.value.slice(0, 400))}
+                              onChange={e => setEditBlurbText(e.target.value)}
                               className="w-full px-3 py-2 rounded-apple-inner border border-cyan2-400/40 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-cyan2-400/50 resize-none leading-relaxed"
                             />
 

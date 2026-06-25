@@ -906,7 +906,7 @@ export default function Forecast() {
                   <input
                     type="text"
                     value={adminAnnText}
-                    onChange={e => setAdminAnnText(e.target.value.slice(0, 150))}
+                    onChange={e => setAdminAnnText(e.target.value.slice(0, 200))}
                     placeholder="Pl.: Viharjelzés! Erős széllökések várhatóak..."
                     className="w-full px-4 py-2.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold placeholder:text-night-200/35 focus:outline-none focus:ring-2 focus:ring-cyan2-400/50"
                   />
