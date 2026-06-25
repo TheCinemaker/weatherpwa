@@ -210,6 +210,19 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
+## 📅 2026. 06. 25.
+
+### 🏷️ Version 2.1.2 (Admin karakterlimitek és villámhírek megtartása)
+*   **Villámhírek megőrzése és darabszám-korlátozása (max 3)**:
+    *   **Adatbázis**: Létrehoztam a [supabase_migrations/17_limit_news_blurbs_to_three.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/17_limit_news_blurbs_to_three.sql) fájlt. Ez kikapcsolja a 24 órás lejárati időt a villámhíreknél (az `expires_at` alapértelmezése `NULL` lett, a meglévőké is törlődik). Ezzel párhuzamosan beállít egy adatbázis-triggert, ami minden új hír beszúrása után automatikusan törli a legrégebbi híreket, hogy mindig **pontosan a 3 legfrissebb** maradjon meg.
+*   **Karakterlimitek frissítése az admin panelen**:
+    *   **Villámhír szövege**: Eltávolítottam a 400 karakteres korlátozást a [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) oldalon.
+    *   **Sürgős értesítés (pl. Viharjelzés)**: Felemeltem a limitet 150-ről **200 karakterre** a [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) és [src/pages/Forecast/Forecast.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Forecast/Forecast.jsx) oldalakon is.
+*   **Verzióemelés `2.1.2`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.2`).
+
+---
+
 ## 📌 Tervezett Fejlesztések (TODO)
 
 *   [ ] **MetNet Failover Redundancia (Weather station fallback)**:
