@@ -354,4 +354,216 @@ export async function getPushSubscriberCount() {
   }
 }
 
+// --- Játékok & Dicsőségfal ---
+
+export function getOrCreatePlayerId() {
+  if (typeof window === 'undefined') return '';
+  let id = localStorage.getItem('weather_player_id');
+  if (!id) {
+    id = crypto.randomUUID ? crypto.randomUUID() : 'p-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('weather_player_id', id);
+  }
+  return id;
+}
+
+export async function submitQuizResult(name, score, time_seconds) {
+  if (!supabase) throw new Error('Supabase nincs konfigurálva.');
+  const player_id = getOrCreatePlayerId();
+  const { data, error } = await supabase
+    .from('quiz_leaderboard')
+    .insert({ player_id, name, score, time_seconds })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getQuizLeaderboard(limit = 10) {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('quiz_leaderboard')
+      .select('*')
+      .order('score', { ascending: false })
+      .order('time_seconds', { ascending: true })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('Failed to get quiz leaderboard:', err);
+    return [];
+  }
+}
+
+export async function checkQuizAlreadyPlayed() {
+  if (!supabase) return false;
+  try {
+    const player_id = getOrCreatePlayerId();
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('quiz_leaderboard')
+      .select('id')
+      .eq('player_id', player_id)
+      .eq('created_date', today)
+      .maybeSingle();
+    if (error) throw error;
+    return data !== null;
+  } catch (err) {
+    console.error('Failed to check if quiz played:', err);
+    return false;
+  }
+}
+
+export async function checkTippeldeNameTaken(name, player_id) {
+  if (!supabase) return false;
+  try {
+    const { data, error } = await supabase
+      .from('tippelde_scores')
+      .select('player_id')
+      .eq('name', name)
+      .neq('player_id', player_id)
+      .maybeSingle();
+    if (error) throw error;
+    return data !== null;
+  } catch (err) {
+    console.error('Failed to check name taken:', err);
+    return false;
+  }
+}
+
+export async function submitPrediction(name, prediction, target_date) {
+  if (!supabase) throw new Error('Supabase nincs konfigurálva.');
+  const player_id = getOrCreatePlayerId();
+  const { data, error } = await supabase
+    .from('tippelde_predictions')
+    .upsert(
+      { player_id, name, prediction, target_date, processed: false, points_earned: 0 },
+      { onConflict: 'player_id,target_date' }
+    )
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function checkTippeldeAlreadyTipped(target_date) {
+  if (!supabase) return null;
+  try {
+    const player_id = getOrCreatePlayerId();
+    const { data, error } = await supabase
+      .from('tippelde_predictions')
+      .select('id, prediction')
+      .eq('player_id', player_id)
+      .eq('target_date', target_date)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('Failed to check if tipped:', err);
+    return null;
+  }
+}
+
+export async function getTippeldeLeaderboard(range = 'all', limit = 10) {
+  if (!supabase) return [];
+  try {
+    const table = range === 'weekly' ? 'tippelde_weekly_scores' : 'tippelde_scores';
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .order('points', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error(`Failed to get tippelde leaderboard (${range}):`, err);
+    return [];
+  }
+}
+
+export async function getActiveTippeldePredictions() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('tippelde_predictions')
+      .select('name, prediction, target_date, player_id')
+      .eq('processed', false)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('Failed to get active predictions:', err);
+    return [];
+  }
+}
+
+export async function evaluatePredictions(target_date, actual_temp) {
+  if (!supabase) throw new Error('Supabase nincs konfigurálva.');
+  
+  // 1. Lekérjük az adott naphoz tartozó, még nem feldolgozott tippeket
+  const { data: predictions, error: fetchErr } = await supabase
+    .from('tippelde_predictions')
+    .select('*')
+    .eq('target_date', target_date)
+    .eq('processed', false);
+    
+  if (fetchErr) throw fetchErr;
+  if (!predictions || predictions.length === 0) return { count: 0 };
+
+  // 2. Lekérjük az érintett játékosok jelenlegi pontjait
+  const playerIds = predictions.map(p => p.player_id);
+  const { data: currentScores, error: scoreErr } = await supabase
+    .from('tippelde_scores')
+    .select('*')
+    .in('player_id', playerIds);
+    
+  if (scoreErr) throw scoreErr;
+
+  const scoreMap = new Map(currentScores?.map(s => [s.player_id, s]) || []);
+
+  const scoreUpserts = [];
+  const predictionUpdates = [];
+
+  for (const pred of predictions) {
+    const diff = Math.abs(pred.prediction - actual_temp);
+    let awardedPoints = 1; // Részvételi pont
+    if (diff === 0) awardedPoints = 15;
+    else if (diff <= 0.2) awardedPoints = 10;
+    else if (diff <= 0.5) awardedPoints = 8;
+    else if (diff <= 1.0) awardedPoints = 5;
+    else if (diff <= 2.0) awardedPoints = 2;
+
+    const current = scoreMap.get(pred.player_id) || { player_id: pred.player_id, name: pred.name, points: 0, predictions_count: 0 };
+    scoreUpserts.push({
+      player_id: pred.player_id,
+      name: pred.name,
+      points: current.points + awardedPoints,
+      predictions_count: current.predictions_count + 1,
+      updated_at: new Date().toISOString()
+    });
+
+    predictionUpdates.push({
+      id: pred.id,
+      points_earned: awardedPoints,
+      processed: true
+    });
+  }
+
+  // 3. Elmentjük az új összesített pontszámokat
+  const { error: upsertErr } = await supabase
+    .from('tippelde_scores')
+    .upsert(scoreUpserts);
+    
+  if (upsertErr) throw upsertErr;
+
+  // 4. Megjelöljük a tippeket feldolgozottnak és elmentjük a kapott pontokat
+  const { error: updateErr } = await supabase
+    .from('tippelde_predictions')
+    .upsert(predictionUpdates);
+    
+  if (updateErr) throw updateErr;
+
+  return { count: predictions.length };
+}
+
 

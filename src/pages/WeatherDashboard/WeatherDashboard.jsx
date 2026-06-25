@@ -11,12 +11,13 @@ import HeroSky from '../../components/HeroSky';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
-import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount } from '../../api/supabase';
+import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount, evaluatePredictions } from '../../api/supabase';
 import {
   AlertTriangle, MapPin, Info, CloudRain, CloudDrizzle, CloudFog,
   Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
-  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell
+  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell, Trophy
 } from 'lucide-react';
+import TippeldeModal from '../../components/TippeldeModal';
 
 // Kép tömörítése feltöltés előtt (max 1000px széles, JPEG).
 function compressImage(file, maxW = 1000) {
@@ -72,7 +73,7 @@ function formatAgoHu(unixSec, nowMs) {
 }
 
 // Landscape weather hero card matching custom mockup
-function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
+function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend, tempClicks = 0, onTempClick }) {
   const trendUp = tempTrend === 'up';
   const trendDown = tempTrend === 'down';
   let gradientClass = 'from-cyan-600 via-cyan-500 to-teal-500';
@@ -100,7 +101,12 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
           </div>
           
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 pt-1">
-            <div className="flex items-start">
+            <motion.div
+              onClick={onTempClick}
+              animate={{ rotate: tempClicks * 72 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+              className="flex items-start cursor-pointer select-none active:scale-95"
+            >
               <span className="text-5xl sm:text-6xl font-light tracking-tighter text-white">
                 {temp != null ? temp.toFixed(1) : '–'}
               </span>
@@ -113,7 +119,7 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend }) {
                   {trendUp ? '↑' : '↓'}
                 </span>
               )}
-            </div>
+            </motion.div>
 
             {feels != null && (
               <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-apple-inner border border-white/20 backdrop-blur-sm">
@@ -169,6 +175,76 @@ export default function WeatherDashboard() {
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminError, setAdminError] = useState('');
   const [pushSubCount, setPushSubCount] = useState(null);
+
+  // Tippelde & Játékok
+  const [tempClicks, setTempClicks] = useState(0);
+  const tempClicksTimeoutRef = useRef(null);
+  const [showTippeldeModal, setShowTippeldeModal] = useState(false);
+  const [evalDate, setEvalDate] = useState(new Date().toISOString().split('T')[0]);
+  const [evalTemp, setEvalTemp] = useState('');
+  const [evalBusy, setEvalBusy] = useState(false);
+  const [evalSuccess, setEvalSuccess] = useState('');
+  const [evalError, setEvalError] = useState('');
+
+  const handleTempClick = () => {
+    setTempClicks(c => {
+      const next = c + 1;
+      if (tempClicksTimeoutRef.current) {
+        clearTimeout(tempClicksTimeoutRef.current);
+      }
+      if (next >= 5) {
+        setShowTippeldeModal(true);
+        return 0;
+      } else {
+        tempClicksTimeoutRef.current = setTimeout(() => {
+          setTempClicks(0);
+        }, 3000);
+        return next;
+      }
+    });
+  };
+
+  // Szélsebesség Easter Egg (Kvíz)
+  const [windClicks, setWindClicks] = useState(0);
+  const windClicksTimeoutRef = useRef(null);
+
+  const handleWindIconClick = () => {
+    setWindClicks(c => {
+      const next = c + 1;
+      if (windClicksTimeoutRef.current) {
+        clearTimeout(windClicksTimeoutRef.current);
+      }
+      if (next >= 5) {
+        window.dispatchEvent(new CustomEvent('open-quiz'));
+        return 0;
+      } else {
+        windClicksTimeoutRef.current = setTimeout(() => {
+          setWindClicks(0);
+        }, 3000);
+        return next;
+      }
+    });
+  };
+
+  const handleEvaluate = async () => {
+    if (!evalDate || !evalTemp) {
+      setEvalError('Kérjük, válaszd ki a dátumot és add meg a mért hőmérsékletet!');
+      return;
+    }
+    setEvalBusy(true);
+    setEvalError('');
+    setEvalSuccess('');
+    try {
+      const res = await evaluatePredictions(evalDate, parseFloat(evalTemp));
+      setEvalSuccess(`Sikeres kiértékelés! ${res.count} db tippet pontoztunk le.`);
+      setEvalTemp('');
+    } catch (err) {
+      console.error(err);
+      setEvalError(err.message || 'Hiba történt a kiértékelés során.');
+    } finally {
+      setEvalBusy(false);
+    }
+  };
 
   // Hírmorzsák
   const [newsBlurbs, setNewsBlurbs] = useState([]);
@@ -562,6 +638,8 @@ export default function WeatherDashboard() {
           timeOfDay={weather.timeOfDay}
           dateStr={dateStr}
           tempTrend={tempTrend}
+          tempClicks={tempClicks}
+          onTempClick={handleTempClick}
         />
       </FadeUp>
 
@@ -700,6 +778,8 @@ export default function WeatherDashboard() {
               config={cfg}
               val={lastMeasure[cfg.key]}
               onClick={chartableKeys.has(cfg.key) ? () => setActiveKey(cfg.key) : undefined}
+              windClicks={cfg.key === 'FF' ? windClicks : undefined}
+              onIconClick={cfg.key === 'FF' ? handleWindIconClick : undefined}
             />
           ))}
         </div>
@@ -1017,11 +1097,53 @@ export default function WeatherDashboard() {
                     ))}
                   </div>
                 )}
+
+                {/* --- TIPPELDE KIÉRTÉKELÉSE --- */}
+                <div className="h-px bg-white/5 my-2" />
+                <div className="space-y-2.5">
+                  <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest flex items-center gap-1.5">
+                    <Trophy className="w-3.5 h-3.5 text-amber-400" /> Tippek Kiértékelése
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 text-left">
+                    <div>
+                      <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Dátum</label>
+                      <input
+                        type="date"
+                        value={evalDate}
+                        onChange={e => setEvalDate(e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-night-800 text-white text-xs font-semibold focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Mért Max Hőm (°C)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        placeholder="Pl.: 28.4"
+                        value={evalTemp}
+                        onChange={e => setEvalTemp(e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  {evalError && <p className="text-[11px] text-rose-300 font-extrabold text-left">{evalError}</p>}
+                  {evalSuccess && <p className="text-[11px] text-emerald-300 font-extrabold text-left">{evalSuccess}</p>}
+                  <button
+                    onClick={handleEvaluate}
+                    disabled={evalBusy || !evalTemp}
+                    className="btn-grad w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <span>{evalBusy ? 'Feldolgozás...' : 'Tippek Lezárása és Pontozás'}</span>
+                  </button>
+                </div>
+
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      <TippeldeModal isOpen={showTippeldeModal} onClose={() => setShowTippeldeModal(false)} />
     </div>
   );
 }

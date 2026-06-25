@@ -8,13 +8,15 @@ import Cameras from './pages/Cameras/Cameras';
 import Sponsors from './pages/Sponsors/Sponsors';
 import About from './pages/About/About';
 import Radar from './pages/Radar/Radar';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map } from 'lucide-react';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Trophy } from 'lucide-react';
 import Logo from './components/Logo';
 import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
 import { incrementPageViews, getForecast } from './api/supabase';
 import PushNotificationButton from './components/PushNotificationButton';
 import PushAlertModal from './components/PushAlertModal';
+import QuizModal from './components/QuizModal';
+import LeaderboardModal from './components/LeaderboardModal';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
@@ -39,6 +41,17 @@ function AppContent() {
   const [showAnnBanner, setShowAnnBanner] = useState(false);
   const [pushAlert, setPushAlert] = useState(null);
 
+  // Játékok states
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
+
+  // Kvíz megnyitása egyedi esemény alapján (Szélsebesség kártyáról)
+  useEffect(() => {
+    const handleOpenQuiz = () => setShowQuizModal(true);
+    window.addEventListener('open-quiz', handleOpenQuiz);
+    return () => window.removeEventListener('open-quiz', handleOpenQuiz);
+  }, []);
+
   // Admin belépés a logóra: 3 mp nyomás → PIN-kapu (globális kontextus).
   const requestAdmin = useAdminRequest();
   const logoPressFired = React.useRef(false);
@@ -47,7 +60,11 @@ function AppContent() {
   );
   // A logó egyben „Főoldal" link is; hosszú nyomás után a kattintást elnyeljük,
   // hogy ne navigáljon el (különben az admin az aktuális oldalon nem nyílna).
-  const handleLogoClick = (e) => { if (logoPressFired.current) e.preventDefault(); };
+  const handleLogoClick = (e) => {
+    if (logoPressFired.current) {
+      e.preventDefault();
+    }
+  };
 
   useEffect(() => {
     // 0. Check query params for push alert click
@@ -173,13 +190,13 @@ function AppContent() {
       <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-screen w-64 flex-col p-4">
         <div className="flex-1 flex flex-col glass-card rounded-apple-outer p-5">
           <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 mb-8 select-none active:scale-95 transition-transform">
-            <div
+            <motion.div
               {...logoHoldHandlers}
               title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
               className="w-11 h-11 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
             >
               <Logo className="w-6 h-6" />
-            </div>
+            </motion.div>
             <div className="leading-tight select-none">
               <h1 className="text-[13px] font-black tracking-tight text-white leading-none">
                 <span className="text-cyan2-300">K</span>őszegi
@@ -207,6 +224,13 @@ function AppContent() {
                 </Link>
               );
             })}
+            <button
+              onClick={() => setShowLeaderboardModal(true)}
+              className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
+            >
+              <Trophy className="w-[18px] h-[18px] shrink-0 relative z-10 text-amber-400" />
+              <span className="relative z-10">Dicsőségfal</span>
+            </button>
           </nav>
 
           <div className="mt-auto pt-6 space-y-4">
@@ -236,13 +260,13 @@ function AppContent() {
       <header className="lg:hidden fixed top-0 inset-x-0 z-40 px-4 pt-4 pointer-events-none">
         <div className="pointer-events-auto flex items-center justify-between px-4 py-2.5 rounded-apple-card glass-card">
           <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5 active:scale-95 transition-transform">
-            <div
+            <motion.div
               {...logoHoldHandlers}
               title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
               className="w-9 h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
             >
               <Logo className="w-5 h-5" />
-            </div>
+            </motion.div>
             <span className="text-[13px] sm:text-[15px] font-black tracking-tight text-white whitespace-nowrap">
               <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés
             </span>
@@ -320,6 +344,19 @@ function AppContent() {
                       </motion.div>
                     );
                   })}
+                  <motion.div
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 + NAV_ITEMS.length * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <button
+                      onClick={() => { setMenuOpen(false); setShowLeaderboardModal(true); }}
+                      className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
+                    >
+                      <Trophy className="w-[18px] h-[18px] shrink-0 text-amber-400" />
+                      <span>Dicsőségfal</span>
+                    </button>
+                  </motion.div>
                 </nav>
 
                 <div className="mt-auto pt-6 space-y-3">
@@ -374,7 +411,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.1.3
+            Version: 2.1.7
           </p>
           <a
             href="https://visitkoszeg.hu"
@@ -387,6 +424,8 @@ function AppContent() {
         </div>
       </footer>
       <PushAlertModal alert={pushAlert} onClose={() => setPushAlert(null)} />
+      <QuizModal isOpen={showQuizModal} onClose={() => setShowQuizModal(false)} />
+      <LeaderboardModal isOpen={showLeaderboardModal} onClose={() => setShowLeaderboardModal(false)} />
     </div>
   );
 }

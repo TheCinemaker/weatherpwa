@@ -30,10 +30,11 @@ export const STAT_CARDS_CONFIG = [
   { key: 'SLP_TREND',  label: 'Légnyomás trend',  icon: TrendingDown, unit: '',      grad: ['#38bdf8', '#06b6d4'], fmt: v => typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(2) + ' hPa/h' : v, isTrend: true },
 ];
 
-export default function StatCard({ config, val, onClick }) {
+export default function StatCard({ config, val, onClick, windClicks = 0, onIconClick }) {
   const { label, icon: Icon, unit, grad, range, isWind, isTrend } = config;
   const clickable = typeof onClick === 'function';
   const gradient = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
+  const isWindSpeed = config.key === 'FF';
 
   const hasValue = val !== undefined && val !== null;
   const isNum = hasValue && typeof val === 'number' && !isNaN(val);
@@ -90,9 +91,20 @@ export default function StatCard({ config, val, onClick }) {
 
       <div className="flex items-center justify-between relative z-10">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0" style={{ background: gradient }}>
+          <motion.div 
+            className={`w-8 h-8 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0 ${isWindSpeed ? 'cursor-pointer active:scale-90 transition-transform' : ''}`} 
+            style={{ background: gradient }}
+            animate={isWindSpeed ? { rotate: windClicks * 72 } : {}}
+            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            onClick={(e) => {
+              if (isWindSpeed && onIconClick) {
+                e.stopPropagation();
+                onIconClick();
+              }
+            }}
+          >
             <Icon className="w-4 h-4" />
-          </div>
+          </motion.div>
           <span className="text-[10px] font-bold text-night-200/60 uppercase tracking-wider leading-tight truncate">{label}</span>
         </div>
         {clickable && <ChevronRight className="w-4 h-4 text-night-200/30 group-hover:text-night-200/70 transition-colors shrink-0" />}

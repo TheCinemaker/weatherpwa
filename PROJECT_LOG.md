@@ -228,6 +228,50 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.1.3`-ra**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.3`).
 
+### 🏷️ Version 2.1.4 (Interaktív Kvíz, Tippelde és Dicsőségfal integráció)
+*   **Időjárás Játékok & Dicsőségfal**:
+    *   **Adatbázis**: Létrehoztam a [supabase_migrations/18_create_games_tables.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/18_create_games_tables.sql) fájlt a `quiz_leaderboard`, `tippelde_predictions` és `tippelde_scores` táblákhoz és RLS szabályaikhoz.
+    *   **Kvíz játék**: Új [src/components/QuizModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/QuizModal.jsx) komponens. 5 kérdésből álló pool Kőszeg éghajlatáról/érdekességeiről, pontszámmal, időmérővel és dicsőségfal mentéssel.
+    *   **Tippelde**: Új [src/components/TippeldeModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/TippeldeModal.jsx) komponens, ahol a felhasználók holnapi kőszegi maximum hőmérsékletre tippelhetnek.
+    *   **Admin Kiértékelés**: A [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) admin modaljába beépítettem a Tippek Kiértékelése panelt Lacinak a napi maximum rögzítésére és a pontok leosztására.
+    *   **Easter Egg indítás**:
+        *   Kvíz: A fejléc logóra való 5 gyors kattintással indul (klikkenként 72 fokos forgási animációval a logón).
+        *   Tippelde: A főoldali nagy hőmérséklet kijelzőre való 5 gyors kattintással indul (klikkenként fel-le pattogó animációval).
+    *   **Dicsőségfal**: Új [src/components/LeaderboardModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/LeaderboardModal.jsx) komponens, elérhető a hamburger menüből (asztali és mobil drawer nézetben is).
+*   **Verzióemelés `2.1.4`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.4`).
+
+### 🏷️ Version 2.1.5 (Játékok finomhangolása és Easter Egg áthelyezés)
+*   **Easter Egg áthelyezés és animáció finomítás**:
+    *   **Logo viselkedés visszaállítása**: Eltávolítottam a kvíz indítást és a kattintási forgás animációt a fejléc Logo-ról, így az kizárólag az admin belépést szolgálja (hosszú nyomással).
+    *   **Kvíz áthelyezése a Szélsebesség kártyára**: Új kattintásérzékelő a [src/pages/WeatherDashboard/StatCard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/StatCard.jsx) szélsebesség (`FF`) ikonján. 5 gyors kattintás után a kis szélkerék ikon elforog és egy egyedi globális eseményen keresztül megnyitja a Kvízt, míg a kártya más területeire kattintva továbbra is a történeti grafikon nyílik meg.
+    *   **Tippelde indító animáció cseréje**: A [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) oldalon az óriás hőmérséklet kijelző kattintási animációját ugrálásról 72 fokos forgásra módosítottam.
+*   **Verzióemelés `2.1.5`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.5`).
+
+### 🏷️ Version 2.1.6 (Heti Toplista, Névvédelem és Kvíz bővítés)
+*   **Névvédelem és egyedi játékos-azonosító (player_id)**:
+    *   **Adatbázis**: Létrehoztam a [supabase_migrations/19_add_player_id_and_weekly_leaderboard.sql](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/supabase_migrations/19_add_player_id_and_weekly_leaderboard.sql) migrációt. Újradefiniáltam a `tippelde_predictions` és `tippelde_scores` táblákat a kliensoldali UUID alapú `player_id` tárolásához. Így egy játékos adatai biztonságosan összekapcsolódnak napi névváltoztatások mellett is, és a napi limitet is eszköz alapon kényszerítjük ki (`UNIQUE (player_id, target_date)`).
+    *   **Kliens és API**: A [src/api/supabase.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/api/supabase.js) és [src/components/TippeldeModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/TippeldeModal.jsx) fájlokban lekérdezzük, hogy egy becenév foglalt-e más játékos (másik `player_id`) által, mielőtt a tippet elfogadjuk, megvédve a meglévő pontokat a "névlopástól".
+*   **Heti Toplista és Dicsőségfal Toggle**:
+    *   **Nézet**: Létrehoztam egy adatbázis-nézetet (`tippelde_weekly_scores`), amely az elmúlt 7 nap lezárt pontszámait összesíti.
+    *   **UI**: A [src/components/LeaderboardModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/LeaderboardModal.jsx) dicsőségfal modalban egy Heti / Összesített választókapcsolót vezettem be a Tippelde toplistához. Eltávolítottam a játék-indítási tippeket (Súgó doboz) a modal aljáról.
+*   **Kvíz kérdések bővítése és véletlenszerűség**:
+    *   **Fájl**: [src/components/QuizModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/QuizModal.jsx)
+    *   **Változtatás**: Kibővítettem a kérdéssort **50 kőszegi történelmi, klíma és földrajzi kérdésre**, amelyekből minden indításkor 5 darabot sorsol ki véletlenszerűen a rendszer. Összekötöttem a Kvíz és Tippelde becenévkezelést a `localStorage`-on keresztül.
+*   **Verzióemelés `2.1.6`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.6`).
+
+### 🏷️ Version 2.1.7 (Napi Kvíz Korlát, Aktív Tippek és Kliens-Adatbázis szinkronizáció)
+*   **Kvíz napi korlátozás**:
+    *   **Megvalósítás**: A Kvízt is napi egy alkalomra korlátoztuk per eszköz/játékos. Az adatbázisban egyedi indexet vezetünk be a `(player_id, created_date)` párosra, és kliensoldalon a [src/components/QuizModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/QuizModal.jsx) modalban ellenőrizzük, hogy játszott-e már ma a felhasználó.
+*   **Aktív Tippek és Kliens-Adatbázis Szinkronizáció**:
+    *   **Aktív tippek**: Bevezettem egy "Aktív tippek" nézetet a Tippelde ranglistán, ahol a felhasználók láthatják az összes jelenleg beérkezett, még ki nem értékelt tippet a holnapi napra.
+    *   **Saját sor zöld kiemelése**: A ranglistákon (Kvíz és Tippelde) a felhasználó saját sorát feltűnő emerald-zöld színnel emeljük ki, a nevéhez pedig egy `(Te)` jelzést fűzünk.
+    *   **Szinkronizáció javítása**: A [src/components/TippeldeModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/TippeldeModal.jsx) modalban a kliensoldali korlátozás ellenőrzését úgy alakítottam át, hogy először mindig a Supabase-t kérdezze le. Így ha a felhasználó törli a tippjét a Supabase-ből tesztelés céljából, a felület nem blokkolja őt a helyi `localStorage` alapján, hanem engedi újra tippelni.
+*   **Verzióemelés `2.1.7`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.7`).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)
