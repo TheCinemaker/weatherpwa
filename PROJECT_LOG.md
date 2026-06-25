@@ -219,7 +219,14 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
     *   **Villámhír szövege**: Eltávolítottam a 400 karakteres korlátozást a [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) oldalon.
     *   **Sürgős értesítés (pl. Viharjelzés)**: Felemeltem a limitet 150-ről **200 karakterre** a [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) és [src/pages/Forecast/Forecast.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/Forecast/Forecast.jsx) oldalakon is.
 *   **Verzióemelés `2.1.2`-re**:
-    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.2`).
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.1.2`).
+
+### 🏷️ Version 2.1.3 (Interaktív UV-index kisokos easter egg rázással)
+*   **UV-index kisokos modál és ikon rázás (Easter Egg)**:
+    *   **Komponens**: Frissítettem a [src/components/UvCard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/UvCard.jsx) fájlt. Az UV-kártya kattinthatóvá vált, és rákattintva egy gyönyörű, glassmorphic stílusú, részletes fényvédelmi útmutató nyílik meg (babák, gyerekek, felnőttek és idősek szerinti tanácsokkal, tévhitekkel).
+    *   **Ikon rázás**: A figyelem felkeltése érdekében az UV nap-ikon 5-10 másodpercenként véletlenszerűen kicsit megmozdul/megrázkódik (`framer-motion` segítségével).
+*   **Verzióemelés `2.1.3`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.3`).
 
 ---
 
