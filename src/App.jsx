@@ -8,7 +8,7 @@ import Cameras from './pages/Cameras/Cameras';
 import Sponsors from './pages/Sponsors/Sponsors';
 import About from './pages/About/About';
 import Radar from './pages/Radar/Radar';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Trophy } from 'lucide-react';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Trophy, Target, Award } from 'lucide-react';
 import Logo from './components/Logo';
 import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
@@ -17,6 +17,7 @@ import PushNotificationButton from './components/PushNotificationButton';
 import PushAlertModal from './components/PushAlertModal';
 import QuizModal from './components/QuizModal';
 import LeaderboardModal from './components/LeaderboardModal';
+import TippeldeModal from './components/TippeldeModal';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
@@ -44,12 +45,20 @@ function AppContent() {
   // Játékok states
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
+  const [showTippeldeModal, setShowTippeldeModal] = useState(false);
 
   // Kvíz megnyitása egyedi esemény alapján (Szélsebesség kártyáról)
   useEffect(() => {
     const handleOpenQuiz = () => setShowQuizModal(true);
     window.addEventListener('open-quiz', handleOpenQuiz);
     return () => window.removeEventListener('open-quiz', handleOpenQuiz);
+  }, []);
+
+  // Tippelde megnyitása egyedi esemény alapján
+  useEffect(() => {
+    const handleOpenTippelde = () => setShowTippeldeModal(true);
+    window.addEventListener('open-tippelde', handleOpenTippelde);
+    return () => window.removeEventListener('open-tippelde', handleOpenTippelde);
   }, []);
 
   // Admin belépés a logóra: 3 mp nyomás → PIN-kapu (globális kontextus).
@@ -231,6 +240,20 @@ function AppContent() {
               <Trophy className="w-[18px] h-[18px] shrink-0 relative z-10 text-amber-400" />
               <span className="relative z-10">Dicsőségfal</span>
             </button>
+            <button
+              onClick={() => setShowTippeldeModal(true)}
+              className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
+            >
+              <Target className="w-[18px] h-[18px] shrink-0 relative z-10 text-cyan2-400" />
+              <span className="relative z-10">Napi Tippelde</span>
+            </button>
+            <button
+              onClick={() => setShowQuizModal(true)}
+              className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
+            >
+              <Award className="w-[18px] h-[18px] shrink-0 relative z-10 text-cyan2-400" />
+              <span className="relative z-10">Kőszegi Kvíz</span>
+            </button>
           </nav>
 
           <div className="mt-auto pt-6 space-y-4">
@@ -357,6 +380,32 @@ function AppContent() {
                       <span>Dicsőségfal</span>
                     </button>
                   </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 + (NAV_ITEMS.length + 1) * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <button
+                      onClick={() => { setMenuOpen(false); setShowTippeldeModal(true); }}
+                      className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
+                    >
+                      <Target className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
+                      <span>Napi Tippelde</span>
+                    </button>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 + (NAV_ITEMS.length + 2) * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <button
+                      onClick={() => { setMenuOpen(false); setShowQuizModal(true); }}
+                      className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
+                    >
+                      <Award className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
+                      <span>Kőszegi Kvíz</span>
+                    </button>
+                  </motion.div>
                 </nav>
 
                 <div className="mt-auto pt-6 space-y-3">
@@ -411,7 +460,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.1.8
+            Version: 2.1.9
           </p>
           <a
             href="https://visitkoszeg.hu"
@@ -426,6 +475,7 @@ function AppContent() {
       <PushAlertModal alert={pushAlert} onClose={() => setPushAlert(null)} />
       <QuizModal isOpen={showQuizModal} onClose={() => setShowQuizModal(false)} />
       <LeaderboardModal isOpen={showLeaderboardModal} onClose={() => setShowLeaderboardModal(false)} />
+      <TippeldeModal isOpen={showTippeldeModal} onClose={() => setShowTippeldeModal(false)} />
     </div>
   );
 }

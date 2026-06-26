@@ -12,35 +12,20 @@ const API_BASE = 'https://api2.smartmixin.io';
 const HISTORY_URL = `${API_BASE}/api/measures/`;
 const CONTACT_EMAIL = 'mailto:koszegapp@gmail.com';
 
-// Timezone-safe date ranges for Europe/Budapest
-function getBudapestUnixRange(dateStr) {
+// Timezone-safe measurement range for Europe/Budapest (18:00 UTC previous day to 18:00 UTC target day)
+function getBudapestMeasurementUnixRange(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   
-  // We construct the date in UTC representing the Budapest local date
-  const dateStartUTC = new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
+  // End of measurement: 18:00 UTC on the target date (which is 19:00 CET or 20:00 CEST)
+  const targetDate = new Date(Date.UTC(y, m - 1, d, 18, 0, 0));
   
-  // We use Intl to determine how that UTC time is offset in Europe/Budapest
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Europe/Budapest',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false
-  });
-  
-  const parts = formatter.formatToParts(dateStartUTC);
-  const mapped = {};
-  parts.forEach(p => mapped[p.type] = p.value);
-  const budapestDate = new Date(`${mapped.year}-${mapped.month}-${mapped.day}T${mapped.hour}:${mapped.minute}:${mapped.second}Z`);
-  
-  // The offset difference in milliseconds
-  const diffMs = dateStartUTC.getTime() - budapestDate.getTime();
-  
-  const startLocal = new Date(dateStartUTC.getTime() + diffMs);
-  const endLocal = new Date(Date.UTC(y, m - 1, d, 23, 59, 59).getTime() + diffMs);
+  // Start of measurement: 18:00 UTC on the previous day
+  const prevDate = new Date(Date.UTC(y, m - 1, d, 18, 0, 0));
+  prevDate.setUTCDate(prevDate.getUTCDate() - 1);
   
   return {
-    startUnix: Math.floor(startLocal.getTime() / 1000),
-    endUnix: Math.floor(endLocal.getTime() / 1000)
+    startUnix: Math.floor(prevDate.getTime() / 1000),
+    endUnix: Math.floor(targetDate.getTime() / 1000)
   };
 }
 
@@ -127,7 +112,7 @@ export async function handler(event, context) {
 
   // --- Retrieve Actual Max Temperature for Target Date ---
   let actualTemp = null;
-  const { startUnix, endUnix } = getBudapestUnixRange(evalDate);
+  const { startUnix, endUnix } = getBudapestMeasurementUnixRange(evalDate);
   console.log(`[auto-evaluate] Querying SmartMixin history from Unix ${startUnix} to ${endUnix}`);
 
   try {

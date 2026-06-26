@@ -280,6 +280,20 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.1.8`-ra**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.8`), [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml).
 
+### 🏷️ Version 2.1.9 (Tippelde Akadálymentesítés & Csúszka Finomhangolás)
+*   **Akadálymentesítés**:
+    *   **Menü gombok**: A Tippelde és a Kvíz indítógombjait beépítettem a fő navigációs oldalsávba (Desktop Sidebar) és a mobil menüfiókba (Mobile Drawer) is a Dicsőségfal alá a könnyebb elérés érdekében.
+    *   **Easter Egg megőrzés**: Az Easter Egg indítások (szélkerék pörgetés 5-ször a szélsebesség kártyán, óriás hőmérséklet pörgetés 5-ször) továbbra is teljesen működőképesek maradtak.
+*   **Tippelde slider és szövegezés javítása**:
+    *   **Finomhangoló gombok**: A Tippelde Modalban lévő range csúszka mellé elhelyeztem egy `-` és egy `+` gombot, amelyekkel `0.1 °C` lépésközzel finomhangolható a tippelt érték, elkerülve a mobil érintőképernyős pontatlanságokat.
+    *   **Határérték**: A csúszka maximumát `40.0 °C`-ról `45.0 °C`-ra emeltem az extrém melegek tippeléséhez.
+    *   **Promt**: A prompt szövegét egyértelműbb kérdéssé alakítottam: *"Mekkora lesz a legmagasabb hőmérséklet a holnapi napon (dátum)? 🌡️"*.
+*   **Kiértékelés időablak pontosítás**:
+    *   **Mérési ablak**: A funkció mostantól a hivatalos meteorológiai mérési ciklust követi, azaz az előző napi 18:00 UTC és a cél dátum 18:00 UTC közötti maximumot keresi meg (ami nyáron local 20:00-tól 20:00-ig, télen local 19:00-tól 19:00-ig tart).
+    *   **Időzítés**: A cron feladat futását reggel 08:05 utánra módosítottam (`netlify.toml` cron: `5 7 * * *`).
+*   **Verzióemelés `2.1.9`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.1.9`), [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml), [netlify/functions/auto-evaluate.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify/functions/auto-evaluate.js).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)

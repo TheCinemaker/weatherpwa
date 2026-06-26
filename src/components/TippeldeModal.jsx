@@ -178,7 +178,7 @@ export default function TippeldeModal({ isOpen, onClose }) {
 
             {/* Explanatory text */}
             <p className="text-xs text-white/70 leading-relaxed text-left">
-              Tippeld meg a holnapi nap (<strong>{targetDateFormatted}</strong>) legmagasabb hőmérsékletét Kőszegen! A legpontosabb tippek felkerülnek a tippelde ranglistájára!
+              Mekkora lesz a legmagasabb hőmérséklet a holnapi napon (<strong>{targetDateFormatted}</strong>)? 🌡️
             </p>
 
             {/* ALREADY TIPPED OR SUBMITTED STATE */}
@@ -228,20 +228,37 @@ export default function TippeldeModal({ isOpen, onClose }) {
                     <span className="text-sm font-black text-cyan2-300 bg-cyan2-500/10 px-2 py-0.5 rounded-full">{prediction.toFixed(1)} °C</span>
                   </label>
                   
-                  {/* Slider */}
-                  <input
-                    type="range"
-                    min="-10.0"
-                    max="40.0"
-                    step="0.1"
-                    value={prediction}
-                    onChange={e => setPrediction(parseFloat(e.target.value))}
-                    className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan2-400 focus:outline-none"
-                  />
+                  {/* Slider with +/- buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPrediction(prev => Math.max(-10, parseFloat((prev - 0.1).toFixed(1))))}
+                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white font-extrabold text-sm select-none shrink-0 transition-colors"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="range"
+                      min="-10.0"
+                      max="45.0"
+                      step="0.1"
+                      value={prediction}
+                      onChange={e => setPrediction(parseFloat(e.target.value))}
+                      className="flex-1 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan2-400 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPrediction(prev => Math.min(45, parseFloat((prev + 0.1).toFixed(1))))}
+                      className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white font-extrabold text-sm select-none shrink-0 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                  
                   <div className="flex justify-between text-[8px] font-bold text-white/30 uppercase tracking-widest px-1">
                     <span>-10 °C</span>
-                    <span>15 °C</span>
-                    <span>40 °C</span>
+                    <span>17.5 °C</span>
+                    <span>45 °C</span>
                   </div>
                 </div>
 

@@ -17,7 +17,7 @@ import {
   Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
   ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell, Trophy
 } from 'lucide-react';
-import TippeldeModal from '../../components/TippeldeModal';
+
 
 // Kép tömörítése feltöltés előtt (max 1000px széles, JPEG).
 function compressImage(file, maxW = 1000) {
@@ -179,8 +179,7 @@ export default function WeatherDashboard() {
   // Tippelde & Játékok
   const [tempClicks, setTempClicks] = useState(0);
   const tempClicksTimeoutRef = useRef(null);
-  const [showTippeldeModal, setShowTippeldeModal] = useState(false);
-  const [evalDate, setEvalDate] = useState(new Date().toISOString().split('T')[0]);
+   const [evalDate, setEvalDate] = useState(new Date().toISOString().split('T')[0]);
   const [evalTemp, setEvalTemp] = useState('');
   const [evalBusy, setEvalBusy] = useState(false);
   const [evalSuccess, setEvalSuccess] = useState('');
@@ -193,7 +192,7 @@ export default function WeatherDashboard() {
         clearTimeout(tempClicksTimeoutRef.current);
       }
       if (next >= 5) {
-        setShowTippeldeModal(true);
+        window.dispatchEvent(new CustomEvent('open-tippelde'));
         return 0;
       } else {
         tempClicksTimeoutRef.current = setTimeout(() => {
@@ -1143,7 +1142,7 @@ export default function WeatherDashboard() {
         )}
       </AnimatePresence>
 
-      <TippeldeModal isOpen={showTippeldeModal} onClose={() => setShowTippeldeModal(false)} />
+      
     </div>
   );
 }
