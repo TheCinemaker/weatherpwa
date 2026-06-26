@@ -37,9 +37,145 @@ const trimSeries = (ts, data, hours) => {
   return { ts: ts.slice(i), data: data.slice(i) };
 };
 
+function parseMetNetHtml(html) {
+  const rowRegex = /<tr>([\s\S]*?)<\/tr>/g;
+  const cellRegex = /<td[^>]*>([\s\S]*?)<\/td>/g;
+
+  const rows = [];
+  let match;
+  while ((match = rowRegex.exec(html)) !== null) {
+    const rowContent = match[1];
+    if (rowContent.includes('table2') || rowContent.includes('table3')) {
+      const cells = [];
+      let cellMatch;
+      cellRegex.lastIndex = 0;
+      while ((cellMatch = cellRegex.exec(rowContent)) !== null) {
+        cells.push(cellMatch[1].trim());
+      }
+      if (cells.length >= 8) {
+        rows.push(cells);
+      }
+    }
+  }
+
+  function parseBudapestDate(str) {
+    const parts = str.match(/(\d+)/g);
+    if (!parts) return null;
+    const [y, m, d, hr, min, sec] = parts.map(Number);
+    const testDate = new Date(Date.UTC(y, m - 1, d, hr, min, sec));
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Budapest',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+      });
+      const formatted = formatter.format(testDate);
+      const fParts = formatted.match(/(\d+)/g);
+      if (fParts) {
+        const [fMonth, fDay, fYear, fHr, fMin, fSec] = fParts.map(Number);
+        const formattedUtc = Date.UTC(fYear, fMonth - 1, fDay, fHr, fMin, fSec);
+        const diffMs = testDate.getTime() - formattedUtc;
+        return Math.floor((Date.UTC(y, m - 1, d, hr, min, sec) + diffMs) / 1000);
+      }
+    } catch (e) {}
+    const isSummer = (m > 3 && m < 11);
+    const offsetHours = isSummer ? 2 : 1;
+    return Math.floor((Date.UTC(y, m - 1, d, hr, min, sec) - offsetHours * 3600000) / 1000);
+  }
+
+  function parseTemp(str) {
+    const clean = str.replace(/<[^>]*>/g, '').replace('°C', '').trim();
+    return isNaN(parseFloat(clean)) ? null : parseFloat(clean);
+  }
+
+  function parseHumidity(str) {
+    const clean = str.replace('%', '').trim();
+    return isNaN(parseFloat(clean)) ? null : parseFloat(clean);
+  }
+
+  function parseWindSpeed(str) {
+    const parts = str.split('/');
+    if (parts.length < 2) return null;
+    const speedPart = parts[1].replace('km/h', '').trim();
+    return isNaN(parseFloat(speedPart)) ? null : parseFloat(speedPart);
+  }
+
+  function parsePressure(str) {
+    const clean = str.replace('hPa', '').trim();
+    return isNaN(parseFloat(clean)) ? null : parseFloat(clean);
+  }
+
+  function parsePrecipitation(str) {
+    const clean = str.replace('mm', '').trim();
+    return isNaN(parseFloat(clean)) ? null : parseFloat(clean);
+  }
+
+  function calculateHeatIndex(T, rh, WS_kmh) {
+    if (T === null || rh === null) return null;
+    const ws = (WS_kmh || 0) / 3.6;
+    const e = (rh / 100) * 6.105 * Math.exp((17.27 * T) / (237.7 + T));
+    const AT = T + 0.33 * e - 0.7 * ws - 4.0;
+    return Math.round(AT * 10) / 10;
+  }
+
+  function calculateHumidex(T, rh) {
+    if (T === null || rh === null) return null;
+    const e = 6.112 * Math.pow(10, (7.5 * T) / (237.7 + T)) * (rh / 100);
+    const h = T + (5 / 9) * (e - 10);
+    return Math.round(h * 10) / 10;
+  }
+
+  const reversedRows = rows.reverse();
+  const timestamps = [];
+  const T_arr = [];
+  const U_arr = [];
+  const FF_arr = [];
+  const FXY_arr = [];
+  const SLP_arr = [];
+  const RR_1H_arr = [];
+  const HEAT_INDEX_arr = [];
+  const HUMIDEX_arr = [];
+
+  for (const r of reversedRows) {
+    const ts = parseBudapestDate(r[0]);
+    if (!ts) continue;
+
+    const T = parseTemp(r[1]);
+    const U = parseHumidity(r[3]);
+    const FF = parseWindSpeed(r[4]);
+    const SLP = parsePressure(r[5]);
+    const RR_1H = parsePrecipitation(r[6]);
+    const HEAT_INDEX = calculateHeatIndex(T, U, FF);
+    const HUMIDEX = calculateHumidex(T, U);
+
+    timestamps.push(ts);
+    T_arr.push(T);
+    U_arr.push(U);
+    FF_arr.push(FF);
+    FXY_arr.push(FF);
+    SLP_arr.push(SLP);
+    RR_1H_arr.push(RR_1H);
+    HEAT_INDEX_arr.push(HEAT_INDEX);
+    HUMIDEX_arr.push(HUMIDEX);
+  }
+
+  return {
+    T: { ts: timestamps, data: T_arr },
+    U: { ts: timestamps, data: U_arr },
+    FF: { ts: timestamps, data: FF_arr },
+    FXY: { ts: timestamps, data: FXY_arr },
+    SLP: { ts: timestamps, data: SLP_arr },
+    RR_1H: { ts: timestamps, data: RR_1H_arr },
+    HEAT_INDEX: { ts: timestamps, data: HEAT_INDEX_arr },
+    HUMIDEX: { ts: timestamps, data: HUMIDEX_arr }
+  };
+}
+
 export default function useWeatherData() {
   const [currentData, setCurrentData] = useState(null);
   const [historySeries, setHistorySeries] = useState({}); // { [metrika]: { ts:[], data:[] } }
+  const [historySource, setHistorySource] = useState(null); // 'smartmixin', 'metnet', 'open-meteo'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -92,8 +228,30 @@ export default function useWeatherData() {
       }
       return Object.keys(out).length ? out : null;
     } catch (e) {
-      console.error("MetNet előzmény lekérési hiba:", e);
-      return null;
+      console.warn("Szerveroldali MetNet API nem elérhető, próbálkozás kliensoldali proxyval...", e);
+      try {
+        const targetUrl = 'https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155';
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+        const proxyRes = await fetch(proxyUrl);
+        if (!proxyRes.ok) throw new Error(`CORS proxy hiba: ${proxyRes.status}`);
+        const html = await proxyRes.text();
+        const parsed = parseMetNetHtml(html);
+        
+        const out = {};
+        for (const k of METRICS) {
+          const series = parsed[k];
+          if (series && Array.isArray(series.ts) && Array.isArray(series.data)) {
+            const trimmed = trimSeries(series.ts, series.data, DISPLAY_HOURS);
+            if (countNonNull(trimmed.data) > 0) {
+              out[k] = trimmed;
+            }
+          }
+        }
+        return Object.keys(out).length ? out : null;
+      } catch (proxyError) {
+        console.error("Kliensoldali MetNet lekérési hiba:", proxyError);
+        return null;
+      }
     }
   }, []);
 
@@ -202,14 +360,20 @@ export default function useWeatherData() {
         if (isMetNetFresh) {
           console.log("MetNet backup sikeres és friss.");
           history = metnetHistory;
+          setHistorySource('metnet');
         } else {
           console.log("MetNet előzmény nem elérhető vagy elavult (offline állomás). Open-Meteo fallback lekérése...");
           const openMeteoHistory = await fetchOpenMeteoHistory();
           if (openMeteoHistory) {
             console.log("Open-Meteo modell alapú fallback sikeres.");
             history = openMeteoHistory;
+            setHistorySource('open-meteo');
+          } else {
+            setHistorySource(null);
           }
         }
+      } else {
+        setHistorySource('smartmixin');
       }
 
       if (current) {
@@ -258,6 +422,7 @@ export default function useWeatherData() {
   return {
     currentData,
     historySeries,
+    historySource,
     loading,
     error,
     lastUpdate,

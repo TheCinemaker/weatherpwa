@@ -47,6 +47,25 @@ function AppContent() {
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
   const [showTippeldeModal, setShowTippeldeModal] = useState(false);
 
+  // Scroll to top state
+  const [showScroll, setShowScroll] = useState(false);
+
+  useEffect(() => {
+    const checkScrollTop = () => {
+      if (window.scrollY > 300) {
+        setShowScroll(true);
+      } else {
+        setShowScroll(false);
+      }
+    };
+    window.addEventListener('scroll', checkScrollTop);
+    return () => window.removeEventListener('scroll', checkScrollTop);
+  }, []);
+
+  const scrollTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Kvíz megnyitása egyedi esemény alapján (Szélsebesség kártyáról)
   useEffect(() => {
     const handleOpenQuiz = () => setShowQuizModal(true);
@@ -472,6 +491,22 @@ function AppContent() {
           </a>
         </div>
       </footer>
+      <AnimatePresence>
+        {showScroll && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={scrollTop}
+            className="fixed bottom-6 right-6 z-[100] w-11 h-11 rounded-full bg-cyan2-500/90 hover:bg-cyan2-400 text-white flex items-center justify-center shadow-lg active:scale-95 transition-all border border-cyan2-400/20 backdrop-blur-sm"
+            title="Ugrás a tetejére"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
       <PushAlertModal alert={pushAlert} onClose={() => setPushAlert(null)} />
       <QuizModal isOpen={showQuizModal} onClose={() => setShowQuizModal(false)} />
       <LeaderboardModal isOpen={showLeaderboardModal} onClose={() => setShowLeaderboardModal(false)} />

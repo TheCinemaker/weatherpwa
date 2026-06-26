@@ -154,7 +154,7 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend, temp
 }
 
 export default function WeatherDashboard() {
-  const { currentData, historySeries, loading, error, lastUpdate, lastMeasureAt, refresh } = useWeatherData();
+  const { currentData, historySeries, historySource, loading, error, lastUpdate, lastMeasureAt, refresh } = useWeatherData();
 
   const [forecastData, setForecastData] = useState({
     title: 'Helyzetjelentés: Betöltés...',
@@ -789,9 +789,21 @@ export default function WeatherDashboard() {
         <SectionLabel>24 órás előzmények</SectionLabel>
         <div className="mb-3 p-3.5 rounded-apple-card bg-cyan2-400/[0.07] border border-cyan2-400/15 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-cyan2-300 shrink-0 mt-0.5" />
-          <p className="text-[11px] text-night-100/80 leading-relaxed">
-            Az állomás szervere <strong className="font-bold text-white">nem mindig küld folyamatos adatot</strong>, ezért egy-egy grafikon átmenetileg üres lehet. Ilyenkor nyomd meg párszor a <strong className="font-bold text-cyan2-200">Frissítés</strong> gombot.
-          </p>
+          <div className="text-[11px] text-night-100/80 leading-relaxed">
+            <p>
+              Az állomás szervere <strong className="font-bold text-white">nem mindig küld folyamatos adatot</strong>, ezért egy-egy grafikon átmenetileg üres lehet. Ilyenkor nyomd meg párszor a <strong className="font-bold text-cyan2-200">Frissítés</strong> gombot.
+            </p>
+            {historySource && (
+              <p className="mt-1.5 text-[10px] text-night-200/60 font-semibold tracking-wide uppercase flex items-center gap-1.5">
+                <span>Aktuális diagram adatok forrása:</span>
+                <span className="px-2 py-0.5 rounded-full bg-cyan2-400/10 border border-cyan2-400/20 text-cyan2-200 font-extrabold text-[9px]">
+                  {historySource === 'smartmixin' && 'smartmixin'}
+                  {historySource === 'metnet' && 'metnet'}
+                  {historySource === 'open-meteo' && 'nem saját forrás: Open-meteo'}
+                </span>
+              </p>
+            )}
+          </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {CHART_CONFIGS.map(cfg => (
