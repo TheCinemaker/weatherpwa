@@ -237,7 +237,7 @@ export default function useWeatherData() {
       try {
         const targetUrl = 'https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155';
         const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const proxyRes = await fetch(proxyUrl, { signal: AbortSignal.timeout(4000) });
+        const proxyRes = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
         if (!proxyRes.ok) throw new Error(`CORS proxy hiba: ${proxyRes.status}`);
         const html = await proxyRes.text();
         const parsed = parseMetNetHtml(html);
