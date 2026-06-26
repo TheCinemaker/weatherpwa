@@ -8,7 +8,7 @@ import Cameras from './pages/Cameras/Cameras';
 import Sponsors from './pages/Sponsors/Sponsors';
 import About from './pages/About/About';
 import Radar from './pages/Radar/Radar';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Trophy, Target, Award } from 'lucide-react';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Gamepad2 } from 'lucide-react';
 import Logo from './components/Logo';
 import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
@@ -256,22 +256,8 @@ function AppContent() {
               onClick={() => setShowLeaderboardModal(true)}
               className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
             >
-              <Trophy className="w-[18px] h-[18px] shrink-0 relative z-10 text-amber-400" />
-              <span className="relative z-10">Dicsőségfal</span>
-            </button>
-            <button
-              onClick={() => setShowTippeldeModal(true)}
-              className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
-            >
-              <Target className="w-[18px] h-[18px] shrink-0 relative z-10 text-cyan2-400" />
-              <span className="relative z-10">Napi Tippelde</span>
-            </button>
-            <button
-              onClick={() => setShowQuizModal(true)}
-              className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
-            >
-              <Award className="w-[18px] h-[18px] shrink-0 relative z-10 text-cyan2-400" />
-              <span className="relative z-10">Kőszegi Kvíz</span>
+              <Gamepad2 className="w-[18px] h-[18px] shrink-0 relative z-10 text-cyan2-400" />
+              <span className="relative z-10">Játékok</span>
             </button>
           </nav>
 
@@ -395,34 +381,8 @@ function AppContent() {
                       onClick={() => { setMenuOpen(false); setShowLeaderboardModal(true); }}
                       className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
                     >
-                      <Trophy className="w-[18px] h-[18px] shrink-0 text-amber-400" />
-                      <span>Dicsőségfal</span>
-                    </button>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 + (NAV_ITEMS.length + 1) * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <button
-                      onClick={() => { setMenuOpen(false); setShowTippeldeModal(true); }}
-                      className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
-                    >
-                      <Target className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
-                      <span>Napi Tippelde</span>
-                    </button>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 + (NAV_ITEMS.length + 2) * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <button
-                      onClick={() => { setMenuOpen(false); setShowQuizModal(true); }}
-                      className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
-                    >
-                      <Award className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
-                      <span>Kőszegi Kvíz</span>
+                      <Gamepad2 className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
+                      <span>Játékok</span>
                     </button>
                   </motion.div>
                 </nav>
@@ -479,7 +439,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.2.2
+            Version: 2.2.3
           </p>
           <a
             href="https://visitkoszeg.hu"
@@ -509,7 +469,12 @@ function AppContent() {
       </AnimatePresence>
       <PushAlertModal alert={pushAlert} onClose={() => setPushAlert(null)} />
       <QuizModal isOpen={showQuizModal} onClose={() => setShowQuizModal(false)} />
-      <LeaderboardModal isOpen={showLeaderboardModal} onClose={() => setShowLeaderboardModal(false)} />
+      <LeaderboardModal 
+        isOpen={showLeaderboardModal} 
+        onClose={() => setShowLeaderboardModal(false)}
+        onOpenQuiz={() => { setShowLeaderboardModal(false); setShowQuizModal(true); }}
+        onOpenTippelde={() => { setShowLeaderboardModal(false); setShowTippeldeModal(true); }}
+      />
       <TippeldeModal isOpen={showTippeldeModal} onClose={() => setShowTippeldeModal(false)} />
     </div>
   );

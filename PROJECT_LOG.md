@@ -320,6 +320,14 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.2.2`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.2`).
 
+### 🏷️ Version 2.2.3 (Navigáció Egyszerűsítés és Játék Integráció)
+*   **Játék menük összevonása a Játékok (korábban Dicsőségfal) modálba**:
+    *   **Oldalsáv és mobil menü**: Eltávolítottam a különálló "Napi Tippelde" és "Kőszegi Kvíz" gombokat a navigációs sávokból, így a menü sokkal rövidebb és szellősebb lett, visszaadva a látogatószámláló ("Látogatók: N") láthatóságát PC-n és mobil kijelzőkön is. A korábbi "Dicsőségfal" menüpontot átneveztem **"Játékok"** névre, és a `Gamepad2` ikont rendeltem hozzá.
+    *   **Modális integráció**: Frissítettem a [src/components/LeaderboardModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/LeaderboardModal.jsx) modált, átnevezve "Kőszegi Játékok"-ra. Mindkét lap tetejére (Kvíz Bajnokok és Tippelde) közvetlenül beépítettem egy nagy gombot a játékok azonnali indításához ("Kvíz indítása 🧠" és "Tippelek holnapra 🌡️").
+    *   **Eseménykezelés**: A [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx) fájlban visszahívó függvények segítségével összekötöttem a Játékok modál gombjait a megfelelő Kvíz és Tippelde modálok megnyitásával.
+*   **Verzióemelés `2.2.3`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.3`), [src/components/LeaderboardModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/LeaderboardModal.jsx).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trophy, Award, Target } from 'lucide-react';
+import { X, Trophy, Award, Target, Gamepad2 } from 'lucide-react';
 import { getQuizLeaderboard, getTippeldeLeaderboard, getActiveTippeldePredictions, getOrCreatePlayerId } from '../api/supabase';
 
-export default function LeaderboardModal({ isOpen, onClose }) {
+export default function LeaderboardModal({ isOpen, onClose, onOpenQuiz, onOpenTippelde }) {
   const [activeTab, setActiveTab] = useState('quiz'); // 'quiz' | 'tippelde'
   const [tippeldeRange, setTippeldeRange] = useState('active'); // 'active' | 'weekly' | 'all'
   const [quizList, setQuizList] = useState([]);
@@ -89,11 +89,11 @@ export default function LeaderboardModal({ isOpen, onClose }) {
           {/* Header */}
           <div className="p-5 pb-3 flex items-center gap-2.5 shrink-0">
             <div className="w-9 h-9 rounded-apple-inner bg-cyan2-500/10 flex items-center justify-center text-cyan2-400">
-              <Trophy className="w-5 h-5 animate-pulse" />
+              <Gamepad2 className="w-5 h-5 animate-pulse" />
             </div>
             <div className="text-left">
-              <h3 className="text-sm font-black text-white uppercase tracking-wider">Kőszegi Dicsőségfal</h3>
-              <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest">Ranglisták és Eredmények 🏆</p>
+              <h3 className="text-sm font-black text-white uppercase tracking-wider">Kőszegi Játékok</h3>
+              <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest">Ranglisták és Játék indítása 🎮</p>
             </div>
           </div>
 
@@ -133,6 +133,14 @@ export default function LeaderboardModal({ isOpen, onClose }) {
               
               /* QUIZ LEADERBOARD */
               <div className="space-y-3">
+                <button
+                  onClick={onOpenQuiz}
+                  className="w-full py-3 bg-brand-gradient hover:brightness-110 active:scale-[0.98] text-white rounded-apple-inner text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-glow"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Kvíz indítása 🧠</span>
+                </button>
+
                 {quizList.length === 0 ? (
                   <div className="text-center py-12 text-xs text-white/50">Nincsenek még eredmények. Légy te az első!</div>
                 ) : (
@@ -173,6 +181,14 @@ export default function LeaderboardModal({ isOpen, onClose }) {
               
               /* TIPPELDE LEADERBOARD */
               <div className="space-y-3">
+                <button
+                  onClick={onOpenTippelde}
+                  className="w-full py-3 bg-brand-gradient hover:brightness-110 active:scale-[0.98] text-white rounded-apple-inner text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-glow"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>Tippelek holnapra 🌡️</span>
+                </button>
+
                 {/* Range Selector */}
                 <div className="flex justify-end gap-1.5 mb-2 select-none">
                   <button
