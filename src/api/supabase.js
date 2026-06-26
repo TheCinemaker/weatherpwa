@@ -484,10 +484,17 @@ export async function getTippeldeLeaderboard(range = 'all', limit = 10) {
 export async function getActiveTippeldePredictions() {
   if (!supabase) return [];
   try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const y = tomorrow.getFullYear();
+    const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const d = String(tomorrow.getDate()).padStart(2, '0');
+    const targetDateStr = `${y}-${m}-${d}`;
+
     const { data, error } = await supabase
       .from('tippelde_predictions')
       .select('name, prediction, target_date, player_id')
-      .eq('processed', false)
+      .eq('target_date', targetDateStr)
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];

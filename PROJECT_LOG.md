@@ -313,6 +313,13 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.2.1`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.1`).
 
+### 🏷️ Version 2.2.2 (Tippelde Aktív Listázás Szűrése)
+*   **Aktív Tippek szűrése a holnapi cél dátumra**:
+    *   **Fájl**: [src/api/supabase.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/api/supabase.js)
+    *   **Változtatás**: A `getActiveTippeldePredictions()` lekérdezést átalakítottam, hogy az összes feldolgozatlan tipp listázása helyett szigorúan csak a mai napon leadott, holnapi cél dátumra vonatkozó tippeket (`target_date = holnap`) kérdezze le. Így a felhasználóknak a ranglistán csak a holnapi napra szóló aktív tippek jelennek meg, a tegnapi (már érvényben lévő, kiértékelésre váró) tippek nem zavarják a felületet.
+*   **Verzióemelés `2.2.2`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.2`).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)
