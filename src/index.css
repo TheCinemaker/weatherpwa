@@ -67,4 +67,13 @@
   .meter-fill {
     @apply absolute inset-y-0 left-0 rounded-full bg-brand-gradient;
   }
+
+  /* Kereszt-böngésző görgetősáv elrejtés */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE és Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }

@@ -216,8 +216,8 @@ function AppContent() {
 
       {/* --- DESKTOP SIDEBAR RAIL --- */}
       <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-screen w-64 flex-col p-4">
-        <div className="flex-1 flex flex-col glass-card rounded-apple-outer p-5">
-          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 mb-8 select-none active:scale-95 transition-transform">
+        <div className="flex-1 flex flex-col glass-card rounded-apple-outer p-5 overflow-y-auto no-scrollbar">
+          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 mb-6 select-none active:scale-95 transition-transform">
             <motion.div
               {...logoHoldHandlers}
               title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
@@ -243,7 +243,7 @@ function AppContent() {
               const active = location.pathname === path;
               return (
                 <Link key={path} to={path}
-                  className={`relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold transition-all ${active ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
+                  className={`relative flex items-center gap-3 px-4 py-2.5 rounded-apple-inner text-sm font-bold transition-all ${active ? 'text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
                   {active && (
                     <motion.span layoutId="nav-active-desktop" className="absolute inset-0 rounded-apple-inner bg-brand-gradient shadow-glow" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
                   )}
@@ -254,14 +254,14 @@ function AppContent() {
             })}
             <button
               onClick={() => setShowLeaderboardModal(true)}
-              className="relative flex items-center gap-3 px-4 py-3 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
+              className="relative flex items-center gap-3 px-4 py-2.5 rounded-apple-inner text-sm font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all text-left w-full"
             >
               <Gamepad2 className="w-[18px] h-[18px] shrink-0 relative z-10 text-cyan2-400" />
               <span className="relative z-10">Játékok</span>
             </button>
           </nav>
 
-          <div className="mt-auto pt-6 space-y-4">
+          <div className="mt-auto pt-4 space-y-3.5">
             {/* Web Push Notification Button */}
             <PushNotificationButton mode="desktop" />
 
@@ -271,15 +271,19 @@ function AppContent() {
               </button>
             )}
             
-            <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-              © 2026 · Ráduly László
+            <div className="flex flex-col gap-2.5">
               {viewCount !== null && (
-                <>
-                  <br />
-                  <span className="text-cyan2-400/80 font-extrabold tracking-wider">Látogatók: {viewCount.toLocaleString('hu-HU')}</span>
-                </>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider">
+                    Látogatók: <span className="text-cyan2-400">{viewCount.toLocaleString('hu-HU')}</span>
+                  </span>
+                </div>
               )}
-            </p>
+              <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
+                © 2026 · Ráduly László
+              </p>
+            </div>
           </div>
         </div>
       </aside>
@@ -331,8 +335,8 @@ function AppContent() {
               transition={{ type: 'spring', stiffness: 480, damping: 42, mass: 0.7 }}
               className="absolute top-0 right-0 h-full w-[80%] max-w-xs p-4"
             >
-              <div className="h-full flex flex-col glass-card rounded-apple-outer p-5">
-                <div className="flex items-center justify-between mb-8">
+              <div className="h-full flex flex-col glass-card rounded-apple-outer p-5 overflow-y-auto no-scrollbar">
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
                       <Logo className="w-5 h-5" />
@@ -365,7 +369,7 @@ function AppContent() {
                         transition={{ delay: 0.04 + i * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                       >
                         <Link to={path}
-                          className={`flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-white hover:bg-white/10 hover:text-white'}`}>
+                          className={`flex items-center gap-3 px-4 py-2.5 rounded-apple-inner text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-white hover:bg-white/10 hover:text-white'}`}>
                           <Icon className="w-[18px] h-[18px] shrink-0" />
                           <span>{label}</span>
                         </Link>
@@ -379,7 +383,7 @@ function AppContent() {
                   >
                     <button
                       onClick={() => { setMenuOpen(false); setShowLeaderboardModal(true); }}
-                      className="flex items-center gap-3 px-4 py-3.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
                     >
                       <Gamepad2 className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
                       <span>Játékok</span>
@@ -387,22 +391,26 @@ function AppContent() {
                   </motion.div>
                 </nav>
 
-                <div className="mt-auto pt-6 space-y-3">
+                <div className="mt-auto pt-4 space-y-3">
                   {showInstallBtn && (
-                    <button onClick={handleInstall} className="btn-grad w-full py-3 text-xs">
+                    <button onClick={handleInstall} className="btn-grad w-full py-2.5 text-xs">
                       <Download className="w-4 h-4" /> Telepítés a kezdőképernyőre
                     </button>
                   )}
                   
-                  <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
-                    © 2026 · Ráduly László
+                  <div className="flex flex-col items-center gap-2.5 pt-2">
                     {viewCount !== null && (
-                      <>
-                        <br />
-                        <span className="text-cyan2-400 font-extrabold tracking-wider">Látogatók: {viewCount.toLocaleString('hu-HU')}</span>
-                      </>
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 w-fit mx-auto">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider">
+                          Látogatók: <span className="text-cyan2-400">{viewCount.toLocaleString('hu-HU')}</span>
+                        </span>
+                      </div>
                     )}
-                  </p>
+                    <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
+                      © 2026 · Ráduly László
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.aside>
@@ -439,7 +447,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.2.3
+            Version: 2.2.4
           </p>
           <a
             href="https://visitkoszeg.hu"

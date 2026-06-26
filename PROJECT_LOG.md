@@ -328,6 +328,15 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.2.3`-ra**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.3`), [src/components/LeaderboardModal.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/components/LeaderboardModal.jsx).
 
+### 🏷️ Version 2.2.4 (Látogatószámláló Láthatóság és Prémium Kapszula Badge)
+*   **Magasság túlcsordulás és görgethetőség (overflow) javítása**:
+    *   **Oldalsáv és mobil menü**: Hozzáadtam a `overflow-y-auto no-scrollbar` osztályokat a desktop oldalsávhoz és a mobil menühöz. Ezzel a tartalom kisebb képernyőkön vagy ablakméretnél sem csúszik ki, hanem finoman görgethetővé válik görgetősáv megjelenítése nélkül.
+    *   **Spaciálás csökkentése**: A logó alsó margóját `mb-8`-ról `mb-6`-ra csökkentettem, a navigációs elemek függőleges paddingjait pedig `py-3` / `py-3.5`-ről `py-2.5`-re vettem vissza. A lábléc feletti margókat és térközöket is csökkentettem, hogy a teljes tartalom jobban elférjen a képernyőn.
+*   **Látogatószámláló újratervezése (Prémium Kapszula Kialakítás)**:
+    *   **Badge**: A korábbi egyszerű szöveges látogatottsági sort lecseréltem egy modern, prémium dizájnú kapszula badge-re: lekerekített szegéllyel (`rounded-full`), finom háttérrel (`bg-white/[0.04]`), vékony kerettel (`border-white/10`) és egy villogó zöld LED-jelzővel (`bg-emerald-400 animate-pulse`). Ez azonnal szembetűnő és látványos a felhasználónak.
+*   **Verzióemelés `2.2.4`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.4`), [src/index.css](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/index.css).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)
