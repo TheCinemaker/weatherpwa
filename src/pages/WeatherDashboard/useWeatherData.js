@@ -325,75 +325,97 @@ export default function useWeatherData() {
     return Object.keys(out).length ? out : null;
   }, [fetchWindow]);
 
-  const loadAll = useCallback(async () => {
+  const loadAll = useCallback(async (forcedInput = false) => {
+    const forced = forcedInput === true || (forcedInput && typeof forcedInput === 'object');
     setLoading(true);
     setError(null);
     try {
-      // Fetch both. If history fails, we still want to show current weather.
-      const current = await fetchCurrent().catch(e => {
-        setError(prev => prev ? `${prev} | ${e.message}` : e.message);
-        return null;
-      });
-
-      let history = await fetchHistory().catch(e => {
-        console.error("Előzmény lekérési hiba:", e);
-        return null;
-      });
-
-      // Check if SmartMixin history is missing or incomplete
-      const isSmartMixinOk = history && history.T && Object.keys(history).length > 0;
-
-      if (!isSmartMixinOk) {
-        console.log("SmartMixin előzmény hiányzik vagy hiányos, MetNet backup lekérése...");
-        const metnetHistory = await fetchMetNetHistory();
-        
-        // Check if MetNet data is present and fresh (last data point is less than 4 hours old)
-        let isMetNetFresh = false;
-        if (metnetHistory && metnetHistory.T && metnetHistory.T.ts.length > 0) {
-          const lastTs = metnetHistory.T.ts[metnetHistory.T.ts.length - 1];
-          const ageSec = Math.floor(Date.now() / 1000) - lastTs;
-          if (ageSec < 4 * 3600) {
-            isMetNetFresh = true;
+      // 1. Attempt to fetch unified weather data from our server-side cached proxy
+      const apiQuery = forced ? `?_=${Date.now()}` : '';
+      const res = await fetch(`/api/weather-data${apiQuery}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.current) {
+          setCurrentData(json.current);
+          setHistorySeries(json.history || {});
+          setHistorySource(json.source || null);
+          const now = new Date();
+          setLastUpdate(now.toLocaleTimeString('hu-HU', { timeZone: 'Europe/Budapest' }));
+          if (json.current.last_measure_at) {
+            setLastMeasureAt(json.current.last_measure_at);
           }
-        }
-
-        if (isMetNetFresh) {
-          console.log("MetNet backup sikeres és friss.");
-          history = metnetHistory;
-          setHistorySource('metnet');
-        } else {
-          console.log("MetNet előzmény nem elérhető vagy elavult (offline állomás). Open-Meteo fallback lekérése...");
-          const openMeteoHistory = await fetchOpenMeteoHistory();
-          if (openMeteoHistory) {
-            console.log("Open-Meteo modell alapú fallback sikeres.");
-            history = openMeteoHistory;
-            setHistorySource('open-meteo');
-          } else {
-            setHistorySource(null);
-          }
-        }
-      } else {
-        setHistorySource('smartmixin');
-      }
-
-      if (current) {
-        setCurrentData(current);
-        const now = new Date();
-        setLastUpdate(now.toLocaleTimeString('hu-HU', { timeZone: 'Europe/Budapest' }));
-        if (typeof current.last_measure_at === 'number') {
-          setLastMeasureAt(current.last_measure_at);
+          return true;
         }
       }
-      // Metrikánként frissítünk: a most megkapott metrikák új adatot kapnak,
-      // a hiányzók megtartják az utolsó jó sorozatukat (nem ürül ki a grafikon).
-      if (history) {
-        setHistorySeries(prev => ({ ...prev, ...history }));
-      }
-      return !!history;
+      throw new Error(`Szerveroldali API hiba vagy érvénytelen válasz.`);
     } catch (e) {
-      console.error(e);
-      setError(e.message);
-      return false;
+      console.warn("Szerveroldali API sikertelen, próbálkozás kliensoldali lekérésekkel...", e);
+      
+      // Fallback: Client-side direct fetches
+      try {
+        const current = await fetchCurrent().catch(err => {
+          setError(prev => prev ? `${prev} | ${err.message}` : err.message);
+          return null;
+        });
+
+        let history = await fetchHistory().catch(err => {
+          console.error("Előzmény lekérési hiba:", err);
+          return null;
+        });
+
+        // Check if SmartMixin history is missing or incomplete
+        const isSmartMixinOk = history && history.T && Object.keys(history).length > 0;
+
+        if (!isSmartMixinOk) {
+          console.log("SmartMixin előzmény hiányzik vagy hiányos, MetNet backup lekérése...");
+          const metnetHistory = await fetchMetNetHistory();
+          
+          let isMetNetFresh = false;
+          if (metnetHistory && metnetHistory.T && metnetHistory.T.ts.length > 0) {
+            const lastTs = metnetHistory.T.ts[metnetHistory.T.ts.length - 1];
+            const ageSec = Math.floor(Date.now() / 1000) - lastTs;
+            if (ageSec < 4 * 3600) {
+              isMetNetFresh = true;
+            }
+          }
+
+          if (isMetNetFresh) {
+            console.log("MetNet backup sikeres és friss.");
+            history = metnetHistory;
+            setHistorySource('metnet');
+          } else {
+            console.log("MetNet előzmény nem elérhető vagy elavult (offline állomás). Open-Meteo fallback lekérése...");
+            const openMeteoHistory = await fetchOpenMeteoHistory();
+            if (openMeteoHistory) {
+              console.log("Open-Meteo modell alapú fallback sikeres.");
+              history = openMeteoHistory;
+              setHistorySource('open-meteo');
+            } else {
+              setHistorySource(null);
+            }
+          }
+        } else {
+          setHistorySource('smartmixin');
+        }
+
+        if (current) {
+          setCurrentData(current);
+          const now = new Date();
+          setLastUpdate(now.toLocaleTimeString('hu-HU', { timeZone: 'Europe/Budapest' }));
+          if (typeof current.last_measure_at === 'number') {
+            setLastMeasureAt(current.last_measure_at);
+          }
+        }
+
+        if (history) {
+          setHistorySeries(prev => ({ ...prev, ...history }));
+        }
+        return !!history;
+      } catch (clientErr) {
+        console.error("Kliensoldali lekérési hiba:", clientErr);
+        setError(clientErr.message);
+        return false;
+      }
     } finally {
       setLoading(false);
     }
