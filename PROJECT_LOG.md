@@ -272,6 +272,14 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.1.7`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.7`).
 
+### 🏷️ Version 2.1.8 (Automatikus Tippelde Kiértékelés)
+*   **Automatikus napi pontozás (Netlify Scheduled Function)**:
+    *   **Megvalósítás**: Elkészítettem a [netlify/functions/auto-evaluate.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify/functions/auto-evaluate.js) serverless funkciót, ami minden nap hajnali 02:05-kor lefut a Netlify időzítőjével (cron: `5 1 * * *`).
+    *   **Adatgyűjtés**: A funkció kiszámítja a tegnapi napot, lekéri a kőszegi SmartMixin állomás 24 órás hőmérséklet-történetét és megkeresi a napi maximumot. Ha az állomás offline, tartalékként lekéri az **Open-Meteo Archive API** kőszegi tegnapi maximumát.
+    *   **Kiértékelés**: Összeveti a kapott maximumot a még kiértékelésre váró (`processed = false`) tegnapi tippekkel, kiszámolja a kapott pontokat és frissíti a `tippelde_scores` összesített pontszámait és a tippeket.
+*   **Verzióemelés `2.1.8`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache: `koszeg-weather-cache-v2.1.8`), [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)

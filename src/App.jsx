@@ -411,7 +411,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.1.7
+            Version: 2.1.8
           </p>
           <a
             href="https://visitkoszeg.hu"

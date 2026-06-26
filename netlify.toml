@@ -42,3 +42,7 @@
   for = "/sw.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+[functions."auto-evaluate"]
+  schedule = "5 1 * * *"
+
