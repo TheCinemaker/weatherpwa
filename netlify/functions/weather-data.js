@@ -193,7 +193,10 @@ export async function handler(event, context) {
 
   // 1. Fetch Current from SmartMixin
   try {
-    const res = await fetch(`${CURRENT_URL}&_=${Date.now()}`, { headers: CURRENT_HEADERS });
+    const res = await fetch(`${CURRENT_URL}&_=${Date.now()}`, { 
+      headers: CURRENT_HEADERS,
+      signal: AbortSignal.timeout(3000)
+    });
     if (res.ok) {
       currentData = await res.json();
     }
@@ -217,7 +220,8 @@ export async function handler(event, context) {
     const res = await fetch(HISTORY_URL, {
       method: 'POST',
       headers: HISTORY_HEADERS,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(3000)
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -257,7 +261,8 @@ export async function handler(event, context) {
     console.log('SmartMixin history missing/incomplete. Trying MetNet...');
     try {
       const metnetRes = await fetch('https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155', {
-        headers: { 'User-Agent': userAgent }
+        headers: { 'User-Agent': userAgent },
+        signal: AbortSignal.timeout(3000)
       });
       if (metnetRes.ok) {
         const html = await metnetRes.text();
@@ -331,7 +336,7 @@ export async function handler(event, context) {
     console.log('MetNet down/stale. Trying Open-Meteo fallback...');
     try {
       const openMeteoUrl = 'https://api.open-meteo.com/v1/forecast?latitude=47.3971&longitude=16.5460&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,pressure_msl,precipitation,apparent_temperature&past_days=2&forecast_days=1&timezone=Europe%2FBerlin';
-      const openMeteoRes = await fetch(openMeteoUrl);
+      const openMeteoRes = await fetch(openMeteoUrl, { signal: AbortSignal.timeout(3000) });
       if (openMeteoRes.ok) {
         const json = await openMeteoRes.json();
         const hourly = json.hourly;
@@ -369,7 +374,7 @@ export async function handler(event, context) {
           // If currentData is down, fetch current weather from Open-Meteo
           if (!currentData || !currentData.last_measure) {
             const currentUrl = 'https://api.open-meteo.com/v1/forecast?latitude=47.3971&longitude=16.5460&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,wind_speed_10m,wind_direction_10m,pressure_msl&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FBerlin';
-            const curRes = await fetch(currentUrl);
+            const curRes = await fetch(currentUrl, { signal: AbortSignal.timeout(3000) });
             if (curRes.ok) {
               const curJson = await curRes.json();
               const c = curJson.current || {};

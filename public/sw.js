@@ -1,5 +1,5 @@
-// Version: 2.2.0
-const CACHE_NAME = 'koszeg-weather-cache-v2.2.0';
+// Version: 2.2.1
+const CACHE_NAME = 'koszeg-weather-cache-v2.2.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -77,8 +77,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // 1. Bypass cache for Supabase requests
-  if (url.hostname.includes('supabase.co')) {
+  // 1. Bypass cache for Supabase and local API requests
+  if (url.hostname.includes('supabase.co') || url.pathname.startsWith('/api/')) {
     return;
   }
 
@@ -102,8 +102,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Network-First for weather API requests (smartmixin.io)
-  if (url.hostname === 'api2.smartmixin.io') {
+  // 3. Network-First for weather API requests
+  const isWeatherApi = url.hostname === 'api2.smartmixin.io' ||
+                       url.hostname === 'api.open-meteo.com' ||
+                       url.hostname === 'api.allorigins.win';
+  if (isWeatherApi) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {

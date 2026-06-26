@@ -303,6 +303,16 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.2.0`-ra**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.2.0`), [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml).
 
+### 🏷️ Version 2.2.1 (Service Worker Cache Hiba és API Gyorsítás)
+*   **Service Worker API cache kikerülése (fagyott grafikon javítás)**:
+    *   **Fájl**: [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js)
+    *   **Változtatás**: A `/api/` kezdetű kéréseket és a harmadik fél API hívásait (`api.open-meteo.com`, `api.allorigins.win`) kiszedtem a Cache-First (Rule 4) szabály alól. Így elkerüljük, hogy a PWA a végtelen időkig tegnapi (pl. 23:00-s) adatokat adjon vissza a cache-ből a grafikonoknál.
+*   **Szerver és kliensoldali API időtúllépések (Timeout-ok)**:
+    *   **Fájl**: [netlify/functions/weather-data.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify/functions/weather-data.js) és [src/pages/WeatherDashboard/useWeatherData.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/useWeatherData.js)
+    *   **Változtatás**: Minden API híváshoz beépítettem az `AbortSignal.timeout()` használatát (szerveroldalon 3 másodperc, kliensoldalon 4 másodperc). Ezzel kiküszöböltük, hogy a SmartMixin időnkénti 30+ másodperces akadása vagy lefagyása megbénítsa az egész alkalmazást: a kérés gyorsan elvetésre kerül, és azonnal átugrik a következő (MetNet vagy Open-Meteo) adatforrásra.
+*   **Verzióemelés `2.2.1`-re**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.1`).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)

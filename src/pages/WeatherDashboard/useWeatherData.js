@@ -182,7 +182,11 @@ export default function useWeatherData() {
   const [lastMeasureAt, setLastMeasureAt] = useState(null); // az állomás tényleges mérési ideje (unix mp)
 
   const fetchCurrent = useCallback(async () => {
-    const res = await fetch(`${CURRENT_URL}&_=${Date.now()}`, { headers: CURRENT_HEADERS, cache: 'no-store' });
+    const res = await fetch(`${CURRENT_URL}&_=${Date.now()}`, { 
+      headers: CURRENT_HEADERS, 
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000)
+    });
     if (!res.ok) throw new Error(`Aktuális API hiba: ${res.status}`);
     return res.json();
   }, []);
@@ -203,7 +207,8 @@ export default function useWeatherData() {
     const res = await fetch(HISTORY_URL, {
       method: 'POST',
       headers: HISTORY_HEADERS,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(4000)
     });
     if (!res.ok) throw new Error(`Előzmény API hiba: ${res.status}`);
     const json = await res.json();
@@ -212,7 +217,7 @@ export default function useWeatherData() {
 
   const fetchMetNetHistory = useCallback(async () => {
     try {
-      const res = await fetch('/api/fetch-metnet');
+      const res = await fetch('/api/fetch-metnet', { signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error(`MetNet hiba: ${res.status}`);
       const data = await res.json();
       
@@ -232,7 +237,7 @@ export default function useWeatherData() {
       try {
         const targetUrl = 'https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155';
         const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const proxyRes = await fetch(proxyUrl);
+        const proxyRes = await fetch(proxyUrl, { signal: AbortSignal.timeout(4000) });
         if (!proxyRes.ok) throw new Error(`CORS proxy hiba: ${proxyRes.status}`);
         const html = await proxyRes.text();
         const parsed = parseMetNetHtml(html);
@@ -258,7 +263,7 @@ export default function useWeatherData() {
   const fetchOpenMeteoHistory = useCallback(async () => {
     try {
       const url = 'https://api.open-meteo.com/v1/forecast?latitude=47.3971&longitude=16.5460&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,pressure_msl,precipitation,apparent_temperature&past_days=2&forecast_days=1&timezone=Europe%2FBerlin';
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error(`Open-Meteo hiba: ${res.status}`);
       const json = await res.json();
 

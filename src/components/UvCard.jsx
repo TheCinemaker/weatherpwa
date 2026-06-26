@@ -157,7 +157,7 @@ export default function UvCard() {
 
   const lvl = uvLevel(uv);
   const fillPct = uv != null ? Math.max(4, Math.min(100, (uv / 11) * 100)) : 0;
-  const dynamicAdvice = getDynamicAdvice(uvMax ?? uv);
+  const dynamicAdvice = getDynamicAdvice(uv ?? uvMax);
 
   return (
     <>
