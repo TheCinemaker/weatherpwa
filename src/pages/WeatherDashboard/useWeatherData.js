@@ -74,6 +74,76 @@ export default function useWeatherData() {
     return Array.isArray(json) && hasPoints(json[0]) ? json[0] : null;
   }, []);
 
+  const fetchMetNetHistory = useCallback(async () => {
+    try {
+      const res = await fetch('/api/fetch-metnet');
+      if (!res.ok) throw new Error(`MetNet hiba: ${res.status}`);
+      const data = await res.json();
+      
+      const out = {};
+      for (const k of METRICS) {
+        const series = data[k];
+        if (series && Array.isArray(series.ts) && Array.isArray(series.data)) {
+          const trimmed = trimSeries(series.ts, series.data, DISPLAY_HOURS);
+          if (countNonNull(trimmed.data) > 0) {
+            out[k] = trimmed;
+          }
+        }
+      }
+      return Object.keys(out).length ? out : null;
+    } catch (e) {
+      console.error("MetNet előzmény lekérési hiba:", e);
+      return null;
+    }
+  }, []);
+
+  const fetchOpenMeteoHistory = useCallback(async () => {
+    try {
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=47.3971&longitude=16.5460&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,pressure_msl,precipitation,apparent_temperature&past_days=2&forecast_days=1&timezone=Europe%2FBerlin';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Open-Meteo hiba: ${res.status}`);
+      const json = await res.json();
+
+      const hourly = json.hourly;
+      if (!hourly || !Array.isArray(hourly.time)) return null;
+
+      const utcOffset = json.utc_offset_seconds || 0;
+      const rawTimestamps = hourly.time.map(timeStr => {
+        return Math.floor(new Date(timeStr + 'Z').getTime() / 1000) - utcOffset;
+      });
+
+      const rawData = {
+        T: hourly.temperature_2m,
+        U: hourly.relative_humidity_2m,
+        FF: hourly.wind_speed_10m,
+        FXY: hourly.wind_gusts_10m,
+        SLP: hourly.pressure_msl,
+        RR_1H: hourly.precipitation,
+        HEAT_INDEX: hourly.apparent_temperature,
+        HUMIDEX: hourly.temperature_2m.map((t, idx) => {
+          const rh = hourly.relative_humidity_2m[idx];
+          if (t === null || t === undefined || rh === null || rh === undefined) return null;
+          const e = 6.112 * Math.pow(10, (7.5 * t) / (237.7 + t)) * (rh / 100);
+          return t + (5 / 9) * (e - 10);
+        })
+      };
+
+      const out = {};
+      for (const k of METRICS) {
+        const arr = rawData[k];
+        if (!Array.isArray(arr)) continue;
+        const trimmed = trimSeries(rawTimestamps, arr, DISPLAY_HOURS);
+        if (countNonNull(trimmed.data) > 0) {
+          out[k] = trimmed;
+        }
+      }
+      return Object.keys(out).length ? out : null;
+    } catch (e) {
+      console.error("Open-Meteo előzmény lekérési hiba:", e);
+      return null;
+    }
+  }, []);
+
   // Több ablakot lekér, és metrikánként a legtöbb (utolsó 24h-s) adattal rendelkezőt választja.
   const fetchHistory = useCallback(async () => {
     const windows = (await Promise.all(
@@ -107,10 +177,40 @@ export default function useWeatherData() {
         return null;
       });
 
-      const history = await fetchHistory().catch(e => {
+      let history = await fetchHistory().catch(e => {
         console.error("Előzmény lekérési hiba:", e);
         return null;
       });
+
+      // Check if SmartMixin history is missing or incomplete
+      const isSmartMixinOk = history && history.T && Object.keys(history).length > 0;
+
+      if (!isSmartMixinOk) {
+        console.log("SmartMixin előzmény hiányzik vagy hiányos, MetNet backup lekérése...");
+        const metnetHistory = await fetchMetNetHistory();
+        
+        // Check if MetNet data is present and fresh (last data point is less than 4 hours old)
+        let isMetNetFresh = false;
+        if (metnetHistory && metnetHistory.T && metnetHistory.T.ts.length > 0) {
+          const lastTs = metnetHistory.T.ts[metnetHistory.T.ts.length - 1];
+          const ageSec = Math.floor(Date.now() / 1000) - lastTs;
+          if (ageSec < 4 * 3600) {
+            isMetNetFresh = true;
+          }
+        }
+
+        if (isMetNetFresh) {
+          console.log("MetNet backup sikeres és friss.");
+          history = metnetHistory;
+        } else {
+          console.log("MetNet előzmény nem elérhető vagy elavult (offline állomás). Open-Meteo fallback lekérése...");
+          const openMeteoHistory = await fetchOpenMeteoHistory();
+          if (openMeteoHistory) {
+            console.log("Open-Meteo modell alapú fallback sikeres.");
+            history = openMeteoHistory;
+          }
+        }
+      }
 
       if (current) {
         setCurrentData(current);
@@ -133,7 +233,7 @@ export default function useWeatherData() {
     } finally {
       setLoading(false);
     }
-  }, [fetchCurrent, fetchHistory]);
+  }, [fetchCurrent, fetchHistory, fetchMetNetHistory, fetchOpenMeteoHistory]);
 
   useEffect(() => {
     let cancelled = false;

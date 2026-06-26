@@ -294,14 +294,23 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.1.9`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.1.9`), [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml), [netlify/functions/auto-evaluate.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify/functions/auto-evaluate.js).
 
+### 🏷️ Version 2.2.0 (Kétszeres Grafikon Redundancia)
+*   **Kétszeres redundáns grafikon adatforrás**:
+    *   **MetNet Szerveroldali Backup [ÚJ]**: Létrehoztam a [netlify/functions/fetch-metnet.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify/functions/fetch-metnet.js) serverless funkciót, ami ha a fő SmartMixin API lehal vagy üres adatot ad vissza, észrevétlenül lekaparja a kőszegi állomás adatait a MetNet-ről (`ostid=1155`) a legfrissebb 24 óra adataival.
+    *   **Open-Meteo Modell Fallback**: Ha a MetNet lekérés is meghiúsul, vagy a fizikai állomás offline állapota miatt az adatok elavultak (> 4 óra), a rendszer automatikusan és észrevétlenül átvált az Open-Meteo modell-alapú történeti előrejelzésére.
+    *   **Integráció**: A [src/pages/WeatherDashboard/useWeatherData.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/useWeatherData.js) lekérdező ciklusába beépítettem a kétlépcsős fallback logikát, így a grafikonok minden körülmények között működőképesek és esztétikusak maradnak.
+    *   **Proxy beállítás**: Frissítettem a [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml) állományt a `/api/fetch-metnet` átirányítási szabállyal.
+*   **Verzióemelés `2.2.0`-ra**:
+    *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (cache: `koszeg-weather-cache-v2.2.0`), [netlify.toml](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/netlify.toml).
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)
 
-*   [ ] **MetNet Failover Redundancia (Weather station fallback)**:
+*   [x] **MetNet Failover Redundancia (Weather station fallback)**:
     *   **Leírás**: Ha a fő SmartMixin API lehal vagy időtúllépést ad vissza, a rendszer automatikusan és észrevétlenül váltson át a MetNet online állomás adatainak scrapingjére.
     *   **Megvalósítás**: Egy új Netlify function (pl. `fetch-metnet-backup`) lekéri a `https://www.metnet.hu/online-allomasok?sub=showosdata&ostid=1155` oldalt, HTML parsing segítségével kiszedi a legfrissebb mérési adatokat (T, U, FF, DD, SLP, RR_1H), és végigpásztázza a mai napi adatokat a minimum/maximum kiszámítására. A `useWeatherData.js` hibakezelőjébe beépítjük a failover lekérést.
-    *   **Státusz**: Tervezve (Todo), a kőszegi állomás MetNet ID-je: `1155`.
+    *   **Státusz**: Kész (v2.2.0).
 
 *   [ ] **PWA Háttérből Visszatérés és Auto-Frissítés (PWA Resume & Auto-Update)**:
     *   **Leírás**: iOS-en háttérbe küldött (fagyasztott), majd újra előtérbe hozott PWA appoknál a mérések (és a kattintásszámláló) elavultak maradnak, mert nem futnak le újra a React mount eseményei. Továbbá a verziófrissítések sem települnek azonnal.

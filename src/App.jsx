@@ -460,7 +460,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.1.9
+            Version: 2.2.0
           </p>
           <a
             href="https://visitkoszeg.hu"
