@@ -1,7 +1,7 @@
 {
   "short_name": "Kőszeg Weather",
   "name": "Kőszeg Weather PWA",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "icons": [
     {
       "src": "/favicon.png",
