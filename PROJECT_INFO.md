@@ -39,7 +39,7 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ## 🛠️ Jelenlegi Állapot & Legutóbbi Fejlesztések
 
-* **Verzió**: v2.2.6 (Élesítve Netlify-on és Supabase integrációval).
+* **Verzió**: v2.2.7 (Élesítve Netlify-on és Supabase integrációval).
 * **Támogatói Kártya (Főoldal)**: Az UV-kártya alá beágyazott `SponsorCard` komponens. Betöltéskor véletlenszerűen választ az aktív hirdetők közül, és 12 másodpercenként rotálja őket. A "Szendi Optika" (szendi-logo.png) hirdetésre kattintva a rendszer azonnal új lapon megnyitja a weboldalát (https://www.szendioptika.hu/), míg a többi hirdetőnél egy részletes információs modál jelenik meg.
 * **Játékok Alrendszer**:
   * **Kvíz játék**: Napi korlátozású kvízjáték (időmérővel, kérdésekkel, napi egyszeri kitöltési validációval).
