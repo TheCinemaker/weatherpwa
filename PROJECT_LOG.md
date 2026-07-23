@@ -352,3 +352,12 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
     *   **Státusz**: Tervezve (Todo).
 
 
+### 🏷️ Version 2.2.4 (Kizárólag lokálisan elmentve / Nincs pusholva) - Apple SF UI Redesign
+*   **Letisztult, Apple-szerű dizájnvilág és widget finomítások**:
+    *   **Tipográfia**: Az alkalmazás globális betűtípusát lecseréltük az Apple natív rendszer-készletére (`-apple-system`, `BlinkMacSystemFont`, `SF Pro Display`, `SF Pro Text`, `Helvetica Neue`). A régi `Plus Jakarta Sans` Google Font importálást eltávolítottuk, ami letisztultabb megjelenést eredményezett és növelte a teljesítményt is.
+    *   **Árnyékok és fények (Glow)**: A főbb kártyáknál (pl. a Statisztika kártyák és az UV-Index kártya) látható hatalmas neon fényfoltokat drasztikusan tompítottuk. Az `opacity` értékeket (pl. `30`-ról `15`-re) csökkentettük, az elmosódást (`blur-[40px]`, `blur-[60px]`) pedig növeltük, ami egy sokkal diszkrétebb, elegáns iOS stílust hozott el.
+    *   **Üveg-hatás (Glassmorphism)**: A `.glass-card` CSS osztály kapott egy sokkal finomabb, félig átlátszó sötétfekete hátteret (`bg-black/25`) és erősebb elmosódást (`backdrop-blur-3xl`). A keret a korábbi türkizkék helyett egy vékony ezüst/fehér árnyalatú élfény lett (`border-white/10`).
+    *   **Interakciók (Hover/Active)**: A statisztika kártyák kattintáskor vagy rámutatáskor most egy finomabb halvány felvillanást kapnak (`hover:bg-white/[0.04]`), mintha az iOS Vezérlőközpont gombjait használnánk.
+    *   **Titkos Kisokos (UvCard Modal)**: A felugró információs ablak háttere eddig szürke/kék volt. Ezt kicseréltük a klasszikus "frosted glass" (`bg-[#0e1116]/85 backdrop-blur-3xl`) stílusra a zavaró háttérszínek kiküszöböléséhez.
+    *   **További apróságok**: A görgetősáv vékonyabb (macOS stílusú) és áttetsző fehér árnyalatú lett, valamint a fő alkalmazás hátterének hatalmas zöldes "gamer" átmenete helyett egy mélysötét palaszürke/fekete hátteret (`linear-gradient(165deg, #111827 0%, #000000 100%)`) alkalmaztunk.
+
