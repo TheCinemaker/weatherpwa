@@ -175,7 +175,7 @@ function AppContent() {
       <AdminHoldBar progress={holdProgress} />
 
       {/* --- NIGHT-SKY BACKGROUND --- */}
-      <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: 'linear-gradient(165deg, #0A2227 0%, #061216 48%, #030608 100%)' }}>
+      <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: 'linear-gradient(165deg, #111827 0%, #000000 100%)' }}>
         <div className="absolute inset-0 starfield opacity-20" />
         <div className="blob w-[45rem] h-[45rem] -top-40 -left-40 bg-teal2-500/25 animate-blob" />
         <div className="blob w-[40rem] h-[40rem] top-1/3 -right-40 bg-cyan2-500/25 animate-blob" style={{ animationDelay: '3s' }} />

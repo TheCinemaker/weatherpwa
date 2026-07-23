@@ -170,7 +170,7 @@ export default function UvCard() {
         {/* lágy színes fény az aktuális szint alapján */}
         {lvl && (
           <div
-            className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-20 pointer-events-none"
+            className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-[60px] opacity-15 pointer-events-none"
             style={{ background: lvl.color }}
           />
         )}
@@ -274,7 +274,7 @@ export default function UvCard() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: 16, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
                 transition={{ type: 'spring', stiffness: 460, damping: 36, mass: 0.7 }}
-                className="relative w-full max-w-lg bg-night-800 rounded-apple-outer border border-white/10 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
+                className="relative w-full max-w-lg bg-[#0e1116]/85 backdrop-blur-3xl rounded-apple-outer border border-white/10 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
               >
                 {/* Színes akcentus sáv a tetején az aktuális UV szint színével */}
                 <div className="h-2 w-full shrink-0" style={{ background: `linear-gradient(90deg, ${lvl.color}, #f97316)` }} />

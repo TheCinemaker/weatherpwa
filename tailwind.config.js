@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'sans-serif'],
       },
       colors: {
         // True vibrant teals and cyans for dark-sky glassmorphism
@@ -25,8 +25,8 @@ export default {
         pebble:  '#e2e8f0',
       },
       boxShadow: {
-        glow: '0 16px 40px -14px rgba(6, 182, 212, 0.45)',
-        'glow-pink': '0 16px 40px -14px rgba(20, 184, 166, 0.45)',
+        glow: '0 16px 40px -14px rgba(6, 182, 212, 0.25)',
+        'glow-pink': '0 16px 40px -14px rgba(20, 184, 166, 0.25)',
         soft: '0 18px 50px -18px rgba(0, 0, 0, 0.95)',
         card: '0 12px 36px -14px rgba(0, 0, 0, 0.8)',
       },
@@ -38,8 +38,8 @@ export default {
         'apple-inner': '10px',
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #06b6d4 0%, #14b8a6 50%, #0891b2 100%)',
-        'brand-gradient-soft': 'linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(20,184,166,0.1) 50%, rgba(8,145,178,0.1) 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)',
+        'brand-gradient-soft': 'linear-gradient(135deg, rgba(2,132,199,0.1) 0%, rgba(6,182,212,0.1) 100%)',
       },
       keyframes: {
         blob: {

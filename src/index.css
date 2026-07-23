@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,10 +15,13 @@
     background: rgba(6, 182, 212, 0.45);
     color: #050d10;
   }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-thumb {
     @apply rounded-full;
-    background: linear-gradient(180deg, #06b6d4, #0891b2);
+    background: rgba(255, 255, 255, 0.15);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
   }
   ::-webkit-scrollbar-track { background: transparent; }
 }
@@ -27,7 +29,7 @@
 @layer components {
   /* Lebegő nebula-folt az éjszakai háttérhez */
   .blob {
-    @apply absolute rounded-full blur-3xl pointer-events-none mix-blend-screen opacity-40;
+    @apply absolute rounded-full blur-[80px] pointer-events-none mix-blend-screen opacity-20;
   }
 
   /* Csillagmező */
@@ -50,9 +52,9 @@
     @apply bg-clip-text text-transparent bg-brand-gradient;
   }
 
-  /* Breathtaking Dark Cyan Glassmorphic Card */
+  /* Breathtaking Dark Apple Glassmorphic Card */
   .glass-card {
-    @apply bg-[#0e2429]/[0.45] backdrop-blur-2xl border border-[#1b3e46]/45 shadow-soft;
+    @apply bg-black/25 backdrop-blur-3xl border border-white/10 shadow-soft;
   }
 
   /* Elsődleges gomb — törtfehér, sötét háttérrel */
