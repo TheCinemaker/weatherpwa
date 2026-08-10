@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, HelpCircle, AlertCircle, Thermometer, User, Send, CheckCircle2 } from 'lucide-react';
-import { submitPrediction, checkTippeldeAlreadyTipped, checkTippeldeNameTaken, getOrCreatePlayerId } from '../api/supabase';
+import { X, HelpCircle, AlertCircle, Thermometer, User, Send, CheckCircle2, Calendar } from 'lucide-react';
+import { submitPrediction, checkTippeldeAlreadyTipped, checkTippeldeNameTaken, getOrCreatePlayerId, getPlayerPredictionHistory } from '../api/supabase';
 
 // Dátum formázása magyarul (YYYY. MM. DD.)
 function formatLocalDate(date) {
@@ -31,6 +31,16 @@ export default function TippeldeModal({ isOpen, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [alreadyTipped, setAlreadyTipped] = useState(false);
   const [savedTip, setSavedTip] = useState(null);
+  const [historyList, setHistoryList] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const loadHistory = () => {
+    getPlayerPredictionHistory().then(data => {
+      setHistoryList(data);
+    }).catch(err => {
+      console.error('Előzmény lekérési hiba:', err);
+    });
+  };
 
   // Betöltéskor lekérjük az elmentett nevet és ellenőrizzük, tippelt-e már ma
   useEffect(() => {
@@ -38,6 +48,7 @@ export default function TippeldeModal({ isOpen, onClose }) {
 
     const savedName = localStorage.getItem('tippelde_player_name') || '';
     setPlayerName(savedName);
+    loadHistory();
 
     // Adatbázis ellenőrzés (ha töröltük a DB-ből, de a kliens oldalon még megvan, akkor is engedjük újra)
     checkTippeldeAlreadyTipped(targetDateStr).then(dbTip => {
@@ -124,6 +135,7 @@ export default function TippeldeModal({ isOpen, onClose }) {
       setSavedTip(prediction.toFixed(1));
       setIsSubmitted(true);
       setAlreadyTipped(true);
+      loadHistory();
     } catch (err) {
       console.error(err);
       setErrorMsg('Nem sikerült beküldeni a tippet. Kérjük, próbáld újra!');
@@ -163,7 +175,7 @@ export default function TippeldeModal({ isOpen, onClose }) {
           </button>
 
           {/* Content */}
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 overflow-y-auto max-h-[75vh] no-scrollbar">
             
             {/* Header info */}
             <div className="flex items-center gap-2.5">
@@ -289,6 +301,54 @@ export default function TippeldeModal({ isOpen, onClose }) {
                 </button>
 
               </form>
+            )}
+
+            {/* TIPP ELŐZMÉNYEK SZEKCIÓ */}
+            {historyList.length > 0 && (
+              <div className="pt-4 border-t border-white/10 text-left space-y-2.5">
+                <h4 className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-cyan2-400" /> Korábbi tippjeid
+                </h4>
+                <div className="space-y-1.5">
+                  {historyList.map((hist, idx) => {
+                    const dateFormatted = new Date(hist.target_date).toLocaleDateString('hu-HU', {
+                      month: '2-digit',
+                      day: '2-digit'
+                    });
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-apple-inner bg-white/[0.02] border border-white/5 text-xs">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-white/80">{dateFormatted}</span>
+                          <span className="text-[10px] text-white/40">Cél nap</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <span className="font-extrabold text-white">{hist.prediction.toFixed(1)} °C</span>
+                            <span className="text-[9px] text-white/40 block">Tippelt</span>
+                          </div>
+                          <div>
+                            {hist.processed ? (
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                                hist.points_earned >= 10 
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                  : hist.points_earned >= 5 
+                                    ? 'bg-cyan2-500/10 text-cyan2-400 border border-cyan2-400/20' 
+                                    : 'bg-white/5 text-white/60 border border-white/10'
+                              }`}>
+                                +{hist.points_earned} pont
+                              </span>
+                            ) : (
+                              <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
+                                Függőben
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
         </motion.div>

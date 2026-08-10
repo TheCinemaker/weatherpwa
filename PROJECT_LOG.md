@@ -337,6 +337,17 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   **Verzióemelés `2.2.4`-re**:
     *   **Módosított fájlok**: [package.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/package.json), [src/App.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/App.jsx), [public/manifest.json](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/manifest.json), [public/sw.js](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/public/sw.js) (új cache kulcs: `koszeg-weather-cache-v2.2.4`), [src/index.css](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/index.css).
 
+### 🏷️ Version 2.2.5 (Támogatók a Főoldalon & Szendi Optika Direct Link)
+*   **Főoldali Támogatói Kártya (`SponsorCard.jsx`)**:
+    *   **Komponens**: Új üvegkártya elrendezés az UV-kártya mintájára, amely a Supabase aktív támogatói és az hardkódolt fejlesztői hirdetés közül választ.
+    *   **Rotáció**: A hirdetések 12 másodpercenként finom framer-motion áttűnéssel váltakoznak.
+    *   **Szendi Optika**: A logó kép elhelyezve a `/public/szendi-logo.png` útvonalon. Speciális logika, mely a Szendi Optika kártyára kattintva azonnal új lapon megnyitja a weboldalát (https://www.szendioptika.hu/), míg más támogatóknál egy részletes modális ablakot nyit meg.
+*   **Integráció**: A [src/pages/WeatherDashboard/WeatherDashboard.jsx](file:///c:/Users/Szilveszter/weatherpwa/weatherpwa/src/pages/WeatherDashboard/WeatherDashboard.jsx) oldalon elhelyezve az UV kártya alatt.
+
+### 🏷️ Version 2.2.6 (Szabályok rögzítése & Verzió Szinkronizáció)
+*   **Verziószám és SW Cache frissítés**: Minden szükséges fájlban átírva a verzió `2.2.6`-ra, és a Service Worker gyorsítótár frissítve a `koszeg-weather-cache-v2.2.6` kulcsra.
+*   **Fejlesztési Szabályok (`.agents/AGENTS.md`)**: Létrehoztuk a projekt-szintű fejlesztési szabályzatot, amely kötelezővé teszi a verzióemelést minden push előtt.
+
 ---
 
 ## 📌 Tervezett Fejlesztések (TODO)
@@ -349,6 +360,11 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 *   [ ] **PWA Háttérből Visszatérés és Auto-Frissítés (PWA Resume & Auto-Update)**:
     *   **Leírás**: iOS-en háttérbe küldött (fagyasztott), majd újra előtérbe hozott PWA appoknál a mérések (és a kattintásszámláló) elavultak maradnak, mert nem futnak le újra a React mount eseményei. Továbbá a verziófrissítések sem települnek azonnal.
     *   **Megvalósítás**: Iratkozzunk fel a `visibilitychange` eseményre a böngészőben. Amikor a dokumentum állapota újra `visible` lesz, indítsuk el a legfrissebb időjárás adatok kényszerített újratöltését (reload), és hívjuk meg a Service Worker `update()` metódusát (`navigator.serviceWorker.ready.then(reg => reg.update())`), hogy a PWA a háttérből visszatérve ellenőrizze az esetleges új verziókat.
+    *   **Státusz**: Tervezve (Todo).
+
+*   [ ] **Tippelde Előző Napi Tippek Megőrzése**:
+    *   **Leírás**: A Tippelde játékban a felhasználók szeretnék látni a korábbi napokra leadott tippjeiket és azok kiértékelését (pontozás visszanézése).
+    *   **Megvalósítás**: Az adatbázisból való lekérdezés és a frontend módosítása, hogy a tegnapi/múltbeli feldolgozott tippeket is megőrizze és kilistázhatóvá tegye a felületen.
     *   **Státusz**: Tervezve (Todo).
 
 

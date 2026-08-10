@@ -39,6 +39,12 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ## 🛠️ Jelenlegi Állapot & Legutóbbi Fejlesztések
 
+* **Verzió**: v2.2.8 (Élesítve Netlify-on és Supabase integrációval).
+* **Támogatói Kártya (Főoldal)**: Az UV-kártya alá beágyazott `SponsorCard` komponens. Betöltéskor véletlenszerűen választ az aktív hirdetők közül, és 12 másodpercenként rotálja őket. A "Szendi Optika" (szendi-logo.png) hirdetésre kattintva a rendszer azonnal új lapon megnyitja a weboldalát (https://www.szendioptika.hu/), míg a többi hirdetőnél egy részletes információs modál jelenik meg.
+* **Játékok Alrendszer**:
+  * **Kvíz játék**: Napi korlátozású kvízjáték (időmérővel, kérdésekkel, napi egyszeri kitöltési validációval).
+  * **Tippelde**: Helyi időjárás előrejelzési tippverseny pontozással (hőmérséklet, szél, stb.) és napi tipp leadással.
+  * **Heti Dicsőségfal / Ranglista**: Supabase Realtime-alapú heti pontszám összesítő dicsőségfal a játékosoknak.
 * **Windy.com Térkép Integráció**: Külön „Radar & Felhők” aloldal beágyazott Windy.com interaktív térképpel. Négy választható réteggel (Műhold/Felhők, Csapadékradar, Szél, Hőmérséklet) Kőszegre fókuszálva (`lat=47.389`, `lon=16.541`), loaderrel és segédlettel.
 * **Routing Frissítés**: A korábbi `HashRouter` le lett cserélve modern HTML5-alapú `BrowserRouter`-re. A linkekből eltűnt a hashtag (`/#/` helyett sima `/` útvonalak vannak). A Netlify átirányítások be vannak állítva.
 * **PWA Caching Javítás**: A Service Worker (`sw.js`) verziója `v2`-re frissült. A korábbi agreszív `Cache-First` stratégia helyett a főoldal/HTML kérések `Network-First` módban futnak (hálózatról frissít, ha elérhető), a Supabase API kérések pedig nincsenek gyorsítótárazva.

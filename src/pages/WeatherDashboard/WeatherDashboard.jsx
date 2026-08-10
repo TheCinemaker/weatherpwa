@@ -7,6 +7,7 @@ import StatCard, { STAT_CARDS_CONFIG } from './StatCard';
 import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
 import UvCard from '../../components/UvCard';
+import SponsorCard from '../../components/SponsorCard';
 import HeroSky from '../../components/HeroSky';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
@@ -661,6 +662,13 @@ export default function WeatherDashboard() {
       <FadeUp delay={0.03}>
         <div className="mt-4">
           <UvCard />
+        </div>
+      </FadeUp>
+
+      {/* --- SPONSORS BANNER --- */}
+      <FadeUp delay={0.04}>
+        <div className="mt-4">
+          <SponsorCard />
         </div>
       </FadeUp>
 

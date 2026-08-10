@@ -504,6 +504,24 @@ export async function getActiveTippeldePredictions() {
   }
 }
 
+export async function getPlayerPredictionHistory() {
+  if (!supabase) return [];
+  try {
+    const player_id = getOrCreatePlayerId();
+    const { data, error } = await supabase
+      .from('tippelde_predictions')
+      .select('prediction, target_date, processed, points_earned')
+      .eq('player_id', player_id)
+      .order('target_date', { ascending: false })
+      .limit(5);
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('Failed to get player prediction history:', err);
+    return [];
+  }
+}
+
 export async function evaluatePredictions(target_date, actual_temp) {
   if (!supabase) throw new Error('Supabase nincs konfigurálva.');
   
