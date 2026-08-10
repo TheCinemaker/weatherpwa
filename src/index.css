@@ -54,7 +54,15 @@
 
   /* Breathtaking Dark Apple Glassmorphic Card */
   .glass-card {
-    @apply bg-black/25 backdrop-blur-3xl border border-white/10 shadow-soft;
+    @apply bg-black/25 backdrop-blur-3xl border border-white/10 border-t-2 border-t-white/25 shadow-soft;
+  }
+
+  .glass-card-interactive {
+    @apply bg-black/25 backdrop-blur-3xl border border-white/10 border-t-2 border-t-white/25 shadow-soft transition-all duration-300 ease-out hover:-translate-y-1 hover:border-white/20 hover:border-t-white/40 hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.45)];
+  }
+
+  .ambient-glow {
+    @apply absolute rounded-full blur-3xl pointer-events-none transition-all duration-1000 ease-in-out opacity-40;
   }
 
   /* Elsődleges gomb — törtfehér, sötét háttérrel */

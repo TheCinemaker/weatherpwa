@@ -25,6 +25,12 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ## 📅 2026. 08. 10.
 
+### 🏷️ Version 2.3.0 (Élesítve / Pusholva) — Prémium Üveghatás és Dinamikus Ambient Háttérfény
+*   **Dinamikus Ambient Hangulatfény**: A fő hőmérséklet kártya (`WeatherHero`) mögött lágyan elmosott, hőmérséklet és napszak szerint változó környezeti fény (arany/kék/lila izzás).
+*   **2px Üveg-élfények (Specular Highlights)**: 2px vastagságú felső üvegszegély (`border-t-2 border-t-white/25`) bevezetése a kártyákon az iOS/Apple stílusú mélységhatásért.
+*   **Kártya Emelkedési Effektek**: Taktilis emelkedő interakciók a `StatCard`-oknál.
+*   **Verzióemelés 2.2.9 → 2.3.0**: [package.json](package.json), [public/sw.js](public/sw.js) (`CACHE_NAME` frissítve), [public/manifest.json](public/manifest.json), [src/App.jsx](src/App.jsx) lábléc és [PROJECT_INFO.md](PROJECT_INFO.md).
+
 ### 🏷️ Version 2.2.9 (Élesítve / Pusholva) — Csengő ikon bal oldalra helyezése & Tippelde javítások
 *   **Csengő ikon (Push Notification) áthelyezése**: Az [App.jsx](src/App.jsx) mobil fejlécében a csengő ikont (`PushNotificationButton`) áthelyeztük a bal oldalra a logó mellé, így a jobb felső sarokban kizárólag a menü gomb maradt. Ez megelőzi a téves leiratkozásokat a megbízhatóbb UX érdekében.
 *   **Tippelde lepontozás adatbázis javítás**: A Supabase [.update()](src/api/supabase.js) hívás használata a hibás `.upsert()` helyett a tippek kiértékelésénél, megelőzve a hiányzó NOT NULL mezők miatti Postgres hibát. Explicit `onConflict: 'player_id'` hozzáadása.

@@ -87,69 +87,89 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend, temp
     gradientClass = 'from-indigo-900 via-purple-800 to-pink-700';
   }
 
-  return (
-    <div className={`relative rounded-apple-outer p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/10 flex flex-col justify-between min-h-[190px]`}>
-      
-      {/* Subtle overlay gradient to enhance readability of left-aligned text */}
-      <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-black/25 to-transparent pointer-events-none z-0" />
+  // Dynamic Ambient Glow based on Temperature & Time of Day
+  let ambientGlowClass = 'from-cyan-400/25 via-blue-500/20 to-transparent';
+  if (temp != null) {
+    if (temp >= 28) {
+      ambientGlowClass = 'from-amber-400/35 via-orange-500/30 to-rose-500/20';
+    } else if (temp >= 20) {
+      ambientGlowClass = 'from-amber-300/30 via-emerald-400/20 to-cyan-400/15';
+    } else if (temp <= 5) {
+      ambientGlowClass = 'from-cyan-300/35 via-blue-600/30 to-sky-400/20';
+    }
+  }
+  if (isNight) {
+    ambientGlowClass = 'from-indigo-500/35 via-purple-600/25 to-blue-900/15';
+  }
 
-      {/* Middle row: Temp & Details & Graphic */}
-      <div className="flex justify-between items-center relative z-10 w-full flex-1 gap-4">
-        <div className="space-y-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-          <div>
-            <p className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em]">{dateStr}</p>
-            <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mt-0.5">Kőszeg · Időjárás</h2>
-          </div>
-          
-          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 pt-1">
-            <motion.div
-              onClick={onTempClick}
-              animate={{ rotate: tempClicks * 72 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-              className="flex items-start cursor-pointer select-none active:scale-95"
-            >
-              <span className="text-5xl sm:text-6xl font-light tracking-tighter text-white">
-                {temp != null ? temp.toFixed(1) : '–'}
-              </span>
-              <span className="text-xl font-light text-white/80 mt-1 select-none">°C</span>
-              {(trendUp || trendDown) && (
-                <span
-                  className={`mt-2 ml-1 text-lg font-bold ${trendUp ? 'text-rose-200' : 'text-cyan-100'}`}
-                  title={trendUp ? 'Emelkedő hőmérséklet' : 'Csökkenő hőmérséklet'}
-                >
-                  {trendUp ? '↑' : '↓'}
+  return (
+    <div className="relative group">
+      {/* Dynamic Ambient Glow Behind Card */}
+      <div className={`absolute -inset-1 rounded-apple-outer bg-gradient-to-r ${ambientGlowClass} blur-3xl opacity-75 group-hover:opacity-100 transition-all duration-1000 pointer-events-none`} />
+
+      <div className={`relative rounded-apple-outer p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/15 border-t-2 border-t-white/40 flex flex-col justify-between min-h-[190px]`}>
+        
+        {/* Subtle overlay gradient to enhance readability of left-aligned text */}
+        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-black/25 to-transparent pointer-events-none z-0" />
+
+        {/* Middle row: Temp & Details & Graphic */}
+        <div className="flex justify-between items-center relative z-10 w-full flex-1 gap-4">
+          <div className="space-y-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+            <div>
+              <p className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em]">{dateStr}</p>
+              <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mt-0.5">Kőszeg · Időjárás</h2>
+            </div>
+            
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 pt-1">
+              <motion.div
+                onClick={onTempClick}
+                animate={{ rotate: tempClicks * 72 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                className="flex items-start cursor-pointer select-none active:scale-95 transition-transform"
+              >
+                <span className="text-5xl sm:text-6xl font-light tracking-tighter text-white">
+                  {temp != null ? temp.toFixed(1) : '–'}
+                </span>
+                <span className="text-xl font-light text-white/80 mt-1 select-none">°C</span>
+                {(trendUp || trendDown) && (
+                  <span
+                    className={`mt-2 ml-1 text-lg font-bold ${trendUp ? 'text-rose-200' : 'text-cyan-100'}`}
+                    title={trendUp ? 'Emelkedő hőmérséklet' : 'Csökkenő hőmérséklet'}
+                  >
+                    {trendUp ? '↑' : '↓'}
+                  </span>
+                )}
+              </motion.div>
+
+              {feels != null && (
+                <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-apple-inner border border-white/20 border-t-white/35 backdrop-blur-sm shadow-sm">
+                  Hőérzet: <strong className="font-extrabold text-white">{feels.toFixed(1)} °C</strong>
                 </span>
               )}
-            </motion.div>
+            </div>
+          </div>
 
-            {feels != null && (
-              <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-apple-inner border border-white/20 backdrop-blur-sm">
-                Hőérzet: <strong className="font-extrabold text-white">{feels.toFixed(1)} °C</strong>
-              </span>
-            )}
+          {/* Animált égbolt: nap / valódi holdfázis + felhőzöttség (Open-Meteo) */}
+          <HeroSky isNight={isNight} />
+        </div>
+
+        {/* Bottom row: Coordinates & Elevation */}
+        <div className="mt-5 pt-3 border-t border-white/20 flex items-center justify-between text-[10px] font-extrabold text-white/75 relative z-10 w-full drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.4)]">
+          <div className="flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-white/60" />
+            <span>47.3971°N, 16.546°E</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            <span>Magasság: 274 m</span>
           </div>
         </div>
-
-        {/* Animált égbolt: nap / valódi holdfázis + felhőzöttség (Open-Meteo) */}
-        <HeroSky isNight={isNight} />
+        
+        {/* Background glow overlay */}
+        <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-white/5 blur-3xl pointer-events-none" />
       </div>
-
-      {/* Bottom row: Coordinates & Elevation */}
-      <div className="mt-5 pt-3 border-t border-white/20 flex items-center justify-between text-[10px] font-extrabold text-white/75 relative z-10 w-full drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.4)]">
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-white/60" />
-          <span>47.3971°N, 16.546°E</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <svg className="w-3.5 h-3.5 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-          </svg>
-          <span>Magasság: 274 m</span>
-        </div>
-      </div>
-      
-      {/* Background glow overlay */}
-      <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-white/5 blur-3xl pointer-events-none" />
     </div>
   );
 }

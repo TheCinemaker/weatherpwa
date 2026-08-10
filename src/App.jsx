@@ -281,7 +281,7 @@ function AppContent() {
                 </div>
               )}
               <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-                © 2026 · Ráduly László · v2.2.9
+                © 2026 · Ráduly László · v2.3.0
               </p>
             </div>
           </div>
@@ -409,7 +409,7 @@ function AppContent() {
                       </div>
                     )}
                     <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
-                      © 2026 · Ráduly László · v2.2.9
+                      © 2026 · Ráduly László · v2.3.0
                     </p>
                   </div>
                 </div>

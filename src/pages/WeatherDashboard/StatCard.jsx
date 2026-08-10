@@ -85,7 +85,7 @@ export default function StatCard({ config, val, onClick, windClicks = 0, onIconC
       layoutId={clickable ? `metric-${config.key}` : undefined}
       onClick={onClick}
       transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.7 }}
-      className={`group relative h-full min-h-[118px] rounded-apple-card p-4 flex flex-col justify-between overflow-hidden glass-card transition-all duration-300 active:scale-[0.98] ${clickable ? 'cursor-pointer hover:border-white/20 hover:bg-white/[0.04]' : ''}`}
+      className={`group relative h-full min-h-[118px] rounded-apple-card p-4 flex flex-col justify-between overflow-hidden glass-card transition-all duration-300 active:scale-[0.98] ${clickable ? 'cursor-pointer hover:border-white/20 hover:border-t-2 hover:border-t-white/50 hover:bg-white/[0.05] hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,0.4)]' : ''}`}
     >
       <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-[40px] opacity-15 group-hover:opacity-25 transition-opacity" style={{ background: gradient }} />
 
