@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, HelpCircle, AlertCircle, Thermometer, User, Send, CheckCircle2, Calendar } from 'lucide-react';
-import { submitPrediction, checkTippeldeAlreadyTipped, checkTippeldeNameTaken, getOrCreatePlayerId, getPlayerPredictionHistory } from '../api/supabase';
+import { submitPrediction, checkTippeldeAlreadyTipped, checkTippeldeNameTaken, getOrCreatePlayerId, getPlayerPredictionHistory, getLocalDateStr } from '../api/supabase';
 
 // Dátum formázása magyarul (YYYY. MM. DD.)
 function formatLocalDate(date) {
@@ -21,7 +21,7 @@ function getTomorrowDate() {
 
 export default function TippeldeModal({ isOpen, onClose }) {
   const tomorrow = getTomorrowDate();
-  const targetDateStr = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD
+  const targetDateStr = getLocalDateStr(tomorrow); // YYYY-MM-DD
   const targetDateFormatted = formatLocalDate(tomorrow);
 
   const [playerName, setPlayerName] = useState('');

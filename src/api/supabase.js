@@ -481,15 +481,19 @@ export async function getTippeldeLeaderboard(range = 'all', limit = 10) {
   }
 }
 
+export function getLocalDateStr(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export async function getActiveTippeldePredictions() {
   if (!supabase) return [];
   try {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const y = tomorrow.getFullYear();
-    const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const d = String(tomorrow.getDate()).padStart(2, '0');
-    const targetDateStr = `${y}-${m}-${d}`;
+    const targetDateStr = getLocalDateStr(tomorrow);
 
     const { data, error } = await supabase
       .from('tippelde_predictions')
@@ -500,6 +504,32 @@ export async function getActiveTippeldePredictions() {
     return data || [];
   } catch (err) {
     console.error('Failed to get active predictions:', err);
+    return [];
+  }
+}
+
+export async function getPendingTippeldeSummary() {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('tippelde_predictions')
+      .select('target_date, id')
+      .eq('processed', false);
+    if (error) throw error;
+    if (!data || data.length === 0) return [];
+    
+    const countsByDate = {};
+    data.forEach(item => {
+      if (item.target_date) {
+        countsByDate[item.target_date] = (countsByDate[item.target_date] || 0) + 1;
+      }
+    });
+
+    return Object.entries(countsByDate)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  } catch (err) {
+    console.error('Failed to fetch pending tippelde summary:', err);
     return [];
   }
 }
@@ -562,8 +592,8 @@ export async function evaluatePredictions(target_date, actual_temp) {
     scoreUpserts.push({
       player_id: pred.player_id,
       name: pred.name,
-      points: current.points + awardedPoints,
-      predictions_count: current.predictions_count + 1,
+      points: (current.points || 0) + awardedPoints,
+      predictions_count: (current.predictions_count || 0) + 1,
       updated_at: new Date().toISOString()
     });
 
@@ -577,16 +607,19 @@ export async function evaluatePredictions(target_date, actual_temp) {
   // 3. Elmentjük az új összesített pontszámokat
   const { error: upsertErr } = await supabase
     .from('tippelde_scores')
-    .upsert(scoreUpserts);
+    .upsert(scoreUpserts, { onConflict: 'player_id' });
     
   if (upsertErr) throw upsertErr;
 
-  // 4. Megjelöljük a tippeket feldolgozottnak és elmentjük a kapott pontokat
-  const { error: updateErr } = await supabase
-    .from('tippelde_predictions')
-    .upsert(predictionUpdates);
-    
-  if (updateErr) throw updateErr;
+  // 4. Frissítjük a tippeket (update-et használunk ID alapján az upsert helyett, megelőzve a NOT NULL hibát)
+  for (const pUp of predictionUpdates) {
+    const { error: updateErr } = await supabase
+      .from('tippelde_predictions')
+      .update({ points_earned: pUp.points_earned, processed: true })
+      .eq('id', pUp.id);
+      
+    if (updateErr) throw updateErr;
+  }
 
   return { count: predictions.length };
 }

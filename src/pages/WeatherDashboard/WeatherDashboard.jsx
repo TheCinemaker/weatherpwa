@@ -12,7 +12,7 @@ import HeroSky from '../../components/HeroSky';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
-import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount, evaluatePredictions } from '../../api/supabase';
+import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount, evaluatePredictions, getLocalDateStr, getPendingTippeldeSummary } from '../../api/supabase';
 import {
   AlertTriangle, MapPin, Info, CloudRain, CloudDrizzle, CloudFog,
   Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
@@ -180,11 +180,23 @@ export default function WeatherDashboard() {
   // Tippelde & Játékok
   const [tempClicks, setTempClicks] = useState(0);
   const tempClicksTimeoutRef = useRef(null);
-   const [evalDate, setEvalDate] = useState(new Date().toISOString().split('T')[0]);
+  const [evalDate, setEvalDate] = useState(getLocalDateStr());
   const [evalTemp, setEvalTemp] = useState('');
   const [evalBusy, setEvalBusy] = useState(false);
   const [evalSuccess, setEvalSuccess] = useState('');
   const [evalError, setEvalError] = useState('');
+  const [pendingTips, setPendingTips] = useState([]);
+
+  useEffect(() => {
+    if (showAdmin) {
+      getPendingTippeldeSummary().then(data => {
+        setPendingTips(data);
+        if (data.length > 0) {
+          setEvalDate(data[0].date);
+        }
+      }).catch(err => console.error('Failed to load pending tips summary:', err));
+    }
+  }, [showAdmin]);
 
   const handleTempClick = () => {
     setTempClicks(c => {
@@ -238,6 +250,11 @@ export default function WeatherDashboard() {
       const res = await evaluatePredictions(evalDate, parseFloat(evalTemp));
       setEvalSuccess(`Sikeres kiértékelés! ${res.count} db tippet pontoztunk le.`);
       setEvalTemp('');
+      const updated = await getPendingTippeldeSummary();
+      setPendingTips(updated);
+      if (updated.length > 0) {
+        setEvalDate(updated[0].date);
+      }
     } catch (err) {
       console.error(err);
       setEvalError(err.message || 'Hiba történt a kiértékelés során.');
@@ -1123,6 +1140,37 @@ export default function WeatherDashboard() {
                   <label className="text-[10px] font-bold text-night-200/50 uppercase tracking-widest flex items-center gap-1.5">
                     <Trophy className="w-3.5 h-3.5 text-amber-400" /> Tippek Kiértékelése
                   </label>
+
+                  {pendingTips.length > 0 ? (
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-apple-inner p-2.5 space-y-1.5 text-left">
+                      <span className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider block">
+                        Várakozó tippek lepontozásra ({pendingTips.reduce((acc, curr) => acc + curr.count, 0)} db):
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {pendingTips.map(item => (
+                          <button
+                            key={item.date}
+                            type="button"
+                            onClick={() => setEvalDate(item.date)}
+                            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all border ${
+                              evalDate === item.date
+                                ? 'bg-amber-400 text-night-900 border-amber-300 font-extrabold shadow-sm'
+                                : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10'
+                            }`}
+                          >
+                            📅 {item.date} ({item.count} tipp)
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-apple-inner p-2 text-left">
+                      <span className="text-[11px] font-bold text-emerald-300 flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" /> Minden leadott tipp ki van értékelve!
+                      </span>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-2 text-left">
                     <div>
                       <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Dátum</label>

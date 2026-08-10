@@ -23,6 +23,15 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
+## 📅 2026. 08. 10.
+
+### 🏷️ Version 2.2.9 (Élesítve / Pusholva) — Csengő ikon bal oldalra helyezése & Tippelde javítások
+*   **Csengő ikon (Push Notification) áthelyezése**: Az [App.jsx](src/App.jsx) mobil fejlécében a csengő ikont (`PushNotificationButton`) áthelyeztük a bal oldalra a logó mellé, így a jobb felső sarokban kizárólag a menü gomb maradt. Ez megelőzi a téves leiratkozásokat a megbízhatóbb UX érdekében.
+*   **Tippelde lepontozás adatbázis javítás**: A Supabase [.update()](src/api/supabase.js) hívás használata a hibás `.upsert()` helyett a tippek kiértékelésénél, megelőzve a hiányzó NOT NULL mezők miatti Postgres hibát. Explicit `onConflict: 'player_id'` hozzáadása.
+*   **Időzóna dátumkezelő segédfüggvény**: `getLocalDateStr()` bevezetése a helyi időzónás dátumkezeléshez a tippek leadásánál és kiértékelésénél.
+*   **Admin Kiértékelő Asszisztens**: A [WeatherDashboard.jsx](src/pages/WeatherDashboard/WeatherDashboard.jsx) adminisztrációs felületén megjelenítésre kerülnek a várakozó, lepontozatlan tippek dátumai és darabszámai.
+*   **Verzióemelés 2.2.8 → 2.2.9**: [package.json](package.json), [public/sw.js](public/sw.js) (`CACHE_NAME` frissítve), [public/manifest.json](public/manifest.json), [src/App.jsx](src/App.jsx) lábléc és [PROJECT_INFO.md](PROJECT_INFO.md).
+
 ## 📅 2026. 06. 23.
 
 ### 🏷️ Version 2.1.0 (Élesítve / Pusholva) — UV-index + animált égbolt

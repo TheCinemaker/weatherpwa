@@ -281,7 +281,7 @@ function AppContent() {
                 </div>
               )}
               <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-                © 2026 · Ráduly László
+                © 2026 · Ráduly László · v2.2.9
               </p>
             </div>
           </div>
@@ -291,30 +291,31 @@ function AppContent() {
       {/* --- MOBILE TOP BAR + HAMBURGER (fixen rögzítve, alatta görög minden) --- */}
       <header className="lg:hidden fixed top-0 inset-x-0 z-40 px-4 pt-4 pointer-events-none">
         <div className="pointer-events-auto flex items-center justify-between px-4 py-2.5 rounded-apple-card glass-card">
-          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5 active:scale-95 transition-transform">
-            <motion.div
-              {...logoHoldHandlers}
-              title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
-              className="w-9 h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
-            >
-              <Logo className="w-5 h-5" />
-            </motion.div>
-            <span className="text-[13px] sm:text-[15px] font-black tracking-tight text-white whitespace-nowrap">
-              <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés
-            </span>
-          </Link>
-          <div className="flex items-center gap-2">
-            {/* Web Push Notification Button */}
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Web Push Notification Button on the LEFT side */}
             <PushNotificationButton mode="mobile" />
 
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-apple-inner bg-white/10 border border-white/10 text-white active:scale-95 transition-all"
-              aria-label="Menü megnyitása"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
+            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2 active:scale-95 transition-transform min-w-0">
+              <motion.div
+                {...logoHoldHandlers}
+                title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow shrink-0"
+              >
+                <Logo className="w-4 h-4 sm:w-5 sm:h-5" />
+              </motion.div>
+              <span className="text-[12px] sm:text-[15px] font-black tracking-tight text-white whitespace-nowrap truncate">
+                <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés
+              </span>
+            </Link>
           </div>
+
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="w-10 h-10 flex items-center justify-center rounded-apple-inner bg-white/10 border border-white/10 text-white active:scale-95 transition-all shrink-0 ml-2"
+            aria-label="Menü megnyitása"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
@@ -408,7 +409,7 @@ function AppContent() {
                       </div>
                     )}
                     <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
-                      © 2026 · Ráduly László
+                      © 2026 · Ráduly László · v2.2.9
                     </p>
                   </div>
                 </div>
