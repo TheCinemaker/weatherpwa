@@ -9,6 +9,7 @@ import StatDetailModal from './StatDetailModal';
 import UvCard from '../../components/UvCard';
 import SponsorCard from '../../components/SponsorCard';
 import HeroSky from '../../components/HeroSky';
+import OrsolyaBanner from '../../components/OrsolyaBanner';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
@@ -665,6 +666,9 @@ export default function WeatherDashboard() {
           </span>
         </div>
       )}
+
+      {/* --- ORSOLYA VÁSÁR GOMB --- */}
+      <OrsolyaBanner />
 
       {/* --- HERO: landscape weather tile --- */}
       <FadeUp>

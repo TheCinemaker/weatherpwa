@@ -281,7 +281,7 @@ function AppContent() {
                 </div>
               )}
               <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-                © 2026 · Ráduly László · v2.3.0
+                © 2026 · Ráduly László · v2.3.1
               </p>
             </div>
           </div>
@@ -409,7 +409,7 @@ function AppContent() {
                       </div>
                     )}
                     <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
-                      © 2026 · Ráduly László · v2.3.0
+                      © 2026 · Ráduly László · v2.3.1
                     </p>
                   </div>
                 </div>
@@ -448,7 +448,7 @@ function AppContent() {
             © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
           </p>
           <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.2.8
+            Version: 2.3.1
           </p>
           <a
             href="https://visitkoszeg.hu"
