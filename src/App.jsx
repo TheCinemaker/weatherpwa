@@ -217,11 +217,10 @@ function AppContent() {
       {/* --- DESKTOP SIDEBAR RAIL --- */}
       <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-screen w-64 flex-col p-4">
         <div className="flex-1 flex flex-col glass-card rounded-apple-outer p-5 overflow-y-auto no-scrollbar">
-          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 mb-6 select-none active:scale-95 transition-transform">
+          <Link to="/" onClick={handleLogoClick} onContextMenu={(e) => e.preventDefault()} className="flex items-center gap-3 mb-6 select-none active:scale-95 transition-transform" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}>
             <motion.div
               {...logoHoldHandlers}
-              title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
-              className="w-11 h-11 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
+              className="touch-none w-11 h-11 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow"
             >
               <Logo className="w-6 h-6" />
             </motion.div>
@@ -295,11 +294,10 @@ function AppContent() {
             {/* Web Push Notification Button on the LEFT side */}
             <PushNotificationButton mode="mobile" />
 
-            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2 active:scale-95 transition-transform min-w-0">
+            <Link to="/" onClick={handleLogoClick} onContextMenu={(e) => e.preventDefault()} className="flex items-center gap-2 active:scale-95 transition-transform min-w-0" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}>
               <motion.div
                 {...logoHoldHandlers}
-                title="Admin belépés: tartsd nyomva a logót 3 másodpercig"
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow shrink-0"
+                className="touch-none w-8 h-8 sm:w-9 sm:h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow shrink-0"
               >
                 <Logo className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.div>

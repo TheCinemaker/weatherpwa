@@ -58,6 +58,18 @@ function detectPlatform() {
 }
 
 /**
+ * Resolves with the ready service worker registration, or rejects if it
+ * doesn't become ready within `ms`. Prevents the UI from spinning forever
+ * when SW activation stalls (seen on some Android WebAPK installs).
+ */
+function waitForServiceWorker(ms = 8000) {
+  return Promise.race([
+    navigator.serviceWorker.ready,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Service Worker időtúllépés')), ms)),
+  ]);
+}
+
+/**
  * Saves a push subscription to Supabase, upserting on endpoint conflict.
  */
 async function saveSubscriptionToSupabase(sub) {
@@ -112,7 +124,7 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
         return;
       }
       try {
-        const reg = await navigator.serviceWorker.ready;
+        const reg = await waitForServiceWorker();
         const sub = await reg.pushManager.getSubscription();
         setIsSubscribed(!!sub);
       } catch (e) {
@@ -132,7 +144,7 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
 
     setLoading(true);
     try {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await waitForServiceWorker();
       const existingSub = await reg.pushManager.getSubscription();
 
       if (existingSub) {
@@ -144,7 +156,10 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
         // --- SUBSCRIBE ---
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-          alert('Az értesítések engedélyezése szükséges a viharjelzések fogadásához.\nKérjük, engedélyezd a böngésző beállításaiban.');
+          alert(
+            'Az értesítések engedélyezése szükséges a viharjelzések fogadásához.\n\n' +
+            'Ez eltérhet az app telefonos engedélyeitől: nyisd meg a böngésző (Chrome) menüjét → Beállítások → Webhelybeállítások → Értesítések, és ott engedélyezd ezt az oldalt.'
+          );
           setLoading(false);
           return;
         }
@@ -170,7 +185,10 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
       }
     } catch (err) {
       console.error('[PushButton] Error toggling subscription:', err);
-      alert('Hiba történt a feliratkozás módosításakor:\n' + err.message);
+      const msg = err.message === 'Service Worker időtúllépés'
+        ? 'Az alkalmazás háttérszolgáltatása nem indult el időben.\nPróbáld bezárni és újranyitni az appot, majd próbáld újra.'
+        : 'Hiba történt a feliratkozás módosításakor:\n' + err.message;
+      alert(msg);
     } finally {
       setLoading(false);
     }

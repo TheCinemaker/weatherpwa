@@ -707,7 +707,8 @@ export default function Forecast() {
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard1TempMin}
                             onChange={e => setAdminCard1TempMin(e.target.value)}
                             placeholder="tól"
@@ -715,7 +716,8 @@ export default function Forecast() {
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard1TempMin2}
                             onChange={e => setAdminCard1TempMin2(e.target.value)}
                             placeholder="ig"
@@ -727,7 +729,8 @@ export default function Forecast() {
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard1TempMax}
                             onChange={e => setAdminCard1TempMax(e.target.value)}
                             placeholder="tól"
@@ -735,7 +738,8 @@ export default function Forecast() {
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard1TempMax2}
                             onChange={e => setAdminCard1TempMax2(e.target.value)}
                             placeholder="ig"
@@ -778,7 +782,8 @@ export default function Forecast() {
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard2TempMin}
                             onChange={e => setAdminCard2TempMin(e.target.value)}
                             placeholder="tól"
@@ -786,7 +791,8 @@ export default function Forecast() {
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard2TempMin2}
                             onChange={e => setAdminCard2TempMin2(e.target.value)}
                             placeholder="ig"
@@ -798,7 +804,8 @@ export default function Forecast() {
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard2TempMax}
                             onChange={e => setAdminCard2TempMax(e.target.value)}
                             placeholder="tól"
@@ -806,7 +813,8 @@ export default function Forecast() {
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard2TempMax2}
                             onChange={e => setAdminCard2TempMax2(e.target.value)}
                             placeholder="ig"
@@ -849,7 +857,8 @@ export default function Forecast() {
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard3TempMin}
                             onChange={e => setAdminCard3TempMin(e.target.value)}
                             placeholder="tól"
@@ -857,7 +866,8 @@ export default function Forecast() {
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard3TempMin2}
                             onChange={e => setAdminCard3TempMin2(e.target.value)}
                             placeholder="ig"
@@ -869,7 +879,8 @@ export default function Forecast() {
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard3TempMax}
                             onChange={e => setAdminCard3TempMax(e.target.value)}
                             placeholder="tól"
@@ -877,7 +888,8 @@ export default function Forecast() {
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             value={adminCard3TempMax2}
                             onChange={e => setAdminCard3TempMax2(e.target.value)}
                             placeholder="ig"
