@@ -23,6 +23,17 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
+## 📅 2026. 11. 11.
+
+### 🏷️ Version 3.0.1 (Élesítve / Pusholva) — Bento Dashboard Redesign, 16:9 Hero Videó, Napi Sztorikártya & PWA Auto-Update
+*   **Bento Dashboard & Tartalom-kapcsoló**: A főoldal új, letisztult csempe-elrendezést kapott (Hőmérséklet és Szél HUD skálákkal, 4 kompakt mérési csempe, egyesített Nap + Hold ív Meteocons animált ikonokkal), alatta pedig háromlapos csúszkával (*Előrejelzés / Villámhírek / Mérések*).
+*   **16:9 Hero Videók 4 oldali valódi blur-maszkolással**: A hero-kártya tetején teljes szélességű, napszak- és időjárás-függő 16:9-es őszi hangulatvideók futnak, amelyek a széleiken (5–7%) közvetlen `filter: blur(12px)` elmosással és 4 oldalas maszkolással olvadnak bele a háttérbe.
+*   **Folytonos Hőmérséklet-Hangulat Színrendszer (`WeatherMoodContext`)**: Tizedfokonként interpolált, zöldmentes hőérzet-színskálával (−15 °C fehéres jégkék → 0..11 °C hűvös égkék/azúrkék → 16..18 °C barack-pezsgő → 21..40 °C arany/narancs/izzó vörös), ki-/bekapcsolható gombbal a menüben.
+*   **Napi Kalendárium & Sztorikártya (`dailyAlmanac.js`)**: A mobil hamburger menüben és az asztali oldalsávban megjelenik a mai névnap, alatta pedig koppintásra és menünyitásra váltakozó visszaszámlálók, 100+ kőszegi/időjárási/humoros sztori, valamint a magyar Wikipédia élő *„Ezen a napon történt”* történelmi évfordulói.
+*   **Kihúzható Támogatók Fül (`SponsorDrawer.jsx`)**: A támogatói kártya jobb oldalról behúzható drawerbe került (az oldal aljától 1/3-os magasságban).
+*   **iOS / Android PWA Automatikus Frissítés Push megőrzéssel (`src/main.jsx`, `public/sw.js`)**: A telepített PWA háttérből előtérbe hozáskor (`visibilitychange`) azonnal ellenőrzi az új Service Worker verziót (`reg.update()`), és az új `v3.0.0` aktiválásakor (`controllerchange`) automatikusan újratölti a felületet, miközben a meglévő Web Push feliratkozások 100%-ban sértetlenek maradnak.
+*   **Verzióemelés 2.3.3 → 3.0.0**: [package.json](package.json), [package-lock.json](package-lock.json), [public/sw.js](public/sw.js) (`CACHE_NAME` frissítve `koszeg-weather-cache-v3.0.0`-ra), [public/manifest.json](public/manifest.json), [src/App.jsx](src/App.jsx) lábléc és [PROJECT_INFO.md](PROJECT_INFO.md).
+
 ## 📅 2026. 08. 10.
 
 ### 🏷️ Version 2.3.0 (Élesítve / Pusholva) — Prémium Üveghatás és Dinamikus Ambient Háttérfény

@@ -201,18 +201,18 @@ export default function PushNotificationButton({ mode = 'desktop' }) {
         onClick={handleToggle}
         disabled={loading || !isSupported}
         title={isSubscribed ? 'Viharjelzések aktívak — koppints a leiratkozáshoz' : 'Feliratkozás viharjelzésekre'}
-        className={`w-9 h-9 flex items-center justify-center rounded-apple-inner transition-all disabled:opacity-40 ${
+        className={`w-10 h-10 flex items-center justify-center rounded-apple-inner transition-all disabled:opacity-40 ${
           isSubscribed
             ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
             : 'bg-white/10 text-white/70'
         }`}
       >
         {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-5 h-5 animate-spin" />
         ) : isSubscribed ? (
-          <Bell className="w-4 h-4 text-emerald-400" />
+          <Bell className="w-5 h-5 text-emerald-400" />
         ) : (
-          <BellOff className="w-4 h-4" />
+          <BellOff className="w-5 h-5" />
         )}
       </button>
     );

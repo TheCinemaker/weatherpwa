@@ -25,3 +25,6 @@ dist-ssr
 
 # Vite temp config artifacts
 vite.config.js.timestamp-*
+
+# Unused/raw video archives (kept locally, excluded from git & Netlify deploy)
+public/videos/_*/

@@ -2,21 +2,29 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { IoRefresh } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import useWeatherData from './useWeatherData';
-import SunBar from './SunBar';
 import StatCard, { STAT_CARDS_CONFIG } from './StatCard';
 import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
 import UvCard from '../../components/UvCard';
-import SponsorCard from '../../components/SponsorCard';
+import SponsorDrawer from '../../components/SponsorDrawer';
 import HeroSky from '../../components/HeroSky';
+import HeroWeatherVideo from '../../components/HeroWeatherVideo';
+import { TempGauge, WindGauge } from '../../components/GaugeBar';
+import { CONDITION_ICONS } from '../../utils/weatherConditionIcons';
+import { MOON_PHASE_ICONS, moonriseIcon, moonsetIcon } from '../../utils/moonPhaseIcons';
+import { getMoonTimes } from 'suncalc';
+import { fetchCurrentSky } from '../../api/weather';
+import { getWeatherVideoCategory } from '../../utils/weatherVideoCategory';
 import { useAdminUnlock } from '../../components/AdminContext';
+import { useWeatherMood } from '../../components/WeatherMoodContext';
 import { FadeUp } from '../../components/AppleMotion';
 import { createPortal } from 'react-dom';
 import { supabase, getForecast, saveForecast, getSponsors, getNewsBlurbs, addNewsBlurb, updateNewsBlurb, deleteNewsBlurb, uploadForecastImage, getPushSubscriberCount, evaluatePredictions, getLocalDateStr, getPendingTippeldeSummary } from '../../api/supabase';
 import {
-  AlertTriangle, MapPin, Info, CloudRain, CloudDrizzle, CloudFog,
-  Cloud, CloudSun, Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
-  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell, Trophy
+  AlertTriangle, MapPin, Info,
+  Newspaper, Plus, Trash2, Pencil, Check, Image as ImageIcon,
+  ArrowDown, ArrowUp, Droplets, Wind, Calendar, X, Bell, Trophy,
+  Thermometer, Sunrise, Sunset
 } from 'lucide-react';
 
 
@@ -57,9 +65,36 @@ function getMoonPhase(date = new Date()) {
   return { phase, illumination, waxing, name };
 }
 
+// Főoldali tartalom-kapcsoló lapjai (lásd activeTab state)
+const CONTENT_TABS = [
+  { key: 'forecast', label: 'Előrejelzés' },
+  { key: 'news', label: 'Villámhírek' },
+  { key: 'measurements', label: 'Mérések' },
+];
+
 function ddToText(deg) {
   const dirs = ['É', 'ÉK', 'K', 'DK', 'D', 'DNy', 'Ny', 'ÉNy'];
   return dirs[Math.round(deg / 45) % 8] || '–';
+}
+
+// Napkelte/napnyugta unix időbélyeg -> "HH:mm" (hero arany-óra sáv).
+function formatClock(unixSec) {
+  if (!unixSec) return '–';
+  try {
+    return new Date(unixSec * 1000).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Budapest' });
+  } catch {
+    return '–';
+  }
+}
+
+// SunCalc Date objektumhoz (holdkelte/holdnyugta) — nem unix mp, hanem már Date.
+function formatClockDate(date) {
+  if (!date) return '–';
+  try {
+    return date.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Budapest' });
+  } catch {
+    return '–';
+  }
 }
 
 // Relatív idő magyarul a tényleges mérési időbélyeghez (unix mp).
@@ -74,9 +109,20 @@ function formatAgoHu(unixSec, nowMs) {
 }
 
 // Landscape weather hero card matching custom mockup
-function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend, tempClicks = 0, onTempClick }) {
+function WeatherHero({
+  temp, feels, isNight, timeOfDay, dateStr, tempTrend, tempClicks = 0, onTempClick,
+  videoCategory, wind, windDir, hum, tMin, tMax, sunInfo, condition, weatherLabel, moon,
+}) {
+  const mood = useWeatherMood();
   const trendUp = tempTrend === 'up';
   const trendDown = tempTrend === 'down';
+
+  // Reduced-motion / adattakarékos mód esetén meg se próbáljuk betölteni a videót.
+  const allowVideo = typeof window !== 'undefined'
+    && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    && !navigator.connection?.saveData;
+  const [failedCategory, setFailedCategory] = useState(null);
+  const showVideo = allowVideo && !!videoCategory && failedCategory !== videoCategory;
   let gradientClass = 'from-cyan-600 via-cyan-500 to-teal-500';
 
   if (timeOfDay === 'night') {
@@ -87,95 +133,267 @@ function WeatherHero({ temp, feels, isNight, timeOfDay, dateStr, tempTrend, temp
     gradientClass = 'from-indigo-900 via-purple-800 to-pink-700';
   }
 
-  // Dynamic Ambient Glow based on Temperature & Time of Day
-  let ambientGlowClass = 'from-cyan-400/25 via-blue-500/20 to-transparent';
-  if (temp != null) {
-    if (temp >= 28) {
-      ambientGlowClass = 'from-amber-400/35 via-orange-500/30 to-rose-500/20';
-    } else if (temp >= 20) {
-      ambientGlowClass = 'from-amber-300/30 via-emerald-400/20 to-cyan-400/15';
-    } else if (temp <= 5) {
-      ambientGlowClass = 'from-cyan-300/35 via-blue-600/30 to-sky-400/20';
-    }
+  // Nap pozíciója napkelte és napnyugta között (0 = kel, 1 = nyugszik) az arany-óra sávhoz
+  const sunrise = sunInfo?.sunrise;
+  const sunset = sunInfo?.sunset;
+  const now = Date.now() / 1000;
+  let dayFraction = 0;
+  if (sunrise && sunset) {
+    dayFraction = now < sunrise ? 0 : now > sunset ? 1 : (now - sunrise) / (sunset - sunrise);
   }
-  if (isNight) {
-    ambientGlowClass = 'from-indigo-500/35 via-purple-600/25 to-blue-900/15';
+
+  // Ugyanez a Holdra: pozíció holdkelte és holdnyugta között, ugyanazzal a logikával
+  const moonRiseSec = moon?.rise ? moon.rise.getTime() / 1000 : null;
+  const moonSetSec = moon?.set ? moon.set.getTime() / 1000 : null;
+  let moonFraction = moon?.alwaysUp ? 0.5 : 0;
+  if (moonRiseSec && moonSetSec) {
+    moonFraction = now < moonRiseSec ? 0 : now > moonSetSec ? 1 : (now - moonRiseSec) / (moonSetSec - moonRiseSec);
   }
 
   return (
-    <div className="relative group">
-      {/* Dynamic Ambient Glow Behind Card */}
-      <div className={`absolute -inset-1 rounded-apple-outer bg-gradient-to-r ${ambientGlowClass} blur-3xl opacity-75 group-hover:opacity-100 transition-all duration-1000 pointer-events-none`} />
-
-      <div className={`relative rounded-apple-outer p-6 sm:p-8 overflow-hidden bg-gradient-to-r ${gradientClass} text-white shadow-soft border border-white/15 border-t-2 border-t-white/40 flex flex-col justify-between min-h-[190px]`}>
-        
-        {/* Subtle overlay gradient to enhance readability of left-aligned text */}
-        <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-black/25 to-transparent pointer-events-none z-0" />
-
-        {/* Middle row: Temp & Details & Graphic */}
-        <div className="flex justify-between items-center relative z-10 w-full flex-1 gap-4">
-          <div className="space-y-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-            <div>
-              <p className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em]">{dateStr}</p>
-              <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mt-0.5">Kőszeg · Időjárás</h2>
+    <div>
+      {/* FOTÓ/VIDEÓ — maga a videó réteg van a szélein (kb. 5-7%) valódi filter:blur()-ral
+          elmosva és maszkolva, így éles vágás nélkül olvad bele az oldal hátterébe */}
+      <div className="relative left-1/2 -mx-[50vw] w-screen lg:left-0 lg:mx-0 lg:w-full h-[196px] sm:h-[238px]">
+        <div
+          className="absolute inset-0 overflow-hidden"
+          style={{
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%), ' +
+              'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
+            WebkitMaskComposite: 'source-in',
+            maskImage:
+              'linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%), ' +
+              'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
+            maskComposite: 'intersect',
+          }}
+        >
+          {showVideo ? (
+            <>
+              {/* 1. Alapréteg: maga a videó közvetlen filter:blur(12px) elmosással a szélekhez */}
+              <HeroWeatherVideo
+                category={videoCategory}
+                onError={() => setFailedCategory(videoCategory)}
+                className="absolute inset-0 w-full h-full object-cover scale-105 blur-[12px]"
+                ariaHidden="true"
+              />
+              {/* 2. Éles középső videó réteg: a külső 5-7%-os sávban átlátszóvá válik,
+                  így a szélén az alatta futó, valóban elmosott videó-réteg látszik */}
+              <HeroWeatherVideo
+                category={videoCategory}
+                onError={() => setFailedCategory(videoCategory)}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{
+                  WebkitMaskImage:
+                    'linear-gradient(to bottom, transparent 0%, transparent 2%, black 9%, black 91%, transparent 98%, transparent 100%), ' +
+                    'linear-gradient(to right, transparent 0%, transparent 1.5%, black 7%, black 93%, transparent 98.5%, transparent 100%)',
+                  WebkitMaskComposite: 'source-in',
+                  maskImage:
+                    'linear-gradient(to bottom, transparent 0%, transparent 2%, black 9%, black 91%, transparent 98%, transparent 100%), ' +
+                    'linear-gradient(to right, transparent 0%, transparent 1.5%, black 7%, black 93%, transparent 98.5%, transparent 100%)',
+                  maskComposite: 'intersect',
+                }}
+              />
+            </>
+          ) : (
+            <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} flex items-center justify-center`}>
+              <HeroSky isNight={isNight} />
             </div>
-            
-            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 pt-1">
-              <motion.div
-                onClick={onTempClick}
-                animate={{ rotate: tempClicks * 72 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                className="flex items-start cursor-pointer select-none active:scale-95 transition-transform"
-              >
-                <span className="text-5xl sm:text-6xl font-light tracking-tighter text-white">
-                  {temp != null ? temp.toFixed(1) : '–'}
-                </span>
-                <span className="text-xl font-light text-white/80 mt-1 select-none">°C</span>
-                {(trendUp || trendDown) && (
-                  <span
-                    className={`mt-2 ml-1 text-lg font-bold ${trendUp ? 'text-rose-200' : 'text-cyan-100'}`}
-                    title={trendUp ? 'Emelkedő hőmérséklet' : 'Csökkenő hőmérséklet'}
-                  >
-                    {trendUp ? '↑' : '↓'}
-                  </span>
-                )}
-              </motion.div>
+          )}
 
-              {feels != null && (
-                <span className="text-[11px] font-bold text-white bg-white/15 px-2.5 py-1 rounded-apple-inner border border-white/20 border-t-white/35 backdrop-blur-sm shadow-sm">
-                  Hőérzet: <strong className="font-extrabold text-white">{feels.toFixed(1)} °C</strong>
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Animált égbolt: nap / valódi holdfázis + felhőzöttség (Open-Meteo) */}
-          <HeroSky isNight={isNight} />
+          {/* Finom alsó sötétítés a szöveg olvashatóságához (a külső maszk ezt is beleolvasztja a háttérbe) */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
         </div>
 
-        {/* Bottom row: Coordinates & Elevation */}
-        <div className="mt-5 pt-3 border-t border-white/20 flex items-center justify-between text-[10px] font-extrabold text-white/75 relative z-10 w-full drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.4)]">
-          <div className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-white/60" />
-            <span>47.3971°N, 16.546°E</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-            </svg>
-            <span>Magasság: 274 m</span>
-          </div>
+        {/* Lebegő dátum-cimke a videón */}
+        <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-white">
+          {dateStr}
         </div>
-        
-        {/* Background glow overlay */}
-        <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-white/5 blur-3xl pointer-events-none" />
+
+        {/* A helyszín felirata közvetlenül a videón, mellette a Meteocons animált időjárás-állapot ikonja */}
+        <div className="absolute inset-x-0 bottom-0 z-10 px-5 sm:px-6 pb-4 max-w-3xl lg:max-w-6xl mx-auto flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">Kőszeg</h2>
+            <p className="flex items-center gap-1.5 text-[13px] text-white/70 font-medium mt-0.5 drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
+              <MapPin className="w-3.5 h-3.5 text-white/60 shrink-0" />
+              47.3971°N, 16.546°E · 274 m
+            </p>
+          </div>
+          {CONDITION_ICONS[condition] && (
+            <img
+              src={CONDITION_ICONS[condition]}
+              alt={weatherLabel || ''}
+              className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]"
+            />
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* ADAT-SZEKCIÓ a videó alatt — vissza a lap normál tartalom-szélességére, nincs
+          közös külső doboz/keret a csempék körül, mindegyik önállóan lebeg. */}
+      <div className="relative pt-4 text-white">
+        {/* Két nagy csempe: Hőmérséklet + Szél */}
+        <div className="grid grid-cols-2 gap-2">
+            <div className="relative rounded-apple-card glass-card p-3.5 overflow-hidden">
+              {mood.enabled && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: `linear-gradient(135deg, ${mood.glow1}, transparent 75%)` }}
+                />
+              )}
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-1">
+                  <Thermometer className="w-7 h-7 shrink-0" style={{ color: mood.enabled ? mood.from : 'rgba(255,255,255,0.6)' }} />
+                  <motion.span
+                    onClick={onTempClick}
+                    animate={{ rotate: tempClicks * 72 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                    className="inline-flex items-baseline gap-1 text-2xl font-bold text-white cursor-pointer select-none active:scale-95 origin-center drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] text-right"
+                  >
+                    {temp != null ? temp.toFixed(1) : '–'}°C
+                    {(trendUp || trendDown) && (
+                      <span className={`text-sm font-bold ${trendUp ? 'text-rose-300' : 'text-cyan-300'}`}>
+                        {trendUp ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </motion.span>
+                </div>
+                <TempGauge value={temp} />
+                <p className="text-xs text-white/70 font-semibold mt-2">Jelenlegi hőmérséklet</p>
+              </div>
+            </div>
+
+            <div className="relative rounded-apple-card glass-card p-3.5 overflow-hidden">
+              {mood.enabled && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: `linear-gradient(135deg, ${mood.glow2}, transparent 75%)` }}
+                />
+              )}
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-1">
+                  <Wind className="w-7 h-7 shrink-0" style={{ color: mood.enabled ? mood.to : 'rgba(255,255,255,0.6)' }} />
+                  <span className="text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] text-right">
+                    {wind != null ? `${wind.toFixed(0)} km/h` : '–'}
+                  </span>
+                </div>
+                <WindGauge value={wind} />
+                <p className="text-xs text-white/70 font-semibold mt-2">
+                  Szél{windDir != null ? ` · ${ddToText(windDir)}` : ''}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 kisebb csempe */}
+          <div className="grid grid-cols-4 gap-2 mt-2.5">
+            {[
+              { Icon: Droplets, val: hum != null ? `${hum.toFixed(0)}%` : '–', label: 'Pára', color: mood.enabled ? mood.from : 'rgba(255,255,255,0.55)' },
+              { Icon: Thermometer, val: feels != null ? `${feels.toFixed(1)}°` : '–', label: 'Hőérzet', color: mood.enabled ? mood.to : 'rgba(255,255,255,0.55)' },
+              { Icon: ArrowDown, val: tMin != null ? `${tMin.toFixed(0)}°` : '–', label: 'Min', color: '#67e8f9' },
+              { Icon: ArrowUp, val: tMax != null ? `${tMax.toFixed(0)}°` : '–', label: 'Max', color: '#ef4444' },
+            ].map(({ Icon, val, label, color }) => (
+              <div key={label} className="relative rounded-apple-inner glass-card p-2.5 overflow-hidden">
+                {mood.enabled && (
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: `linear-gradient(135deg, ${mood.glow1}, transparent 75%)` }}
+                  />
+                )}
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between gap-1">
+                    <Icon className="w-6 h-6 shrink-0" style={{ color }} />
+                    <span className="text-lg font-bold text-white text-right leading-tight">{val}</span>
+                  </div>
+                  <p className="text-xs text-white/70 font-semibold mt-1.5 leading-none">{label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* NAP + HOLD — egy közös, kompakt csempében, hogy ne vigyen el sok helyet */}
+          <div className="relative mt-5 rounded-apple-card glass-card p-3.5 overflow-hidden">
+            {/* Napkelte/napnyugta — arany sáv */}
+            <div className="relative flex items-center justify-between text-[11px] font-bold text-white/70 mb-2">
+              <span className="flex items-center gap-1.5">
+                <Sunrise className="w-3.5 h-3.5 text-amber-300" />
+                Napkelte <span className="text-white">{formatClock(sunrise)}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                Napnyugta <span className="text-white">{formatClock(sunset)}</span>
+                <Sunset className="w-3.5 h-3.5 text-amber-300" />
+              </span>
+            </div>
+            <div className="relative h-1.5 rounded-full bg-white/10 overflow-visible">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${dayFraction * 100}%`, background: 'linear-gradient(90deg,#fde047,#f97316)' }}
+              />
+              {/* A "napocska" (Meteocons, beépített forgó sugár-animációval) fut végig a
+                  sávon a nap pillanatnyi pozíciójában — nem egy sima pötty */}
+              <div
+                className="absolute top-1/2 w-7 h-7 pointer-events-none"
+                style={{ left: `${dayFraction * 100}%`, transform: 'translate(-50%, -50%)', filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.7))' }}
+              >
+                <img src={CONDITION_ICONS['clear-day']} alt="" className="w-full h-full" />
+              </div>
+            </div>
+
+            {moon && (
+              <>
+                <div className="h-px bg-white/10 my-3" />
+
+                {/* Holdkelte/holdnyugta — ugyanaz a sáv-stílus, csak fehéres/ezüstös
+                    színnel (nem sárga) és a holdfázis-ikon fut rajta pötty helyett */}
+                <div className="relative flex items-center justify-between text-[11px] font-bold text-white/70 mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <img src={moonriseIcon} alt="" className="w-3.5 h-3.5" />
+                    Holdkelte <span className="text-white">{moon.alwaysUp ? 'egész nap' : formatClockDate(moon.rise)}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    Holdnyugta <span className="text-white">{moon.alwaysDown ? 'egész nap' : formatClockDate(moon.set)}</span>
+                    <img src={moonsetIcon} alt="" className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+                <div className="relative h-1.5 rounded-full bg-white/10 overflow-visible">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${moonFraction * 100}%`, background: 'linear-gradient(90deg,#64748b,#f1f5f9)' }}
+                  />
+                  <div
+                    className="absolute top-1/2 w-6 h-6 pointer-events-none"
+                    style={{ left: `${moonFraction * 100}%`, transform: 'translate(-50%, -50%)', filter: 'drop-shadow(0 0 7px rgba(226,232,240,0.75))' }}
+                  >
+                    {MOON_PHASE_ICONS[moon.name] && (
+                      <img src={MOON_PHASE_ICONS[moon.name]} alt={moon.name} className="w-full h-full" />
+                    )}
+                  </div>
+                </div>
+                <p className="text-center text-[10px] font-bold text-white/50 mt-2">
+                  {moon.name} · {Math.round(moon.illumination * 100)}% megvilágítva
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
   );
 }
 
 export default function WeatherDashboard() {
+  const mood = useWeatherMood();
   const { currentData, historySeries, historySource, loading, error, lastUpdate, lastMeasureAt, refresh } = useWeatherData();
+
+  // Égbolt-állapot (WMO weathercode + szélsebesség) a hero-kártya loop-videójához.
+  // Ritkán frissül, külön a mérőállomás-adattól (annak nincs égbolt-szenzora).
+  const [skyCondition, setSkyCondition] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => fetchCurrentSky().then(sky => { if (!cancelled && sky) setSkyCondition(sky); });
+    load();
+    const timer = setInterval(load, 15 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, []);
 
   const [forecastData, setForecastData] = useState({
     title: 'Helyzetjelentés: Betöltés...',
@@ -196,6 +414,10 @@ export default function WeatherDashboard() {
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminError, setAdminError] = useState('');
   const [pushSubCount, setPushSubCount] = useState(null);
+
+  // Tartalom-kapcsoló a főoldalon: Előrejelzés / Villámhírek / Mérések —
+  // egyszerre csak egy lap tartalma látszik, hogy ne kelljen vég nélkül görgetni.
+  const [activeTab, setActiveTab] = useState('forecast');
 
   // Tippelde & Játékok
   const [tempClicks, setTempClicks] = useState(0);
@@ -561,27 +783,57 @@ export default function WeatherDashboard() {
       const h = new Date().getHours();
       timeOfDay = (h < 6 || h >= 21) ? 'night' : h < 8 ? 'dawn' : h >= 19 ? 'dusk' : 'day';
     }
+    // Alkonyatkor (dusk, napnyugta előtt 45 perccel) már az esti/éjszakai videót és ikont adjuk
+    const isNight = timeOfDay === 'night' || timeOfDay === 'dusk';
     const rr = lastMeasure.RR_1H || 0;
     const rate = lastMeasure.RR_RATE || 0;
-    
-    let condition = null;
-    let label = null;
-    let CondIcon = null;
+    const code = skyCondition?.weathercode;
+    const windKmh = skyCondition?.windSpeedKmh ?? lastMeasure.FF ?? 0;
 
+    // Elsősorban a mérőállomás csapadék-adata dönt (az a legpontosabb helyi mérés),
+    // a többi feltételnél az Open-Meteo égbolt-kódja (annak nincs csapadék-szenzora).
+    let condition, label;
     if (rr > 1.0 || rate > 0.5) {
-      condition = 'rain';
-      label = 'Eső';
-      CondIcon = CloudRain;
+      condition = 'rain'; label = 'Esős idő';
     } else if (rr > 0.1 || rate > 0) {
-      condition = 'drizzle';
-      label = 'Szemerkélő eső';
-      CondIcon = CloudDrizzle;
+      condition = 'drizzle'; label = 'Szemerkélő eső';
+    } else if (code != null && code >= 95) {
+      condition = isNight ? 'thunderstorm-night' : 'thunderstorm-day'; label = 'Zivatar';
+    } else if (code != null && ((code >= 71 && code <= 77) || code === 85 || code === 86)) {
+      condition = 'snow'; label = 'Havazás';
+    } else if (code != null && ((code >= 80 && code <= 82) || (code >= 65 && code <= 67))) {
+      condition = 'heavy-rain'; label = 'Felhőszakadás';
+    } else if (code != null && code >= 61 && code <= 64) {
+      condition = 'rain'; label = 'Esős idő';
+    } else if (code != null && code >= 51 && code <= 57) {
+      condition = 'drizzle'; label = 'Szemerkélő eső';
+    } else if (code === 45 || code === 48) {
+      condition = isNight ? 'fog-night' : 'fog-day'; label = 'Ködös';
+    } else if (windKmh >= 35) {
+      condition = 'windy'; label = 'Szeles';
+    } else if (code === 0) {
+      condition = isNight ? 'clear-night' : 'clear-day'; label = 'Tiszta égbolt';
+    } else if (code != null && code <= 2) {
+      condition = isNight ? 'partly-cloudy-night' : 'partly-cloudy-day'; label = 'Változóan felhős';
+    } else {
+      condition = isNight ? 'overcast-night' : 'overcast-day'; label = 'Borult';
     }
 
-    return { timeOfDay, condition, label, isNight: timeOfDay === 'night', CondIcon };
-  }, [lastMeasure, sunInfo]);
+    return { timeOfDay, condition, label, isNight };
+  }, [lastMeasure, sunInfo, skyCondition]);
 
-  const moon = useMemo(() => getMoonPhase(new Date()), []);
+  const videoCategory = useMemo(() => getWeatherVideoCategory({
+    weathercode: skyCondition?.weathercode,
+    windSpeedKmh: skyCondition?.windSpeedKmh ?? lastMeasure.FF ?? 0,
+    isNight: weather.isNight,
+  }), [skyCondition, lastMeasure.FF, weather.isNight]);
+
+
+  const moon = useMemo(() => {
+    const phaseInfo = getMoonPhase(new Date());
+    const times = getMoonTimes(new Date(), 47.3971, 16.546);
+    return { ...phaseInfo, rise: times.rise || null, set: times.set || null, alwaysUp: !!times.alwaysUp, alwaysDown: !!times.alwaysDown };
+  }, []);
 
   const temp = typeof lastMeasure.T === 'number' ? lastMeasure.T : null;
   // Hőérzet: hidegben (≤10°C) a szél-index (wind chill), melegben a hőindex a helyes.
@@ -626,19 +878,6 @@ export default function WeatherDashboard() {
     statusText = 'Az állomás régen mért';
   }
 
-  // Hero alatti gyors-statok
-  const quick = [
-    { icon: ArrowDown, label: 'Min', val: tMin != null ? `${tMin.toFixed(0)}°` : '–' },
-    { icon: ArrowUp, label: 'Max', val: tMax != null ? `${tMax.toFixed(0)}°` : '–' },
-    { icon: Droplets, label: 'Pára', val: hum != null ? `${hum.toFixed(0)}%` : '–' },
-    {
-      icon: Wind,
-      label: 'Szél',
-      val: wind != null
-        ? `${wind.toFixed(0)} km/h${windDir != null ? ' ' + ddToText(windDir) : ''}`
-        : '–'
-    },
-  ];
 
   return (
     <div
@@ -666,7 +905,7 @@ export default function WeatherDashboard() {
         </div>
       )}
 
-      {/* --- HERO: landscape weather tile --- */}
+      {/* --- HERO: fotó/videó-vezérelt "úti-cél kártya" stílus, a kapott referencia alapján --- */}
       <FadeUp>
         <WeatherHero
           temp={temp}
@@ -677,39 +916,22 @@ export default function WeatherDashboard() {
           tempTrend={tempTrend}
           tempClicks={tempClicks}
           onTempClick={handleTempClick}
+          videoCategory={videoCategory}
+          wind={wind}
+          windDir={windDir}
+          hum={hum}
+          tMin={tMin}
+          tMax={tMax}
+          sunInfo={sunInfo}
+          condition={weather.condition}
+          weatherLabel={weather.label}
+          moon={moon}
         />
       </FadeUp>
 
-      {/* Gyors-statok */}
-      <FadeUp delay={0.02}>
-        <div className="flex items-center justify-between gap-1 rounded-apple-inner bg-white/[0.03] border border-white/5 py-2.5 px-3.5 mt-4 select-none">
-          {quick.map(({ icon: Icon, label, val }) => (
-            <div key={label} className="flex items-center gap-1 text-white">
-              <Icon className="w-3.5 h-3.5 text-cyan2-300 shrink-0" />
-              <div className="flex items-baseline gap-1 leading-none">
-                <span className="text-xs sm:text-sm font-extrabold text-white">{val}</span>
-                <span className="text-[10px] sm:text-[11px] font-bold text-night-200/65 uppercase tracking-wider">{label}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </FadeUp>
-
-      {/* --- UV-INDEX (külső forrás: Open-Meteo) — közvetlenül a hero alatt --- */}
-      <FadeUp delay={0.03}>
-        <div className="mt-4">
-          <UvCard />
-        </div>
-      </FadeUp>
-
-      {/* --- SPONSORS BANNER --- */}
-      <FadeUp delay={0.04}>
-        <div className="mt-4">
-          <SponsorCard />
-        </div>
-      </FadeUp>
-
-      {/* --- STATUS / REFRESH --- */}
+      {/* --- STATUS / REFRESH ---
+      Kikommentelve a user kérésére (2026-11-11): a "Kapcsolat stabil" jelző + Frissítés gomb
+      szerinte senki nem használja/olvassa, és feleslegesen foglal helyet. Ne töröld, csak hagyd így!
       <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
         <div className="flex items-center gap-2.5 glass-card rounded-apple-inner px-3.5 py-2">
           <div className={`w-2 h-2 rounded-full ${statusColor}`} />
@@ -725,6 +947,7 @@ export default function WeatherDashboard() {
           Frissítés
         </button>
       </div>
+      --- */}
 
       {/* Elavult adat figyelmeztetés */}
       {isStale && !error && (
@@ -736,164 +959,185 @@ export default function WeatherDashboard() {
         </div>
       )}
 
+      {/* Nyers API hibaüzenet — kikommentelve a user kérésére (2026-11-11): sok helyet foglal,
+      a usereknek amúgy sem releváns infó. Ne töröld, csak hagyd így!
       {error && (
         <div className="mt-4 p-4 rounded-apple-card bg-rose-400/10 border border-rose-400/25 text-rose-200 text-xs font-semibold flex items-center gap-2.5">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>API hiba: {error}</span>
         </div>
       )}
+      --- */}
 
-      {/* --- HELYI ELŐREJELZÉS / HELYZETJELENTÉS --- */}
-      <FadeUp delay={0.02}>
-        <div id="dashboard-forecast" className="relative glass-card rounded-apple-outer p-6 overflow-hidden mt-5">
-          <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
-          
-          <div className="flex items-center justify-between mb-4 select-none cursor-default">
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
-              <span className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white"><Calendar className="w-4 h-4" /></span>
-              <span>Előrejelzés az Alpokaljára</span>
-            </h2>
-          </div>
-
-          <div className="space-y-3 relative z-10">
-            <h3 className="text-base font-extrabold text-cyan2-200 leading-snug">{forecastData.title}</h3>
-            
-            <p className="text-[10px] font-bold text-night-200/50 uppercase tracking-wide">
-              Készítette: Ráduly László · Frissítve: {new Date(forecastData.updated_at).toLocaleDateString('hu-HU', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-            </p>
-            
-            <div className="h-px bg-white/5 my-2.5" />
-            
-            <p className="text-sm text-night-100/85 leading-relaxed whitespace-pre-wrap font-medium">
-              {forecastData.content}
-            </p>
-          </div>
-        </div>
-      </FadeUp>
-
-      {/* --- HÍRMORZSÁK --- */}
-      {activeNewsBlurbs.length > 0 && (
-        <FadeUp delay={0.04}>
-          <SectionLabel>Villámhírek</SectionLabel>
-          <div className="space-y-3">
-            {activeNewsBlurbs.map(b => (
-              <div key={b.id} className="relative glass-card rounded-apple-card p-4 flex gap-3">
-                <div className="w-8 h-8 rounded-apple-inner bg-brand-gradient flex items-center justify-center text-white shrink-0">
-                  <Newspaper className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1 space-y-1.5">
-                  <p className="text-sm text-night-100/90 leading-relaxed whitespace-pre-wrap font-medium">{b.content}</p>
-                  {b.image_url && (
-                    <div
-                      className="mt-1 rounded-apple-inner overflow-hidden border border-white/10 bg-black/25 cursor-zoom-in max-w-md"
-                      onClick={() => setBlurbZoom(b.image_url)}
-                    >
-                      <img
-                        src={b.image_url}
-                        alt="Hírmorzsa kép"
-                        loading="lazy"
-                        className="w-full h-auto max-h-72 object-cover active:scale-[0.99] transition-transform"
-                      />
-                    </div>
-                  )}
-                  <p className="text-[10px] font-bold text-night-200/45 uppercase tracking-wide">
-                    Ráduly László · {new Date(b.created_at).toLocaleString('hu-HU', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </FadeUp>
-      )}
-
-      {/* --- NAP-CIKLUS --- */}
-      <FadeUp delay={0.05}>
-        <SectionLabel>Nap-ciklus</SectionLabel>
-        <SunBar sunInfo={sunInfo} loading={loading} />
-      </FadeUp>
-
-      {/* --- RÉSZLETES MÉRÉSEK --- */}
-      <FadeUp delay={0.05}>
-        <SectionLabel>Részletes mérések</SectionLabel>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {STAT_CARDS_CONFIG.map(cfg => (
-            <StatCard
-              key={cfg.key}
-              config={cfg}
-              val={lastMeasure[cfg.key]}
-              onClick={chartableKeys.has(cfg.key) ? () => setActiveKey(cfg.key) : undefined}
-              windClicks={cfg.key === 'FF' ? windClicks : undefined}
-              onIconClick={cfg.key === 'FF' ? handleWindIconClick : undefined}
-            />
-          ))}
-        </div>
-      </FadeUp>
-
-      {/* --- ELŐZMÉNYEK --- */}
-      <FadeUp delay={0.05}>
-        <SectionLabel>24 órás előzmények</SectionLabel>
-        <div className="mb-3 p-3.5 rounded-apple-card bg-cyan2-400/[0.07] border border-cyan2-400/15 flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-cyan2-300 shrink-0 mt-0.5" />
-          <div className="text-[11px] text-night-100/80 leading-relaxed">
-            <p>
-              Az állomás szervere <strong className="font-bold text-white">nem mindig küld folyamatos adatot</strong>, ezért egy-egy grafikon átmenetileg üres lehet. Ilyenkor nyomd meg párszor a <strong className="font-bold text-cyan2-200">Frissítés</strong> gombot.
-            </p>
-            {historySource && (
-              <p className="mt-1.5 text-[10px] text-night-200/60 font-semibold tracking-wide uppercase flex items-center gap-1.5">
-                <span>Aktuális diagram adatok forrása:</span>
-                <span className="px-2 py-0.5 rounded-full bg-cyan2-400/10 border border-cyan2-400/20 text-cyan2-200 font-extrabold text-[9px]">
-                  {historySource === 'smartmixin' && 'smartmixin'}
-                  {historySource === 'metnet' && 'metnet'}
-                  {historySource === 'open-meteo' && 'nem saját forrás: Open-meteo'}
-                </span>
-              </p>
+      {/* --- TARTALOM-KAPCSOLÓ: Előrejelzés / Villámhírek / Mérések — igazi csúszka,
+          a hangulat-színnel, kevésbé lekerekítve (apple-card/apple-inner koncentrikusan) --- */}
+      <div className="mt-5 relative flex items-center gap-1 p-1 rounded-apple-card bg-white/[0.04] border border-white/10">
+        {CONTENT_TABS.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
+            className="relative flex-1 py-2 rounded-apple-inner text-xs font-bold transition-colors"
+            style={{ color: activeTab === t.key ? (mood.enabled ? mood.textOnAccent : '#0a0f14') : 'rgba(255,255,255,0.55)' }}
+          >
+            {activeTab === t.key && (
+              <motion.span
+                layoutId="dashboard-tab-pill"
+                className="absolute inset-0 rounded-apple-inner"
+                style={{
+                  background: mood.enabled
+                    ? `linear-gradient(135deg, ${mood.from}, ${mood.to})`
+                    : '#ffffff',
+                }}
+                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+              />
             )}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {CHART_CONFIGS.map(cfg => (
-            <ChartCard
-              key={cfg.key}
-              config={cfg}
-              timestamps={chartSeries[cfg.key]?.labels || []}
-              data={chartSeries[cfg.key]?.data || []}
-              loading={loading}
-            />
-          ))}
-        </div>
-      </FadeUp>
+            <span className="relative z-10">{t.label}</span>
+          </button>
+        ))}
+      </div>
 
-      {/* --- SPONSORS BAR --- */}
-      {sponsors.length > 0 && (
-        <FadeUp delay={0.06}>
-          <div className="mt-6 p-4 rounded-apple-card glass-card border border-cyan2-500/10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-cyan2-500/[0.02] blur-xl pointer-events-none" />
-            
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-              <div>
-                <h4 className="text-[10px] font-extrabold text-cyan2-300 uppercase tracking-widest">Kiemelt Támogatóink</h4>
-                <p className="text-[9px] font-bold text-night-200/50 uppercase mt-0.5">Akik segítik az időjárás állomás fenntartását</p>
-              </div>
-              
-              <div className="flex flex-wrap items-center justify-center gap-3.5">
-                {sponsors.map(sp => (
-                  <a 
-                    key={sp.id} 
-                    href={sp.website_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-apple-inner bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-cyan2-400/20 transition-all select-none"
-                    title={sp.description || sp.name}
+      {/* --- KAPCSOLÓ ALATTI CSEMPE: csak a kiválasztott lap tartalma látszik --- */}
+      <FadeUp key={activeTab} delay={0.02}>
+        <div className="mt-3">
+
+          {activeTab === 'forecast' && (
+            <div id="dashboard-forecast" className="relative glass-card rounded-apple-outer p-6 overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-cyan2-500/10 blur-3xl pointer-events-none" />
+
+              <div className="flex items-center justify-between mb-4 select-none cursor-default">
+                <h2 className="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2.5">
+                  <span
+                    className="relative w-10 h-10 rounded-apple-inner flex items-center justify-center shrink-0"
+                    style={{
+                      background: mood.enabled
+                        ? `linear-gradient(135deg, ${mood.from}, ${mood.to})`
+                        : 'linear-gradient(135deg, #0284c7, #06b6d4)',
+                    }}
                   >
-                    <img src={sp.logo_url} alt="" className="w-5 h-5 rounded-md object-cover" />
-                    <span className="text-xs font-bold text-white">{sp.name}</span>
-                  </a>
-                ))}
+                    {CONDITION_ICONS[weather.condition] ? (
+                      <img src={CONDITION_ICONS[weather.condition]} alt="" className="w-7 h-7" />
+                    ) : (
+                      <Calendar className="w-4 h-4 text-white" />
+                    )}
+                  </span>
+                  <span>Előrejelzés az Alpokaljára</span>
+                </h2>
+              </div>
+
+              <div className="space-y-3 relative z-10">
+                <h3
+                  className="text-base font-extrabold leading-snug"
+                  style={{ color: mood.enabled ? mood.from : '#fff' }}
+                >
+                  {forecastData.title}
+                </h3>
+
+                <p className="text-[10px] font-bold text-night-200/50 uppercase tracking-wide">
+                  Készítette: Ráduly László · Frissítve: {new Date(forecastData.updated_at).toLocaleDateString('hu-HU', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+
+                <div className="h-px bg-white/5 my-2.5" />
+
+                <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-medium">
+                  {forecastData.content}
+                </p>
               </div>
             </div>
-          </div>
-        </FadeUp>
-      )}
+          )}
+
+          {activeTab === 'news' && (
+            activeNewsBlurbs.length > 0 ? (
+              <div className="space-y-3">
+                {activeNewsBlurbs.map(b => (
+                  <div key={b.id} className="relative glass-card rounded-apple-card p-4">
+                    <div className="min-w-0 space-y-1.5">
+                      <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-medium">{b.content}</p>
+                      {b.image_url && (
+                        <div
+                          className="mt-1 rounded-apple-inner overflow-hidden border border-white/10 bg-black/25 cursor-zoom-in max-w-md"
+                          onClick={() => setBlurbZoom(b.image_url)}
+                        >
+                          <img
+                            src={b.image_url}
+                            alt="Hírmorzsa kép"
+                            loading="lazy"
+                            className="w-full h-auto max-h-72 object-cover active:scale-[0.99] transition-transform"
+                          />
+                        </div>
+                      )}
+                      <p className="text-[10px] font-bold text-night-200/45 uppercase tracking-wide">
+                        Ráduly László · {new Date(b.created_at).toLocaleString('hu-HU', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-card rounded-apple-outer p-6 text-center text-sm text-night-200/50 font-semibold">
+                Jelenleg nincs aktív villámhír.
+              </div>
+            )
+          )}
+
+          {activeTab === 'measurements' && (
+            <div className="space-y-5">
+              <div>
+                <SectionLabel>Részletes mérések</SectionLabel>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <UvCard tile />
+                  {STAT_CARDS_CONFIG.map(cfg => (
+                    <StatCard
+                      key={cfg.key}
+                      config={cfg}
+                      val={lastMeasure[cfg.key]}
+                      onClick={chartableKeys.has(cfg.key) ? () => setActiveKey(cfg.key) : undefined}
+                      windClicks={cfg.key === 'FF' ? windClicks : undefined}
+                      onIconClick={cfg.key === 'FF' ? handleWindIconClick : undefined}
+                      className={cfg.key === 'T' ? 'col-span-2' : undefined}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <SectionLabel>24 órás előzmények</SectionLabel>
+                <div className="mb-3 p-3.5 rounded-apple-card bg-cyan2-400/[0.07] border border-cyan2-400/15 flex items-start gap-2.5">
+                  <Info className="w-4 h-4 text-cyan2-300 shrink-0 mt-0.5" />
+                  <div className="text-[11px] text-night-100/80 leading-relaxed">
+                    <p>
+                      Az állomás szervere <strong className="font-bold text-white">nem mindig küld folyamatos adatot</strong>, ezért egy-egy grafikon átmenetileg üres lehet. Ilyenkor húzd le a képernyő tetejéről az oldalt az újratöltéshez.
+                    </p>
+                    {historySource && (
+                      <p className="mt-1.5 text-[10px] text-night-200/60 font-semibold tracking-wide uppercase flex items-center gap-1.5">
+                        <span>Aktuális diagram adatok forrása:</span>
+                        <span className="px-2 py-0.5 rounded-full bg-cyan2-400/10 border border-cyan2-400/20 text-cyan2-200 font-extrabold text-[9px]">
+                          {historySource === 'smartmixin' && 'smartmixin'}
+                          {historySource === 'metnet' && 'metnet'}
+                          {historySource === 'open-meteo' && 'nem saját forrás: Open-meteo'}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {CHART_CONFIGS.map(cfg => (
+                    <ChartCard
+                      key={cfg.key}
+                      config={cfg}
+                      timestamps={chartSeries[cfg.key]?.labels || []}
+                      data={chartSeries[cfg.key]?.data || []}
+                      loading={loading}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </FadeUp>
+
+      <SponsorDrawer sponsors={sponsors} />
 
       <StatDetailModal
         metric={activeMetric}

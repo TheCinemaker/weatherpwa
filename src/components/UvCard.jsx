@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, ExternalLink, ShieldAlert, X, Baby, Users, BookOpen, AlertTriangle, Droplet } from 'lucide-react';
+import { Sun, ExternalLink, ShieldAlert, X, Baby, Users, BookOpen, AlertTriangle, Droplet, ChevronRight } from 'lucide-react';
 
 // Kőszeg koordinátái
 const LAT = 47.3971;
@@ -93,7 +93,7 @@ const shakeVariants = {
   }
 };
 
-export default function UvCard() {
+export default function UvCard({ compact = false, tile = false }) {
   const [uv, setUv] = useState(null);
   const [uvMax, setUvMax] = useState(null);
   const [state, setState] = useState('loading'); // 'loading' | 'ok' | 'error'
@@ -161,11 +161,59 @@ export default function UvCard() {
 
   return (
     <>
-      <div 
+      {tile ? (
+        <div
+          onClick={() => state === 'ok' && setShowModal(true)}
+          className={`group relative h-full min-h-[118px] rounded-apple-card p-4 flex flex-col justify-between overflow-hidden glass-card transition-all duration-300 active:scale-[0.98] ${
+            state === 'ok' ? 'cursor-pointer hover:border-white/20 hover:border-t-2 hover:border-t-white/50 hover:bg-white/[0.05] hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,0.4)]' : ''
+          }`}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-[40px] opacity-15 group-hover:opacity-25 transition-opacity"
+            style={{ background: lvl?.color || '#22d3ee' }}
+          />
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-2 min-w-0">
+              <motion.div
+                variants={shakeVariants}
+                animate={isShaking ? 'shake' : 'idle'}
+                className="w-8 h-8 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0"
+                style={{ background: `linear-gradient(135deg, ${lvl?.color || '#22d3ee'}, #f97316)` }}
+              >
+                <Sun className="w-4 h-4" />
+              </motion.div>
+              <span className="text-[10px] font-bold text-night-200/60 uppercase tracking-wider leading-tight truncate">UV-index</span>
+            </div>
+            {state === 'ok' && <ChevronRight className="w-4 h-4 text-night-200/30 group-hover:text-night-200/70 transition-colors shrink-0" />}
+          </div>
+
+          <div className="relative z-10">
+            {state === 'loading' && (
+              <div className="w-4 h-4 rounded-full border-2 border-cyan2-400 border-t-transparent animate-spin" />
+            )}
+            {state === 'error' && (
+              <span className="text-[10px] text-night-200/40 font-semibold italic">Nincs adat</span>
+            )}
+            {state === 'ok' && lvl && (
+              <>
+                <div className="text-2xl font-extrabold text-white flex items-baseline tracking-tight mb-2">
+                  {uv.toFixed(1)}
+                  <span className="text-xs font-bold ml-1.5" style={{ color: lvl.color }}>{lvl.label}</span>
+                </div>
+                <div className="meter-track">
+                  <div className="meter-fill" style={{ width: `${fillPct}%`, background: lvl.color }} />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+      <div
         onClick={() => state === 'ok' && setShowModal(true)}
-        className={`glass-card rounded-apple-outer p-5 overflow-hidden relative transition-all duration-300 ${
-          state === 'ok' ? 'cursor-pointer hover:bg-white/[0.05] active:scale-[0.995]' : ''
-        }`}
+        className={`glass-card rounded-apple-outer overflow-hidden relative transition-all duration-300 h-full ${
+          compact ? 'p-3.5' : 'p-5'
+        } ${state === 'ok' ? 'cursor-pointer hover:bg-white/[0.05] active:scale-[0.995]' : ''}`}
       >
         {/* lágy színes fény az aktuális szint alapján */}
         {lvl && (
@@ -175,85 +223,117 @@ export default function UvCard() {
           />
         )}
 
-        <div className="relative flex items-start gap-4">
-          <motion.div
-            variants={shakeVariants}
-            animate={isShaking ? "shake" : "idle"}
-            className="w-12 h-12 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0 cursor-pointer"
-            style={{ background: `linear-gradient(135deg, ${lvl?.color || '#22d3ee'}, #f97316)` }}
-          >
-            <Sun className="w-6 h-6 animate-pulse" />
-          </motion.div>
-
-          <div className="min-w-0 flex-1 text-left">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-0.5 flex items-center gap-1.5">
-              <span>UV-index · Kőszeg</span>
-              {state === 'ok' && (
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan2-400 animate-ping inline-block" title="Kattints a részletekért" />
-              )}
-            </div>
-
+        {compact ? (
+          <div className="relative flex flex-col items-start gap-1.5">
+            <motion.div
+              variants={shakeVariants}
+              animate={isShaking ? "shake" : "idle"}
+              className="w-9 h-9 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0"
+              style={{ background: `linear-gradient(135deg, ${lvl?.color || '#22d3ee'}, #f97316)` }}
+            >
+              <Sun className="w-4 h-4" />
+            </motion.div>
+            <div className="text-[8px] font-bold uppercase tracking-widest text-white/50 leading-none">UV-index</div>
             {state === 'loading' && (
-              <div className="flex items-center gap-2 py-1.5">
-                <div className="w-4 h-4 rounded-full border-2 border-cyan2-400 border-t-transparent animate-spin" />
-                <span className="text-xs font-semibold text-white/60">Betöltés…</span>
-              </div>
+              <div className="w-4 h-4 rounded-full border-2 border-cyan2-400 border-t-transparent animate-spin" />
             )}
-
-            {state === 'error' && (
-              <div className="flex items-center gap-2 py-1.5 text-amber-300">
-                <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span className="text-xs font-semibold">Az UV-adat most nem elérhető.</span>
-              </div>
-            )}
-
+            {state === 'error' && <ShieldAlert className="w-4 h-4 text-amber-300" />}
             {state === 'ok' && lvl && (
-              <>
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-3xl font-extrabold text-white tracking-tight leading-none">
-                    {uv.toFixed(1)}
-                  </span>
-                  <span
-                    className="text-xs font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                    style={{ background: `${lvl.color}22`, color: lvl.color }}
-                  >
-                    {lvl.label}
-                  </span>
-                  {uvMax != null && (
-                    <span className="text-[11px] font-semibold text-white/55">
-                      Napi csúcs: <strong className="text-white/80">{uvMax.toFixed(0)}</strong>
-                    </span>
+              <div className="flex items-baseline gap-1.5 flex-wrap">
+                <span className="text-xl font-extrabold text-white tracking-tight leading-none">{uv.toFixed(1)}</span>
+                <span
+                  className="text-[8px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                  style={{ background: `${lvl.color}22`, color: lvl.color }}
+                >
+                  {lvl.label}
+                </span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="relative flex items-start gap-4">
+              <motion.div
+                variants={shakeVariants}
+                animate={isShaking ? "shake" : "idle"}
+                className="w-12 h-12 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0 cursor-pointer"
+                style={{ background: `linear-gradient(135deg, ${lvl?.color || '#22d3ee'}, #f97316)` }}
+              >
+                <Sun className="w-6 h-6 animate-pulse" />
+              </motion.div>
+
+              <div className="min-w-0 flex-1 text-left">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-0.5 flex items-center gap-1.5">
+                  <span>UV-index · Kőszeg</span>
+                  {state === 'ok' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan2-400 animate-ping inline-block" title="Kattints a részletekért" />
                   )}
                 </div>
 
-                {/* szín-kódolt szintsáv */}
-                <div className="meter-track mt-2.5">
-                  <div className="meter-fill" style={{ width: `${fillPct}%`, background: lvl.color }} />
-                </div>
+                {state === 'loading' && (
+                  <div className="flex items-center gap-2 py-1.5">
+                    <div className="w-4 h-4 rounded-full border-2 border-cyan2-400 border-t-transparent animate-spin" />
+                    <span className="text-xs font-semibold text-white/60">Betöltés…</span>
+                  </div>
+                )}
 
-                <p className="text-[11px] text-white/65 leading-relaxed mt-2">{lvl.advice}</p>
-              </>
-            )}
-          </div>
-        </div>
+                {state === 'error' && (
+                  <div className="flex items-center gap-2 py-1.5 text-amber-300">
+                    <ShieldAlert className="w-4 h-4 shrink-0" />
+                    <span className="text-xs font-semibold">Az UV-adat most nem elérhető.</span>
+                  </div>
+                )}
 
-        {/* forrás + hivatalos referencia */}
-        <div className="relative mt-3 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
-          <span className="text-[9px] font-semibold text-white/40 uppercase tracking-wider">
-            Forrás: Open-Meteo · modellezett
-          </span>
-          <a
-            href={METHU_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan2-200/80 hover:text-cyan2-200 transition-colors shrink-0"
-          >
-            Hivatalos: HungaroMet
-            <ExternalLink className="w-3 h-3" />
-          </a>
-        </div>
+                {state === 'ok' && lvl && (
+                  <>
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-3xl font-extrabold text-white tracking-tight leading-none">
+                        {uv.toFixed(1)}
+                      </span>
+                      <span
+                        className="text-xs font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                        style={{ background: `${lvl.color}22`, color: lvl.color }}
+                      >
+                        {lvl.label}
+                      </span>
+                      {uvMax != null && (
+                        <span className="text-[11px] font-semibold text-white/55">
+                          Napi csúcs: <strong className="text-white/80">{uvMax.toFixed(0)}</strong>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* szín-kódolt szintsáv */}
+                    <div className="meter-track mt-2.5">
+                      <div className="meter-fill" style={{ width: `${fillPct}%`, background: lvl.color }} />
+                    </div>
+
+                    <p className="text-[11px] text-white/65 leading-relaxed mt-2">{lvl.advice}</p>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* forrás + hivatalos referencia */}
+            <div className="relative mt-3 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+              <span className="text-[9px] font-semibold text-white/40 uppercase tracking-wider">
+                Forrás: Open-Meteo · modellezett
+              </span>
+              <a
+                href={METHU_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan2-200/80 hover:text-cyan2-200 transition-colors shrink-0"
+              >
+                Hivatalos: HungaroMet
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </>
+        )}
       </div>
+      )}
 
       {/* Titkos UV kisokos Modal - Portallal a body alá vetítve, z-index stacking context hiba ellen */}
       {typeof document !== 'undefined' && createPortal(

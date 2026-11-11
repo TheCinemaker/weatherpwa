@@ -11,7 +11,17 @@ export default defineConfig({
   server: {
     port: 3001,
     strictPort: true,
-    host: true
+    host: true,
+    proxy: {
+      // /api/* csak Netlify-n létezik (serverless function + redirect), sima
+      // vite dev szerver alatt 404-et adna — itt az éles oldalra irányítjuk,
+      // hogy localhoston is valódi időjárás-adatot lássunk.
+      '/api': {
+        target: 'https://kiemet.hu',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   resolve: {
     alias: {

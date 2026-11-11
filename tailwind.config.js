@@ -33,9 +33,9 @@ export default {
       borderRadius: {
         '4xl': '2rem',
         '5xl': '2.75rem',
-        'apple-outer': '22px',
-        'apple-card': '14px',
-        'apple-inner': '10px',
+        'apple-outer': '20px',
+        'apple-card': '12px',
+        'apple-inner': '8px',
       },
       backgroundImage: {
         'brand-gradient': 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)',

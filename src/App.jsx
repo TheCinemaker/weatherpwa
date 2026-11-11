@@ -8,8 +8,10 @@ import Cameras from './pages/Cameras/Cameras';
 import Sponsors from './pages/Sponsors/Sponsors';
 import About from './pages/About/About';
 import Radar from './pages/Radar/Radar';
-import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Gamepad2 } from 'lucide-react';
+import { CloudSun, Calendar, Info, Download, Film, Camera, Menu, X, Heart, AlertTriangle, Map, Gamepad2, Sparkles } from 'lucide-react';
 import Logo from './components/Logo';
+import brandWeatherIcon from '@meteocons/svg/fill/partly-cloudy-day.svg?url';
+import { getTodayNameday, buildMenuStories, fetchTodayWikiStories } from './utils/dailyAlmanac';
 import { AdminProvider, useAdminRequest } from './components/AdminContext';
 import { useAdminLongPress, AdminHoldBar } from './components/AdminLongPress';
 import { incrementPageViews, getForecast } from './api/supabase';
@@ -18,6 +20,7 @@ import PushAlertModal from './components/PushAlertModal';
 import QuizModal from './components/QuizModal';
 import LeaderboardModal from './components/LeaderboardModal';
 import TippeldeModal from './components/TippeldeModal';
+import { WeatherMoodProvider, useWeatherMood } from './components/WeatherMoodContext';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Élő Mérések', icon: CloudSun },
@@ -29,12 +32,75 @@ const NAV_ITEMS = [
   { path: '/about', label: 'Rólam', icon: Info },
 ];
 
+// Látogatószámláló: a menü nyitásakor felpörög a végső értékig, számjegyenként
+// külön kis "kilométeróra" cellában.
+function VisitorCounter({ value }) {
+  const reduceMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const [animated, setAnimated] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion) return undefined;
+    let raf;
+    const start = performance.now();
+    const duration = 900;
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      setAnimated(Math.round(value * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, reduceMotion]);
+
+  const shown = reduceMotion ? value : animated;
+  const len = String(value).length;
+  const digits = String(shown).padStart(len, '0').split('');
+
+  return (
+    <span className="relative flex items-center" aria-label={`${value.toLocaleString('hu-HU')} látogató`}>
+      {digits.map((d, i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          className={`w-[20px] h-7 flex items-center justify-center rounded-md bg-black/45 border border-white/10 text-base font-black text-white tabular-nums ${
+            i > 0 && (len - i) % 3 === 0 ? 'ml-1.5' : 'ml-0.5'
+          }`}
+        >
+          {d}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
+  const mood = useWeatherMood();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const todayNameday = getTodayNameday();
+  const [wikiStories, setWikiStories] = useState([]);
+  const menuStories = React.useMemo(() => {
+    const base = buildMenuStories();
+    if (!wikiStories.length) return base;
+    const merged = [];
+    const maxLen = Math.max(base.length, wikiStories.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < base.length) merged.push(base[i]);
+      if (i < wikiStories.length) merged.push(wikiStories[i]);
+    }
+    return merged;
+  }, [wikiStories]);
+  const [storyIndex, setStoryIndex] = useState(() => Math.floor(Math.random() * 10));
+
+  useEffect(() => {
+    fetchTodayWikiStories().then((items) => {
+      if (items.length > 0) setWikiStories(items);
+    });
+  }, []);
   
   // Custom features states
   const [viewCount, setViewCount] = useState(null);
@@ -170,16 +236,35 @@ function AppContent() {
   };
 
   return (
-    <div className="relative min-h-screen text-night-100 font-sans overflow-x-hidden">
+    <div
+      className="relative min-h-screen text-night-100 font-sans overflow-x-hidden"
+      style={mood.enabled ? {
+        '--accent-from': mood.from,
+        '--accent-to': mood.to,
+        '--mood-glow-1': mood.glow1,
+        '--mood-glow-2': mood.glow2,
+      } : undefined}
+    >
 
       <AdminHoldBar progress={holdProgress} />
 
       {/* --- NIGHT-SKY BACKGROUND --- */}
+      {/* Az ambient glow-k is a pillanatnyi időjárás-hangulatot követik (ha a
+          kapcsoló be van kapcsolva) — hideg-kékes fagyban, meleg-vöröses kánikulában. */}
       <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: 'linear-gradient(165deg, #111827 0%, #000000 100%)' }}>
         <div className="absolute inset-0 starfield opacity-20" />
-        <div className="blob w-[45rem] h-[45rem] -top-40 -left-40 bg-teal2-500/25 animate-blob" />
-        <div className="blob w-[40rem] h-[40rem] top-1/3 -right-40 bg-cyan2-500/25 animate-blob" style={{ animationDelay: '3s' }} />
-        <div className="blob w-[34rem] h-[34rem] bottom-0 left-1/4 bg-indigo2-500/20 animate-blob" style={{ animationDelay: '6s' }} />
+        <div
+          className="blob w-[45rem] h-[45rem] -top-40 -left-40 bg-teal2-500/25 animate-blob"
+          style={mood.enabled ? { background: mood.glow1 } : undefined}
+        />
+        <div
+          className="blob w-[40rem] h-[40rem] top-1/3 -right-40 bg-cyan2-500/25 animate-blob"
+          style={{ animationDelay: '3s', ...(mood.enabled ? { background: mood.glow2 } : {}) }}
+        />
+        <div
+          className="blob w-[34rem] h-[34rem] bottom-0 left-1/4 bg-indigo2-500/20 animate-blob"
+          style={{ animationDelay: '6s', ...(mood.enabled ? { background: mood.glow3 } : {}) }}
+        />
       </div>
 
       {/* --- IN-APP ANNOUNCEMENT BANNER --- */}
@@ -260,6 +345,49 @@ function AppContent() {
             </button>
           </nav>
 
+          {/* Napi kalendárium / Sztorikártya asztali oldalsávban is */}
+          {menuStories.length > 0 && (() => {
+            const currentStory = menuStories[storyIndex % menuStories.length];
+            return (
+              <button
+                type="button"
+                onClick={() => setStoryIndex(i => i + 1)}
+                className="relative mt-3 w-full text-left rounded-apple-inner glass-card p-3 overflow-hidden active:scale-[0.98] transition-transform"
+              >
+                {mood.enabled && (
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: `linear-gradient(135deg, ${mood.glow2}, transparent 80%)` }}
+                  />
+                )}
+                <div className="relative flex items-center justify-between gap-2 pb-1.5 mb-1.5 border-b border-white/10">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">
+                    Mai névnap
+                  </span>
+                  <span
+                    className="text-xs font-extrabold truncate"
+                    style={{ color: mood.enabled ? mood.from : '#67e8f9' }}
+                  >
+                    {todayNameday}
+                  </span>
+                </div>
+                <div className="relative flex items-center justify-between gap-1.5 mb-1">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-white/80">
+                    <Sparkles
+                      className="w-3 h-3 shrink-0"
+                      style={{ color: mood.enabled ? mood.from : '#67e8f9' }}
+                    />
+                    {currentStory.tag}
+                  </span>
+                  <span className="text-[9px] font-bold text-white/55">koppints →</span>
+                </div>
+                <p className="relative text-xs font-semibold text-white leading-relaxed">
+                  {currentStory.text}
+                </p>
+              </button>
+            );
+          })()}
+
           <div className="mt-auto pt-4 space-y-3.5">
             {/* Web Push Notification Button */}
             <PushNotificationButton mode="desktop" />
@@ -269,7 +397,17 @@ function AppContent() {
                 <Download className="w-4 h-4" /> Telepítés
               </button>
             )}
-            
+
+            <button
+              onClick={() => mood.setEnabled(e => !e)}
+              className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-apple-inner bg-white/[0.04] border border-white/10 text-left w-full"
+            >
+              <span className="text-xs font-bold text-white/80">Időjárás-hangulat</span>
+              <span className={`relative w-9 h-5 rounded-full shrink-0 transition-colors ${mood.enabled ? 'bg-emerald-500' : 'bg-white/15'}`}>
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${mood.enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
+              </span>
+            </button>
+
             <div className="flex flex-col gap-2.5">
               {viewCount !== null && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 w-fit">
@@ -280,36 +418,46 @@ function AppContent() {
                 </div>
               )}
               <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-                © 2026 · Ráduly László · v2.3.3
+                © 2026 · Ráduly László · v3.0.1
               </p>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* --- MOBILE TOP BAR + HAMBURGER (fixen rögzítve, alatta görög minden) --- */}
-      <header className="lg:hidden fixed top-0 inset-x-0 z-40 px-4 pt-4 pointer-events-none">
-        <div className="pointer-events-auto flex items-center justify-between px-4 py-2.5 rounded-apple-card glass-card">
-          <div className="flex items-center gap-2 min-w-0">
+      {/* --- MOBILE TOP BAR + HAMBURGER (fixen rögzítve, alatta görög minden) ---
+          Majdnem az oldal szélén/tetején (5px margó), kevésbé lekerekített,
+          visszafogottabb (áttetszőbb) glass háttér, mint a lenti csempék. */}
+      <header className="lg:hidden fixed top-[5px] inset-x-[5px] z-40 pointer-events-none">
+        <div className="pointer-events-auto flex items-center justify-between pl-2.5 pr-2.5 py-2 rounded-apple-card bg-black/22 backdrop-blur-2xl border border-white/10">
+          <div className="flex items-center gap-2.5 min-w-0">
             {/* Web Push Notification Button on the LEFT side */}
             <PushNotificationButton mode="mobile" />
 
-            <Link to="/" onClick={handleLogoClick} onContextMenu={(e) => e.preventDefault()} className="flex items-center gap-2 active:scale-95 transition-transform min-w-0" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}>
+            {/* FIGYELEM: admin belépés — hosszú nyomás a logón. Ne töröld az onClick/onContextMenu/style
+                attribútumokat a Link-ről, se a motion.div touch-none class-t és a {...logoHoldHandlers} szórást,
+                csak a vizuális (szín/méret) osztályokat módosítsd! */}
+            <Link to="/" onClick={handleLogoClick} onContextMenu={(e) => e.preventDefault()} className="flex items-center gap-2.5 active:scale-95 transition-transform min-w-0" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}>
               <motion.div
                 {...logoHoldHandlers}
-                className="touch-none w-8 h-8 sm:w-9 sm:h-9 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow shrink-0"
+                className="touch-none relative w-10 h-10 rounded-apple-inner flex items-center justify-center shrink-0 bg-white/[0.06] ring-1 ring-white/10"
               >
-                <Logo className="w-4 h-4 sm:w-5 sm:h-5" />
+                <img src={brandWeatherIcon} alt="Kőszegi Időjárás" className="w-9 h-9" />
               </motion.div>
-              <span className="text-[12px] sm:text-[15px] font-black tracking-tight text-white whitespace-nowrap truncate">
-                <span className="text-cyan2-300">K</span>őszegi<span className="text-cyan2-300">I</span>dőjárás<span className="text-cyan2-300">E</span>lőrejelzés
+              <span className="block text-[11px] xs:text-[12px] sm:text-[13px] font-black tracking-tight text-white whitespace-nowrap leading-none min-w-0 truncate">
+                Kőszegi Időjárás Előrejelzés
               </span>
             </Link>
           </div>
 
           <button
-            onClick={() => setMenuOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-apple-inner bg-white/10 border border-white/10 text-white active:scale-95 transition-all shrink-0 ml-2"
+            onClick={() => { setStoryIndex(i => i + 1); setMenuOpen(true); }}
+            className="w-10 h-10 flex items-center justify-center rounded-apple-inner text-white active:scale-95 transition-all shrink-0 ml-2 ring-1 ring-white/10"
+            style={{
+              background: mood.enabled
+                ? `linear-gradient(135deg, ${mood.from}, ${mood.to})`
+                : 'linear-gradient(135deg, #64748b, #1e293b)',
+            }}
             aria-label="Menü megnyitása"
           >
             <Menu className="w-5 h-5" />
@@ -332,84 +480,153 @@ function AppContent() {
               initial={{ x: '100%' }} animate={{ x: 0 }}
               exit={{ x: '100%', transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', stiffness: 480, damping: 42, mass: 0.7 }}
-              className="absolute top-0 right-0 h-full w-[80%] max-w-xs p-4"
+              className="absolute top-0 right-0 h-full w-[78%] max-w-[19rem] p-[5px]"
             >
-              <div className="h-full flex flex-col glass-card rounded-apple-outer p-5 overflow-y-auto no-scrollbar">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-apple-inner bg-brand-gradient bg-[length:200%_200%] animate-gradient-pan flex items-center justify-center text-white shadow-glow">
-                      <Logo className="w-5 h-5" />
+              {/* A menü a dashboard nyelvét beszéli: csempe-rács (2 oszlop), hangulat-szín,
+                  ugyanaz a márka-ikon és sarok-lekerekítés, mint a fejlécben. */}
+              <div className="h-full flex flex-col glass-card rounded-apple-card p-3 overflow-y-auto no-scrollbar">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-9 h-9 rounded-apple-inner bg-white/[0.06] ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                      <img src={brandWeatherIcon} alt="" className="w-8 h-8" />
                     </div>
-                    <div className="leading-tight select-none">
-                      <h1 className="text-xs font-black tracking-tight text-white leading-none">
-                        <span className="text-cyan2-300">K</span>őszegi
-                      </h1>
-                      <div className="text-[9px] font-bold text-white/90 uppercase tracking-wide leading-none mt-0.5">
-                        <span className="text-cyan2-300">I</span>dőjárás
-                      </div>
-                      <div className="text-[8px] font-bold text-white/60 uppercase tracking-wider leading-none mt-0.5">
-                        <span className="text-cyan2-300">E</span>lőrejelzés
-                      </div>
-                    </div>
+                    <span className="text-xs font-black tracking-tight text-white leading-tight select-none">
+                      Kőszegi Időjárás<br />Előrejelzés
+                    </span>
                   </div>
-                  <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-apple-inner bg-white/10 text-white active:scale-95" aria-label="Bezárás">
-                    <X className="w-5 h-5" />
+                  <button
+                    onClick={() => setMenuOpen(false)}
+                    className="w-9 h-9 flex items-center justify-center rounded-apple-inner bg-white/[0.08] ring-1 ring-white/10 text-white active:scale-95 shrink-0"
+                    aria-label="Bezárás"
+                  >
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <nav className="flex flex-col gap-1.5">
-                  {NAV_ITEMS.map(({ path, label, icon: Icon }, i) => {
-                    const active = location.pathname === path;
+                {/* Látogatószám — kompakt, egysoros elrendezésben */}
+                {viewCount !== null && (
+                  <div className="relative rounded-apple-inner glass-card px-3 py-2 mb-2 flex items-center justify-between gap-2 overflow-hidden">
+                    {mood.enabled && (
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{ background: `linear-gradient(135deg, ${mood.glow1}, transparent 75%)` }}
+                      />
+                    )}
+                    <span className="relative flex items-center gap-1.5 text-[10px] font-bold text-white/75 uppercase tracking-wider shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Látogatók
+                    </span>
+                    <div className="relative">
+                      <VisitorCounter value={viewCount} />
+                    </div>
+                  </div>
+                )}
+
+                <nav className="flex flex-col gap-1">
+                  {[
+                    ...NAV_ITEMS.map(item => ({ ...item, key: item.path })),
+                    { key: 'games', label: 'Játékok', icon: Gamepad2, onClick: () => { setMenuOpen(false); setShowLeaderboardModal(true); } },
+                  ].map(({ key, path, label, icon: Icon, onClick }, i) => {
+                    const active = path != null && location.pathname === path;
+                    const activeText = mood.enabled ? mood.textOnAccent : '#ffffff';
+                    const tileClass = 'relative flex items-center gap-2.5 w-full px-3 py-2 rounded-apple-inner text-left overflow-hidden transition-transform active:scale-[0.98] ' + (active ? '' : 'glass-card');
+                    const tileStyle = active
+                      ? { background: mood.enabled ? `linear-gradient(135deg, ${mood.from}, ${mood.to})` : 'linear-gradient(135deg, #0284c7, #06b6d4)', color: activeText }
+                      : undefined;
+                    const content = (
+                      <>
+                        <Icon
+                          className="w-[18px] h-[18px] shrink-0"
+                          style={{ color: active ? activeText : (mood.enabled ? mood.from : 'rgba(255,255,255,0.7)') }}
+                        />
+                        <span className="text-[13px] font-bold leading-tight" style={{ color: active ? activeText : '#ffffff' }}>
+                          {label}
+                        </span>
+                      </>
+                    );
                     return (
                       <motion.div
-                        key={path}
-                        initial={{ opacity: 0, x: 24 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.04 + i * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                        key={key}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.03 + i * 0.025, duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                       >
-                        <Link to={path}
-                          className={`flex items-center gap-3 px-4 py-2.5 rounded-apple-inner text-sm font-bold transition-all ${active ? 'bg-brand-gradient text-white shadow-glow' : 'text-white hover:bg-white/10 hover:text-white'}`}>
-                          <Icon className="w-[18px] h-[18px] shrink-0" />
-                          <span>{label}</span>
-                        </Link>
+                        {path != null ? (
+                          <Link to={path} className={tileClass} style={tileStyle}>{content}</Link>
+                        ) : (
+                          <button onClick={onClick} className={tileClass} style={tileStyle}>{content}</button>
+                        )}
                       </motion.div>
                     );
                   })}
-                  <motion.div
-                    initial={{ opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 + NAV_ITEMS.length * 0.03, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <button
-                      onClick={() => { setMenuOpen(false); setShowLeaderboardModal(true); }}
-                      className="flex items-center gap-3 px-4 py-2.5 rounded-apple-inner text-sm font-bold text-white hover:bg-white/10 hover:text-white transition-all text-left w-full"
-                    >
-                      <Gamepad2 className="w-[18px] h-[18px] shrink-0 text-cyan2-400" />
-                      <span>Játékok</span>
-                    </button>
-                  </motion.div>
                 </nav>
 
-                <div className="mt-auto pt-4 space-y-3">
+                {/* Napi kalendárium: Névnap + váltakozó visszaszámláló / kőszegi sztori */}
+                {menuStories.length > 0 && (() => {
+                  const currentStory = menuStories[storyIndex % menuStories.length];
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setStoryIndex(i => i + 1)}
+                      className="relative mt-2.5 w-full text-left rounded-apple-inner glass-card p-3.5 overflow-hidden active:scale-[0.98] transition-transform"
+                    >
+                      {mood.enabled && (
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{ background: `linear-gradient(135deg, ${mood.glow2}, transparent 80%)` }}
+                        />
+                      )}
+                      <div className="relative flex items-center justify-between gap-2 pb-2 mb-2 border-b border-white/10">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-white/80">
+                          Mai névnap
+                        </span>
+                        <span
+                          className="text-sm font-extrabold truncate"
+                          style={{ color: mood.enabled ? mood.from : '#67e8f9' }}
+                        >
+                          {todayNameday}
+                        </span>
+                      </div>
+                      <div className="relative flex items-center justify-between gap-1.5 mb-1.5">
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-white/80">
+                          <Sparkles
+                            className="w-3.5 h-3.5 shrink-0"
+                            style={{ color: mood.enabled ? mood.from : '#67e8f9' }}
+                          />
+                          {currentStory.tag}
+                        </span>
+                        <span className="text-[10px] font-bold text-white/55">koppints →</span>
+                      </div>
+                      <p className="relative text-[13px] font-semibold text-white leading-relaxed">
+                        {currentStory.text}
+                      </p>
+                    </button>
+                  );
+                })()}
+
+                <div className="mt-auto pt-2 space-y-1.5">
+                  <button
+                    onClick={() => mood.setEnabled(e => !e)}
+                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-apple-inner glass-card text-left w-full"
+                  >
+                    <span className="text-xs font-bold text-white">Időjárás-hangulat</span>
+                    <span
+                      className="relative w-9 h-5 rounded-full shrink-0 transition-colors"
+                      style={{ background: mood.enabled ? `linear-gradient(135deg, ${mood.from}, ${mood.to})` : 'rgba(255,255,255,0.15)' }}
+                    >
+                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${mood.enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                    </span>
+                  </button>
+
                   {showInstallBtn && (
-                    <button onClick={handleInstall} className="btn-grad w-full py-2.5 text-xs">
+                    <button onClick={handleInstall} className="btn-grad w-full py-2 text-xs">
                       <Download className="w-4 h-4" /> Telepítés a kezdőképernyőre
                     </button>
                   )}
-                  
-                  <div className="flex flex-col items-center gap-2.5 pt-2">
-                    {viewCount !== null && (
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 w-fit mx-auto">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider">
-                          Látogatók: <span className="text-cyan2-400">{viewCount.toLocaleString('hu-HU')}</span>
-                        </span>
-                      </div>
-                    )}
-                    <p className="text-[10px] font-semibold text-white/50 leading-relaxed text-center">
-                      © 2026 · Ráduly László · v2.3.3
-                    </p>
-                  </div>
+
+                  <p className="pt-1 text-center text-[10px] font-bold text-white/55">
+                    © 2026 · Ráduly László · v3.0.1
+                  </p>
                 </div>
               </div>
             </motion.aside>
@@ -430,29 +647,35 @@ function AppContent() {
         </Routes>
       </main>
 
-      {/* --- GLOBÁLIS FOOTER --- */}
-      <footer className="lg:pl-64 relative z-10 px-4 pb-10">
-        <div className="max-w-6xl mx-auto border-t border-white/10 pt-6 flex flex-col items-center gap-1.5 text-center">
-          <p className="text-[11px] font-bold text-white/70">
-            Designed &amp; developed by{' '}
-            <a
-              href="mailto:koszegapp@gmail.com"
-              className="text-gradient font-extrabold tracking-tight hover:brightness-125 transition-all"
-            >
-              SA software
-            </a>
-          </p>
-          <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            © {new Date().getFullYear()} SA software · Minden jog fenntartva · All rights reserved.
-          </p>
-          <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-            Version: 2.3.3
+      {/* --- GLOBÁLIS FOOTER — vékonyabb, egy-két sorba sűrítve, a hangulat-színt
+          viszi tovább (text-gradient + a "Sponsored by" pill is), nem egy külön,
+          fix cián sáv --- */}
+      <footer className="lg:pl-64 relative z-10 px-4 pb-6">
+        <div className="max-w-6xl mx-auto border-t border-white/[0.06] pt-4 flex flex-col items-center gap-1 text-center">
+          <p className="text-[10px] font-bold text-white/60 flex flex-wrap items-center justify-center gap-x-1.5">
+            <span>
+              Készítette:{' '}
+              <a
+                href="mailto:koszegapp@gmail.com"
+                className="text-gradient font-extrabold tracking-tight hover:brightness-125 transition-all"
+              >
+                SA software
+              </a>
+            </span>
+            <span className="text-white/25">·</span>
+            <span>© {new Date().getFullYear()}</span>
+            <span className="text-white/25">·</span>
+            <span>v3.0.1</span>
           </p>
           <a
             href="https://visitkoszeg.hu"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[9px] font-extrabold uppercase tracking-[0.18em] text-cyan2-200/80 hover:text-white hover:border-cyan2-400/30 transition-all"
+            className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[8px] font-extrabold uppercase tracking-[0.18em] transition-all hover:brightness-125"
+            style={{
+              borderColor: mood.enabled ? `${mood.from}55` : 'rgba(103,232,249,0.3)',
+              color: mood.enabled ? mood.from : '#67e8f9',
+            }}
           >
             Sponsored by VISITKOSZEG.HU
           </a>
@@ -490,9 +713,11 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <AdminProvider>
-        <AppContent />
-      </AdminProvider>
+      <WeatherMoodProvider>
+        <AdminProvider>
+          <AppContent />
+        </AdminProvider>
+      </WeatherMoodProvider>
     </Router>
   );
 }

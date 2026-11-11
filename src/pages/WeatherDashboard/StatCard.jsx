@@ -30,7 +30,7 @@ export const STAT_CARDS_CONFIG = [
   { key: 'SLP_TREND',  label: 'Légnyomás trend',  icon: TrendingDown, unit: '',      grad: ['#38bdf8', '#06b6d4'], fmt: v => typeof v === 'number' ? (v > 0 ? '+' : '') + v.toFixed(2) + ' hPa/h' : v, isTrend: true },
 ];
 
-export default function StatCard({ config, val, onClick, windClicks = 0, onIconClick }) {
+export default function StatCard({ config, val, onClick, windClicks = 0, onIconClick, className = '' }) {
   const { label, icon: Icon, unit, grad, range, isWind, isTrend } = config;
   const clickable = typeof onClick === 'function';
   const gradient = `linear-gradient(135deg, ${grad[0]}, ${grad[1]})`;
@@ -85,14 +85,14 @@ export default function StatCard({ config, val, onClick, windClicks = 0, onIconC
       layoutId={clickable ? `metric-${config.key}` : undefined}
       onClick={onClick}
       transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.7 }}
-      className={`group relative h-full min-h-[118px] rounded-apple-card p-4 flex flex-col justify-between overflow-hidden glass-card transition-all duration-300 active:scale-[0.98] ${clickable ? 'cursor-pointer hover:border-white/20 hover:border-t-2 hover:border-t-white/50 hover:bg-white/[0.05] hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,0.4)]' : ''}`}
+      className={`group relative h-full min-h-[118px] rounded-apple-card p-4 flex flex-col justify-between overflow-hidden glass-card transition-all duration-300 active:scale-[0.98] ${clickable ? 'cursor-pointer hover:border-white/20 hover:border-t-2 hover:border-t-white/50 hover:bg-white/[0.05] hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,0.4)]' : ''} ${className}`}
     >
       <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-[40px] opacity-15 group-hover:opacity-25 transition-opacity" style={{ background: gradient }} />
 
       <div className="flex items-center justify-between relative z-10">
         <div className="flex items-center gap-2 min-w-0">
-          <motion.div 
-            className={`w-8 h-8 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0 ${isWindSpeed ? 'cursor-pointer active:scale-90 transition-transform' : ''}`} 
+          <motion.div
+            className={`w-9 h-9 rounded-apple-inner flex items-center justify-center text-white shadow-sm shrink-0 ${isWindSpeed ? 'cursor-pointer active:scale-90 transition-transform' : ''}`}
             style={{ background: gradient }}
             animate={isWindSpeed ? { rotate: windClicks * 72 } : {}}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
@@ -103,17 +103,17 @@ export default function StatCard({ config, val, onClick, windClicks = 0, onIconC
               }
             }}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-[18px] h-[18px]" />
           </motion.div>
-          <span className="text-[10px] font-bold text-night-200/60 uppercase tracking-wider leading-tight truncate">{label}</span>
+          <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider leading-tight truncate">{label}</span>
         </div>
         {clickable && <ChevronRight className="w-4 h-4 text-night-200/30 group-hover:text-night-200/70 transition-colors shrink-0" />}
       </div>
 
       <div className="relative z-10">
-        <div className="text-2xl font-extrabold text-white flex items-baseline tracking-tight mb-2">
+        <div className="text-3xl font-extrabold text-white flex items-baseline tracking-tight mb-2">
           {displayVal}
-          {hasValue && unit && <span className="text-xs font-bold text-night-200/45 ml-0.5">{unit}</span>}
+          {hasValue && unit && <span className="text-sm font-bold text-white/55 ml-1">{unit}</span>}
         </div>
         {footer}
       </div>

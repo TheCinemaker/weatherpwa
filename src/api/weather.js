@@ -97,3 +97,26 @@ export async function fetchForecastWeather() {
 export async function fetchUpcomingWeather() {
   return fetchForecastWeather();
 }
+
+// Pillanatnyi égbolt-állapot (WMO weathercode) + szélsebesség — a hero-kártya
+// loop-videójának kiválasztásához kell, nem a mérőállomás adja (annak nincs
+// égbolt-szenzora).
+export async function fetchCurrentSky() {
+  const url = 'https://api.open-meteo.com/v1/forecast?latitude=47.3971&longitude=16.546&current_weather=true&timezone=Europe%2FBerlin';
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) throw new Error('Hiba az aktuális égbolt-állapot lekérésekor');
+    const data = await res.json();
+    const cw = data.current_weather;
+    if (!cw) return null;
+    return {
+      weathercode: cw.weathercode,
+      windSpeedKmh: cw.windspeed,
+      temperature: typeof cw.temperature === 'number' ? cw.temperature : null,
+      isNight: cw.is_day === 0,
+    };
+  } catch (e) {
+    console.error("Failed to fetch current sky condition:", e);
+    return null;
+  }
+}

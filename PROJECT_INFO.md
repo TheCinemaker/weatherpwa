@@ -39,7 +39,7 @@ Ez a fájl tartalmazza a projekt legfontosabb fejlesztési adatait, elérési ú
 
 ## 🛠️ Jelenlegi Állapot & Legutóbbi Fejlesztések
 
-* **Verzió**: v2.3.3 (Élesítve Netlify-on és Supabase integrációval). Android admin-bugfixek: hosszú-nyomás PIN-kapu a natív context-menü ellen védve, "-" előjel a hőmérséklet admin-mezőkben, push-feliratkozás végtelen pörgés javítva időtúllépéssel.
+* **Verzió**: v3.0.1 (Bento Dashboard Redesign, 16:9 őszi Hero-videók 4 oldali optikai blur/maszkolással és alkonyati esti váltással, zöldmentes folytonos hőmérséklet-hangulat színrendszer, Napi Kalendárium / Sztorikártya névnappal és élő Wikipédia „Ezen a napon” integrációval, kihúzható Támogatók fül, iOS/Android PWA automatikus verziófrissítés Push megőrzéssel).
 * **Támogatói Kártya (Főoldal)**: Az UV-kártya alá beágyazott `SponsorCard` komponens. Betöltéskor véletlenszerűen választ az aktív hirdetők közül, és 12 másodpercenként rotálja őket. A "Szendi Optika" (szendi-logo.png) hirdetésre kattintva a rendszer azonnal új lapon megnyitja a weboldalát (https://www.szendioptika.hu/), míg a többi hirdetőnél egy részletes információs modál jelenik meg.
 * **Játékok Alrendszer**:
   * **Kvíz játék**: Napi korlátozású kvízjáték (időmérővel, kérdésekkel, napi egyszeri kitöltési validációval).

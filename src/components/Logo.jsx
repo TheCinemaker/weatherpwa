@@ -11,8 +11,8 @@ export default function Logo({ className = 'w-6 h-6' }) {
     >
       <defs>
         <linearGradient id="weatherSunGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#FFE885" />
-          <stop offset="100%" stop-color="#FF9500" />
+          <stop offset="0%" stopColor="#FFE885" />
+          <stop offset="100%" stopColor="#FF9500" />
         </linearGradient>
       </defs>
       

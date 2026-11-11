@@ -1,5 +1,5 @@
-// Version: 2.3.3
-const CACHE_NAME = 'koszeg-weather-cache-v2.3.3';
+// Version: 3.0.1
+const CACHE_NAME = 'koszeg-weather-cache-v3.0.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -77,8 +77,13 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // 1. Bypass cache for Supabase and local API requests
-  if (url.hostname.includes('supabase.co') || url.pathname.startsWith('/api/')) {
+  // 1. Bypass cache for Supabase, local API requests, and streaming video / Range requests (iOS Safari PWA compatibility)
+  if (
+    url.hostname.includes('supabase.co') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/videos/') ||
+    event.request.headers.has('range')
+  ) {
     return;
   }
 
