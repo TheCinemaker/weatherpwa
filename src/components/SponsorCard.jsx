@@ -33,7 +33,7 @@ const MOCK_SZENDI = {
   expires_at: '2030-01-01T00:00:00.000Z'
 };
 
-export default function SponsorCard() {
+export default function SponsorCard({ embedded = false }) {
   const [sponsors, setSponsors] = useState([MOCK_SZENDI, DEVELOPER_AD]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedSponsor, setSelectedSponsor] = useState(null);
@@ -97,7 +97,7 @@ export default function SponsorCard() {
     <>
       <div 
         onClick={handleCardClick}
-        className="glass-card rounded-apple-outer p-5 overflow-hidden relative cursor-pointer hover:bg-white/[0.05] active:scale-[0.995] transition-all duration-300"
+        className={`overflow-hidden relative cursor-pointer active:scale-[0.995] transition-all duration-300 ${embedded ? 'rounded-apple-card bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] p-4' : 'glass-card rounded-apple-outer p-5 hover:bg-white/[0.05]'}`}
       >
         {/* Soft colorful gradient glow */}
         <div
@@ -117,7 +117,7 @@ export default function SponsorCard() {
           {/* Texts */}
           <div className="min-w-0 flex-1 text-left">
             <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-0.5 flex items-center gap-1.5">
-              <span>Támogatóink</span>
+              <span>{embedded ? 'Kiemelt támogató' : 'Támogatóink'}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-cyan2-400 animate-ping inline-block" />
             </div>
             

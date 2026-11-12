@@ -418,7 +418,7 @@ function AppContent() {
                 </div>
               )}
               <p className="text-[10px] font-semibold text-white/50 leading-relaxed">
-                © 2026 · Ráduly László · v3.0.1
+                © 2026 · Ráduly László · v3.0.2
               </p>
             </div>
           </div>
@@ -625,7 +625,7 @@ function AppContent() {
                   )}
 
                   <p className="pt-1 text-center text-[10px] font-bold text-white/55">
-                    © 2026 · Ráduly László · v3.0.1
+                    © 2026 · Ráduly László · v3.0.2
                   </p>
                 </div>
               </div>
@@ -665,7 +665,7 @@ function AppContent() {
             <span className="text-white/25">·</span>
             <span>© {new Date().getFullYear()}</span>
             <span className="text-white/25">·</span>
-            <span>v3.0.1</span>
+            <span>v3.0.2</span>
           </p>
           <a
             href="https://visitkoszeg.hu"

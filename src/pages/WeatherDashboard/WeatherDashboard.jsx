@@ -6,7 +6,7 @@ import StatCard, { STAT_CARDS_CONFIG } from './StatCard';
 import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
 import UvCard from '../../components/UvCard';
-import SponsorDrawer from '../../components/SponsorDrawer';
+import SponsorTile from '../../components/SponsorTile';
 import HeroSky from '../../components/HeroSky';
 import HeroWeatherVideo from '../../components/HeroWeatherVideo';
 import { TempGauge, WindGauge } from '../../components/GaugeBar';
@@ -1137,7 +1137,12 @@ export default function WeatherDashboard() {
         </div>
       </FadeUp>
 
-      <SponsorDrawer sponsors={sponsors} />
+      {/* --- TÁMOGATÓK: egy csempében, a footer fölött --- */}
+      <FadeUp delay={0.04}>
+        <div className="mt-5">
+          <SponsorTile sponsors={sponsors} />
+        </div>
+      </FadeUp>
 
       <StatDetailModal
         metric={activeMetric}
