@@ -8,17 +8,16 @@ const STORAGE_KEY = 'weatherMoodEnabled';
 // tizedfokonkénti interpolációval, zöld árnyalat NÉLKÜL (a kék -> meleg átmenet
 // ezüstös-levendulán és barack-aranyon át vezet, így sosem keveredik ki zöld).
 const TEMP_STOPS = [
-  [-15, [224, 242, 254]], // #e0f2fe — vakító fehéres jégkék
-  [-5,  [125, 211, 252]], // #7dd3fc — sarkvidéki jégkék
+  [-15, [240, 249, 255]], // #f0f9ff — vakító fehéres jég
+  [-6,  [125, 211, 252]], // #7dd3fc — jégkék (itt már egyértelműen HIDEG)
   [0,   [56,  189, 248]], // #38bdf8 — fagyos égkék
-  [5,   [59,  130, 246]], // #3b82f6 — hűvös acélkék
-  [10,  [96,  165, 250]], // #60a5fa — friss őszi/tavaszi világoskék (11°C -> #72acfc)
-  [14,  [165, 180, 252]], // #a5b4fc — enyhe ezüstös-azúr
-  [17,  [253, 186, 116]], // #fdba74 — lágy barack-arany (kellemes átmeneti idő)
-  [21,  [251, 191, 36]],  // #fbbf24 — meleg napsárga / arany
-  [26,  [251, 146, 60]],  // #fb923c — nyári narancs
-  [31,  [234, 88,  12]],  // #ea580c — forró narancsvörös
-  [36,  [220, 38,  38]],  // #dc2626 — kánikula-vörös
+  [4,   [165, 180, 252]], // #a5b4fc — ezüstös levendula: már enyhébb, nem hideg
+  [8,   [244, 143, 177]], // #f48fb1 — rózsaszín
+  [12,  [253, 186, 116]], // #fdba74 — lágy barack-arany
+  [16,  [251, 191, 36]],  // #fbbf24 — meleg napsárga / arany
+  [22,  [251, 146, 60]],  // #fb923c — nyári narancs
+  [28,  [234, 88,  12]],  // #ea580c — forró narancsvörös
+  [34,  [220, 38,  38]],  // #dc2626 — kánikula-vörös
   [40,  [185, 28,  28]],  // #b91c1c — izzó mélyvörös
 ];
 
@@ -36,10 +35,6 @@ function tempToRgb(t) {
     }
   }
   return TEMP_STOPS[TEMP_STOPS.length - 1][1];
-}
-
-function mix(c1, c2, ratio) {
-  return [0, 1, 2].map(i => Math.round(c1[i] * (1 - ratio) + c2[i] * ratio));
 }
 
 function darken(c, factor = 0.5) {
@@ -71,40 +66,19 @@ function buildPalette(rgb) {
   };
 }
 
-const TINT_NIGHT = [79, 70, 229];   // indigó
-const TINT_FOG = [100, 116, 139];   // ezüstös szürke
-const TINT_SNOW = [226, 232, 240];  // fehéres-jeges
-const TINT_RAIN = [14, 165, 233];   // hideg kék
-
-// Közepes erősségű, de érezhető hangulat-paletta: az accent-szín (gombok,
-// pill-ek), a háttér ambient-glow-k ÉS a kártyák is ebből a közös forrásból
-// jönnek. A hőmérséklet adja a folytonos alapszínt, a pillanatnyi időjárás
-// (éjszaka/köd/hó/eső) pedig egy rétegként tovább árnyalja — nem cseréli le
-// teljesen (pl. egy forró, esős nap meleg narancs alapon hideg kékes eső-
-// árnyalatot kap, nem vált át sima szürke-kékre).
-function computeMood({ temperature, isNight, foggy, snowy, rainy }) {
+// Hangulat-paletta: az accent-szín (gombok, pill-ek), a háttér ambient-glow-k
+// ÉS a kártyák is ebből a közös forrásból jönnek. A szín KIZÁRÓLAG a
+// hőmérséklettől függ (user kérése, 2026-11-24): -6 °C éjjel és nappal,
+// esőben és ködben is ugyanaz a hideg szín. Napszak/időjárás nem módosítja.
+function computeMood({ temperature }) {
   const t = temperature;
-  let base = t != null ? tempToRgb(t) : [6, 182, 212];
-  let label = t == null ? 'Alap'
+  const base = t != null ? tempToRgb(t) : [6, 182, 212];
+  const label = t == null ? 'Alap'
     : t >= 28 ? 'Kánikula'
     : t >= 20 ? 'Meleg'
     : t <= -10 ? 'Mocskos hideg'
     : t <= 0 ? 'Fagy'
     : 'Mérsékelt';
-
-  if (isNight) {
-    base = mix(base, TINT_NIGHT, 0.55);
-    label += ' · éjszaka';
-  } else if (foggy) {
-    base = mix(base, TINT_FOG, 0.5);
-    label = 'Ködös';
-  } else if (snowy) {
-    base = mix(base, TINT_SNOW, 0.45);
-    label = 'Havazás';
-  } else if (rainy) {
-    base = mix(base, TINT_RAIN, 0.45);
-    label += ' · esős';
-  }
 
   return { label, ...buildPalette(base) };
 }
@@ -128,14 +102,7 @@ export function WeatherMoodProvider({ children }) {
   }, [enabled]);
 
   const mood = useMemo(() => {
-    const code = sky?.weathercode;
-    return computeMood({
-      temperature: sky?.temperature ?? null,
-      isNight: sky?.isNight ?? false,
-      foggy: code === 45 || code === 48,
-      snowy: code != null && ((code >= 71 && code <= 77) || code === 85 || code === 86),
-      rainy: code != null && ((code >= 51 && code <= 67) || (code >= 80 && code <= 99)),
-    });
+    return computeMood({ temperature: sky?.temperature ?? null });
   }, [sky]);
 
   const value = useMemo(() => ({ ...mood, enabled, setEnabled }), [mood, enabled]);
