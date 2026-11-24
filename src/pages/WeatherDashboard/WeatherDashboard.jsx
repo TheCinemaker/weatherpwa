@@ -9,6 +9,7 @@ import UvCard from '../../components/UvCard';
 import SponsorTile from '../../components/SponsorTile';
 import HeroSky from '../../components/HeroSky';
 import HeroWeatherVideo from '../../components/HeroWeatherVideo';
+import SnowForecastEntry from '../../components/SnowForecastEntry';
 import { TempGauge, WindGauge } from '../../components/GaugeBar';
 import { CONDITION_ICONS } from '../../utils/weatherConditionIcons';
 import { MOON_PHASE_ICONS, moonriseIcon, moonsetIcon } from '../../utils/moonPhaseIcons';
@@ -928,6 +929,8 @@ export default function WeatherDashboard() {
           moon={moon}
         />
       </FadeUp>
+
+      <SnowForecastEntry currentTemp={temp} />
 
       {/* --- STATUS / REFRESH ---
       Kikommentelve a user kérésére (2026-11-11): a "Kapcsolat stabil" jelző + Frissítés gomb
