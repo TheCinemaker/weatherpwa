@@ -373,11 +373,11 @@ test('Minden modell elérhető + ICON-D2 72 órás horizont kizárás (nem hamis
 
   assert.equal(statusCode, 200);
   assert.equal(payload.dataQuality.availableModels, 5);
-  // 48h ablakban az ICON-D2 benne van (5/5)
-  assert.equal(payload.consensus['48'].availableModelCount, 5);
+  // 48h ablakban az ICON-D2 benne van; a Best Match összetett termék, nem szavaz (4 önálló modell)
+  assert.equal(payload.consensus['48'].availableModelCount, 4);
   assert.equal(payload.consensus['48'].excludedPartialModels.length, 0);
   // 72h ablakban az ICON-D2 partialCoverage=true -> ki van zárva a 72h konszenzusból!
-  assert.equal(payload.consensus['72'].availableModelCount, 4);
+  assert.equal(payload.consensus['72'].availableModelCount, 3);
   assert.equal(payload.consensus['72'].excludedPartialModels.length, 1);
   assert.equal(payload.consensus['72'].excludedPartialModels[0].id, 'icon_d2');
   // ECMWF freezingLevelM marad null (nem kitalált)
@@ -566,3 +566,43 @@ test('parseMeteoAlarmHungaryXml szétválasztja Vas vármegyét az ország több
   assert.equal(typeof snowHandler, 'function');
 });
 
+
+
+test('Best Match nem szavaz a konszenzusban, de a modellek között látható marad', async () => {
+  clearSnowForecastCache();
+  const nowMs = Date.UTC(2026, 10, 24, 12, 0, 0);
+  const fetchMock = createMockFetch({
+    nowMs,
+    modelConfigs: {
+      icon_d2: { snowPerHourCm: 0, snowDurationHours: 0 },
+      icon_eu: { snowPerHourCm: 0, snowDurationHours: 0 },
+      ecmwf_ifs: { snowPerHourCm: 0, snowDurationHours: 0 },
+      gfs_global: { snowPerHourCm: 0, snowDurationHours: 0 },
+      best_match: { snowPerHourCm: 3, snowDurationHours: 10 }, // kilógó érték, nem számíthat bele
+    },
+  });
+  const { payload } = await buildSnowForecastPayload({ fetchImpl: fetchMock, nowMs, skipCache: true });
+  assert.ok(payload.models.some((m) => m.id === 'best_match' && m.status === 'ok'));
+  assert.equal(payload.consensus['48'].availableModelCount, 4);
+  assert.equal(payload.consensus['48'].snowingModelCount, 0);
+});
+
+test('Ha nincs legalább 2 teljes lefedettségű önálló modell, a 72 órás konszenzus nem értékelhető', async () => {
+  clearSnowForecastCache();
+  const nowMs = Date.UTC(2026, 10, 24, 12, 0, 0);
+  const fetchMock = createMockFetch({
+    nowMs,
+    modelConfigs: {
+      icon_d2: { snowPerHourCm: 1.5, snowDurationHours: 6 },
+      icon_eu: { snowPerHourCm: 1.2, snowDurationHours: 8 },
+      ecmwf_ifs: { snowPerHourCm: 1.0, snowDurationHours: 8 },
+      gfs_global: { snowPerHourCm: 1.1, snowDurationHours: 8 },
+      best_match: { snowPerHourCm: 1.2, snowDurationHours: 8 },
+    },
+    failModels: { ecmwf_ifs: 'http500', gfs_global: 'http500' },
+  });
+  const { payload } = await buildSnowForecastPayload({ fetchImpl: fetchMock, nowMs, skipCache: true });
+  // 72h: csak az ICON-EU teljes (az ICON-D2 részleges) -> nem értékelhető, részleges nem csúszik be
+  assert.equal(payload.consensus['72'].agreement.level, 'insufficient');
+  assert.equal(payload.consensus['72'].availableModelCount, 0);
+});

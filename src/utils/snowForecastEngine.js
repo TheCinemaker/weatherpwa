@@ -794,7 +794,11 @@ function calcStats(values) {
  * 72 órás összesítő statisztikából, hogy ne torzítsa lefelé a 3 napos mediánt.
  */
 export function computeWindowConsensus(models, horizonHours) {
-  const okModels = models.filter((m) => m.status === 'ok' && m.windows?.[String(horizonHours)]);
+  // A Best Match összetett (más modellekből összeállított) termék: megjelenik referenciaként,
+  // de a konszenzusba nem számít bele, mert ugyanaz az alapmodell kétszer szavazna.
+  const okModels = models.filter(
+    (m) => m.status === 'ok' && !m.isComposite && m.windows?.[String(horizonHours)]
+  );
   const failedModels = models
     .filter((m) => m.status !== 'ok')
     .map((m) => ({ id: m.id, name: m.shortName, status: m.status, error: m.error }));
@@ -809,9 +813,11 @@ export function computeWindowConsensus(models, horizonHours) {
       freshSnowCm: m.windows[String(horizonHours)].freshSnowCm,
     }));
 
+  // Részleges lefedettségű modell nem kerülhet a konszenzusba: ha nincs elég teljes modell,
+  // a konszenzus "Nem értékelhető" lesz (a részleges modellek egyenként továbbra is láthatók).
   const evalModels = fullModels.length >= CONSENSUS_THRESHOLDS.MIN_MODELS_FOR_CONSENSUS
     ? fullModels
-    : okModels;
+    : [];
 
   const snowValues = evalModels
     .map((m) => m.windows[String(horizonHours)].freshSnowCm)
