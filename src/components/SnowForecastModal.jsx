@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -35,35 +35,53 @@ function SnowModalSkeleton() {
   );
 }
 
+const AUTO_REFRESH_MS = 15 * 60 * 1000; // 15 perc
+
 export default function SnowForecastModal({ isOpen, onClose, currentTemp = null }) {
   const [horizonHours, setHorizonHours] = useState(48);
   const [selectedModelId, setSelectedModelId] = useState('consensus');
   const [data, setData] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [fetchNonce, setFetchNonce] = useState(0);
+  const [fetchNonce, setFetchNonce] = useState(0); // kézi frissítés (gyorsítótár megkerülésével)
+  const [autoTick, setAutoTick] = useState(0); // nyitva hagyott modal időzített újratöltése
+  const forceRef = useRef(false);
+  const dataRef = useRef(null);
 
   const handleRefresh = useCallback(() => {
+    forceRef.current = true;
     setRefreshing(true);
     setError(null);
     setFetchNonce((n) => n + 1);
   }, []);
 
-  // Kizárólag megnyitáskor vagy kézi frissítésre tölt le (aszinkron callbackben)
+  // Nyitva hagyott modal: AUTO_REFRESH_MS-enként csendes újratöltés
   useEffect(() => {
     if (!isOpen) return undefined;
-    if (fetchNonce === 0 && data) return undefined;
+    const id = setInterval(() => setAutoTick((n) => n + 1), AUTO_REFRESH_MS);
+    return () => clearInterval(id);
+  }, [isOpen]);
+
+  // Minden megnyitáskor (és kézi / időzített frissítéskor) új lekérés. A régi adat
+  // addig látszik, amíg az új meg nem érkezik. Sima lekérés a szerver 3 perces
+  // gyorsítótárából is jöhet; csak a Frissítés gomb kényszerít (refresh=1) friss hívást.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const force = forceRef.current;
+    forceRef.current = false;
     const controller = new AbortController();
     let cancelled = false;
-    fetchSnowForecast({ refresh: fetchNonce > 0, signal: controller.signal })
+    fetchSnowForecast({ refresh: force, signal: controller.signal })
       .then((json) => {
         if (!cancelled) {
+          dataRef.current = json;
           setData(json);
           setError(null);
         }
       })
       .catch((err) => {
-        if (!cancelled && err?.name !== 'AbortError') {
+        // Háttér-újratöltés hibája ne dobja el a már látható adatot
+        if (!cancelled && err?.name !== 'AbortError' && !dataRef.current) {
           setError(err?.message || 'Nem sikerült betölteni a hóelőrejelzést.');
         }
       })
@@ -74,7 +92,7 @@ export default function SnowForecastModal({ isOpen, onClose, currentTemp = null 
       cancelled = true;
       controller.abort();
     };
-  }, [isOpen, fetchNonce]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, fetchNonce, autoTick]);
 
   const isInitialLoading = isOpen && !data && !error;
   const isBusy = refreshing || isInitialLoading;
