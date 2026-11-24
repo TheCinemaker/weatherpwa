@@ -26,7 +26,18 @@ export default function SnowDepthRetentionCard({
   horizonHours,
   isConsensus,
 }) {
-  const snowDepth = consensus?.snowDepth;
+  const modelMode = !isConsensus && !!selectedModel;
+  const modelDepth = modelMode ? selectedModel.windows?.[String(horizonHours)]?.snowDepth : null;
+  // Kiválasztott modellnél minden érték abból a modellből jön, nem a konszenzusból.
+  const snowDepth = modelMode
+    ? {
+        currentMedianCm: modelDepth?.currentCm ?? null,
+        at24hMedianCm: modelDepth?.at24hCm ?? null,
+        at48hMedianCm: modelDepth?.at48hCm ?? null,
+        at72hMedianCm: modelDepth?.at72hCm ?? null,
+        hasSignificantDivergence: false,
+      }
+    : consensus?.snowDepth;
   const activeRetention = !isConsensus && selectedModel
     ? selectedModel.windows?.[String(horizonHours)]?.retention
     : null;
@@ -35,6 +46,13 @@ export default function SnowDepthRetentionCard({
   const displayRetention = activeRetention || (() => {
     const win = selectedModel?.windows?.[String(horizonHours)];
     if (win?.retention) return win.retention;
+    if (modelMode) {
+      return {
+        level: 'uncertain',
+        label: 'Nincs megmaradási becslés',
+        reason: 'Ehhez a modellhez nem készült megmaradási értékelés ebben az időtávban.',
+      };
+    }
     if ((consensus?.freshSnow?.median ?? 0) < 0.2) {
       return {
         level: 'none',

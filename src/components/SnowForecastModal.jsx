@@ -80,8 +80,8 @@ export default function SnowForecastModal({ isOpen, onClose, currentTemp = null 
         }
       })
       .catch((err) => {
-        // Háttér-újratöltés hibája ne dobja el a már látható adatot
-        if (!cancelled && err?.name !== 'AbortError' && !dataRef.current) {
+        // Háttér-újratöltés hibája ne dobja el a már látható adatot, de jelezzük a felhasználónak
+        if (!cancelled && err?.name !== 'AbortError') {
           setError(err?.message || 'Nem sikerült betölteni a hóelőrejelzést.');
         }
       })
@@ -289,7 +289,9 @@ export default function SnowForecastModal({ isOpen, onClose, currentTemp = null 
                       </div>
 
                       <h3 className="text-lg sm:text-xl font-black text-white leading-snug">
-                        {assessment?.headline}
+                        {activeModel
+                          ? `${activeModel.shortName} modell: ${heroFreshSnowText} friss hó a következő ${horizonHours} órában`
+                          : assessment?.headline}
                       </h3>
 
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
@@ -362,6 +364,8 @@ export default function SnowForecastModal({ isOpen, onClose, currentTemp = null 
                     assessment={assessment}
                     officialWarnings={data.officialWarnings}
                     models={models}
+                    selectedModel={activeModel}
+                    horizonHours={horizonHours}
                     fetchedAtEpochMs={data.fetchedAtEpochMs}
                     cached={data.cached}
                     cacheAgeSec={data.cacheAgeSec}

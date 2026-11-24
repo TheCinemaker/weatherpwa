@@ -562,7 +562,12 @@ export function summarizeModelWindow(model, horizonHours, customRefStartMs = nul
   const slice = model.hourly.filter((h) => h.epochMs >= refStartMs - 1800000 && h.epochMs < endLimitMs);
 
   const validHorizonHours = model.metadata?.validHorizonHours ?? slice.length;
-  const partialCoverage = validHorizonHours < horizonHours - 3;
+  // Hiányzó óránkénti hóadat nem számít hómentes órának: számoljuk, és ha jelentős a hiány
+  // (> 2 óra és > az ablak 10%-a), a modell részlegesnek minősül, így nem kerül a konszenzusba.
+  const snowGapHours = slice.filter((h) => h.snowfallCm == null).length;
+  const snowDataIncomplete =
+    slice.length > 0 && snowGapHours > 2 && snowGapHours / slice.length > 0.1;
+  const partialCoverage = validHorizonHours < horizonHours - 3 || snowDataIncomplete;
 
   const hasSnowfall = slice.some((h) => h.snowfallCm != null);
   let freshSnowRaw = 0;
@@ -652,6 +657,8 @@ export function summarizeModelWindow(model, horizonHours, customRefStartMs = nul
     horizonHours,
     coveredHours: slice.length,
     partialCoverage,
+    snowGapHours,
+    snowDataIncomplete,
     hasSnowfall,
     freshSnowCm: hasSnowfall ? round1(freshSnowRaw) : null,
     freshSnowDisplayCm: hasSnowfall ? roundSnowDisplay(freshSnowRaw) : null,

@@ -55,6 +55,8 @@ function buildMockOpenMeteoJson({
   snowDepthGainPerSnowHourM = 0.008,
   freezingLevelM = 200,
   nullSnowfall = false,
+  snowGapFromHour = null,
+  snowGapHours = 0,
   supportsFreezingLevel = true,
 } = {}) {
   const time = makeHourlyTimestamps(startMs, totalHours);
@@ -78,7 +80,11 @@ function buildMockOpenMeteoJson({
     apparent_temperature: fill(() => tempC - 2),
     relative_humidity_2m: fill(() => rh),
     dew_point_2m: fill(() => tempC - 1.5),
-    snowfall: fill((i) => (nullSnowfall ? null : isSnowWindow(i) ? snowPerHourCm : 0)),
+    snowfall: fill((i) =>
+      nullSnowfall || (snowGapFromHour != null && i >= snowGapFromHour && i < snowGapFromHour + snowGapHours)
+        ? null
+        : isSnowWindow(i) ? snowPerHourCm : 0
+    ),
     snow_depth: snowDepthArr,
     rain: fill((i) => (isSnowWindow(i) ? rainPerHourMm : 0)),
     showers: fill(() => 0),
@@ -605,4 +611,21 @@ test('Ha nincs legalább 2 teljes lefedettségű önálló modell, a 72 órás k
   // 72h: csak az ICON-EU teljes (az ICON-D2 részleges) -> nem értékelhető, részleges nem csúszik be
   assert.equal(payload.consensus['72'].agreement.level, 'insufficient');
   assert.equal(payload.consensus['72'].availableModelCount, 0);
+});
+
+
+test('Jelentős hiányzó óránkénti hóadat: a modell részlegesnek számít, nem hómentes óraként kerül a konszenzusba', async () => {
+  clearSnowForecastCache();
+  const nowMs = Date.UTC(2026, 10, 24, 12, 0, 0);
+  const fetchMock = createMockFetch({
+    nowMs,
+    modelConfigs: {
+      icon_eu: { snowPerHourCm: 1.2, snowDurationHours: 8, snowGapFromHour: 4, snowGapHours: 12 },
+    },
+  });
+  const { payload } = await buildSnowForecastPayload({ fetchImpl: fetchMock, nowMs, skipCache: true });
+  const iconEu = payload.models.find((m) => m.id === 'icon_eu');
+  assert.ok(iconEu.windows['48'].snowGapHours >= 12);
+  assert.equal(iconEu.windows['48'].partialCoverage, true);
+  assert.ok(payload.consensus['48'].excludedPartialModels.some((m) => m.id === 'icon_eu'));
 });

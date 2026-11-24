@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { FileText, ShieldAlert, Database, ChevronDown, ChevronUp, ExternalLink, AlertCircle } from 'lucide-react';
-import { formatBudapestDateTime } from '../../utils/snowForecastEngine';
+import { formatBudapestDateTime, formatSnowCm } from '../../utils/snowForecastEngine';
 
 export default function SnowAssessmentCard({
   assessment,
   officialWarnings,
   models,
+  selectedModel,
+  horizonHours,
   fetchedAtEpochMs,
   cached,
   cacheAgeSec,
@@ -24,17 +26,35 @@ export default function SnowAssessmentCard({
           <span>Meteorológiai értékelés</span>
         </h3>
 
-        <p className="text-xs sm:text-sm font-bold text-sky-100 leading-relaxed">
-          {assessment?.headline}
-        </p>
+        {selectedModel ? (
+          <>
+            <p className="text-xs sm:text-sm font-bold text-sky-100 leading-relaxed">
+              Csak a(z) {selectedModel.shortName} modell adatai
+            </p>
+            <p className="text-xs text-white/80 leading-relaxed">
+              Friss hó a következő {horizonHours} órában:{' '}
+              {formatSnowCm(selectedModel.windows?.[String(horizonHours)]?.freshSnowCm)}. Hóvastagság csúcsa:{' '}
+              {formatSnowCm(selectedModel.windows?.[String(horizonHours)]?.snowDepth?.peakCm)}.
+            </p>
+            <p className="text-[11px] text-amber-200/90">
+              A többmodellű szöveges értékeléshez válaszd vissza a Konszenzus nézetet.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-xs sm:text-sm font-bold text-sky-100 leading-relaxed">
+              {assessment?.headline}
+            </p>
 
-        {assessment?.summaryParagraphs?.map((p, idx) => (
-          <p key={idx} className="text-xs text-white/80 leading-relaxed">
-            {p}
-          </p>
-        ))}
+            {assessment?.summaryParagraphs?.map((p, idx) => (
+              <p key={idx} className="text-xs text-white/80 leading-relaxed">
+                {p}
+              </p>
+            ))}
+          </>
+        )}
 
-        {assessment?.caveats?.length > 0 && (
+        {!selectedModel && assessment?.caveats?.length > 0 && (
           <ul className="space-y-1.5 pt-2 border-t border-white/10">
             {assessment.caveats.map((c, idx) => (
               <li key={idx} className="flex items-start gap-2 text-[11px] text-amber-200/90">
