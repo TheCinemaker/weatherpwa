@@ -23,6 +23,44 @@ Ez a fájl tartalmazza a projekt során végrehajtott összes módosítást, ver
 
 ---
 
+## 📅 2026. 11. 24.
+
+### ❄️ Feature Branch `feature/snow-forecast` — Önálló Többmodellű Hóelőrejelző Modul (verzióemelés nélkül, Lead Review előtt)
+*   **Cél és architektúra**: Teljesen elszigetelt, eltávolítható, 5 numerikus modellt összevető hóelőrejelző modul Kőszegre (`47.389°N, 16.541°E`, `Europe/Budapest`), amely nem módosítja a meglévő SmartMixin, MetNet, Open-Meteo, Supabase, Forecast, Admin, Camera, Quiz/Tippelde vagy PWA funkciókat.
+*   **Meteorológiai adatforrások és ellenőrzött lefedettség**:
+    *   `icon_d2` (**DWD ICON-D2**, 2,2 km): Élő API-próbával ellenőrzötten lefedi Kőszeget (~47–48 órás valós előrejelzési horizont, óránkénti felbontás). 72 órás ablakban részleges lefedettségűnek jelöljük (`partialCoverage: true`), és **kizárjuk a 72 órás konszenzusszámításból**, hogy ne torzítsa a 3 napos mediánt (soha nem pótoljuk/hamisítjuk a hiányzó órákat).
+    *   `icon_eu` (**DWD ICON-EU**, 7 km): 72+ órás óránkénti lefedettség, minden hó- és hóhatár-paraméterrel.
+    *   `ecmwf_ifs` (**ECMWF IFS**, 9 km): Valódi 1 órás lefedettség (`stepSec: 3600`); élő próba alapján a `freezing_level_height` paramétert nem támogatja (`0/96` null volt), ezért azt nem kérdezzük le és `null`-ként jelenítjük meg hamisítás nélkül.
+    *   `gfs_global` (**NOAA GFS**, 0,25°): 72+ órás óránkénti lefedettség, teljes paraméterlistával.
+    *   `best_match` (**Open-Meteo Best Match**): Kompozit sorozat (külön jelölve, hogy nem egyetlen modellfutás).
+    *   **Hivatalos figyelmeztetések**: Különválasztva lekérdezzük a HungaroMet / EUMETNET MeteoAlarm (`meteoalarm-legacy-atom-hungary`) CAP feedet; Vas vármegye / Nyugat-Dunántúl (`HU22` / `HU004` / `HU018`) riasztásait külön kezeljük az ország többi részétől.
+*   **Mértékegységek, halmazállapot és konszenzus-küszöbök (`src/utils/snowForecastEngine.js`)**:
+    *   Szigorú szétválasztás: a `snowfall` (friss hó, `cm`) és a `snow_depth` (talajon lévő teljes hóréteg, Open-Meteo `m` → `cm`) soha nem keveredik. Nem találunk ki hamis valószínűségi százalékokat determinisztikus adatokból.
+    *   Többparaméteres halmazállapot-besorolás: levegőhőmérséklet, harmatpont, Stull-féle nedves hőmérséklet (`computeWetBulbC`), hóhatár-magasság, csapadékintenzitás és modell hó/eső megoszlás alapján (`Száraz havazás`, `Tapadó / vizes hó`, `Havas eső`, `Ónos eső`, `Eső`).
+    *   Dokumentált konszenzus-küszöbök (`CONSENSUS_THRESHOLDS`):
+        *   **Elhanyagolható hó**: max `< 0,5 cm` → `Jó egyezés` (száraz / hótakaró nélkül).
+        *   **Jó egyezés**: terjedelem (`max - min`) `<= 3,0 cm` ÉS szórás `<= 1,5 cm` ÉS (max `<= 2,0 cm` vagy relatív eltérés `<= 0,35`), erős száraz–havas ellentmondás nélkül (`max <= 3,0 cm` ha min `< 0,5 cm`).
+        *   **Közepes egyezés**: terjedelem `<= 8,0 cm` ÉS szórás `<= 3,5 cm` ÉS (relatív eltérés `<= 0,75` vagy terjedelem `<= 5,0 cm`), ellentmondás esetén `max <= 6,0 cm`.
+        *   **Gyenge egyezés**: a fenti határok felett vagy éles ellentmondásnál.
+        *   **Nem értékelhető**: `< 2` teljes lefedettségű modell esetén.
+*   **Új fájlok**:
+    *   `src/utils/snowForecastEngine.js` [NEW] — Determinisztikus meteorológiai fizika, modellnormalizálás, konszenzus és magyar értékelő motor.
+    *   `netlify/functions/snow-forecast.js` [NEW] — Önálló párhuzamos backend függvény (`/api/snow-forecast`), 3 perces memóriagyorsítótárral, per-request timeouttal és részleges hibatűréssel.
+    *   `src/api/snowForecast.js` [NEW] — Kliensoldali API-hívó kizárólag a `/api/snow-forecast` végponthoz.
+    *   `src/components/SnowForecastModal.jsx` [NEW] — Prémium jegeskék glassmorphic modal (24/48/72 órás váltó, skeleton betöltés, frissítés, bezárás).
+    *   `src/components/SnowForecastEntry.jsx` [NEW] — Diszkrét belépő kártya/gomb a dashboardon (csak kattintáskor tölti a modalt).
+    *   `src/components/snow/SnowTimelineChart.jsx` [NEW] — Két külön tengelyezett interaktív Chart.js grafikon (`cm/ó + °C`, `mm/ó + hóréteg cm`) óra-kijelölő kártyával.
+    *   `src/components/snow/SnowModelComparison.jsx` [NEW] — Modellválasztó, konszenzus statisztika (Min/Medián/Max/Átlag/Szórás/Eltérés) és küszöb-dokumentáció.
+    *   `src/components/snow/SnowDepthRetentionCard.jsx` [NEW] — Hóvastagság (jelenlegi / +24h / +48h / +72h) és megmaradási értékelés.
+    *   `src/components/snow/SnowAssessmentCard.jsx` [NEW] — Adatvezérelt értékelés, külön HungaroMet figyelmeztetések és kinyitható adatforrás-proveniencia.
+    *   `tests/snow-forecast.test.mjs` [NEW] — 14 darab egység- és integrációs teszt (modellelválás, 1/összes modell hiba, timeout, hiányzó hóadat, 0 hó/eső, havas eső, fagy alatti/feletti hó, elavult futás, CET/CEST DST, MeteoAlarm XML).
+*   **Minimális additív módosítások meglévő fájlokban**:
+    *   `netlify.toml` — Új `[[redirects]]` szabály `/api/snow-forecast` → `/.netlify/functions/snow-forecast` (a meglévők változatlanok).
+    *   `vite.config.js` — Helyi dev middleware plugin kizárólag a `/api/snow-forecast` végpontra, hogy `localhost:3001`-en ne a `https://kiemet.hu` proxy felé menjen és adjon 404-et; a meglévő `/api/*` proxy viselkedése változatlan.
+    *   `src/pages/WeatherDashboard/WeatherDashboard.jsx` — Kizárólag 1 `import SnowForecastEntry` sor és 1 `<SnowForecastEntry currentTemp={temp} />` JSX sor a hero alatt.
+
+---
+
 ## 📅 2026. 11. 11.
 
 ### 🏷️ Version 3.0.1 (Élesítve / Pusholva) — Bento Dashboard Redesign, 16:9 Hero Videó, Napi Sztorikártya & PWA Auto-Update
