@@ -4,6 +4,7 @@ import { Calendar, AlertTriangle, X, Image as ImageIcon, Trash2, Sun, Moon, Clou
 import { FadeUp } from '../../components/AppleMotion';
 import { useAdminUnlock } from '../../components/AdminContext';
 import { getForecast, saveForecast, uploadForecastImage } from '../../api/supabase';
+import SignedNumberInput from '../../components/SignedNumberInput';
 
 // SVG Weather icon dictionary matching available choices
 const WEATHER_ICONS = {
@@ -221,6 +222,14 @@ export default function Forecast() {
       }
 
       const parseOptional = (v) => { const n = parseFloat(v); return (v === '' || v == null || isNaN(n)) ? null : n; };
+
+      // A kötelező min/max hőmérsékleteknek érvényes számnak kell lenniük (pl. egy magában álló "-" nem az)
+      const requiredTemps = [adminCard1TempMin, adminCard1TempMax, adminCard2TempMin, adminCard2TempMax, adminCard3TempMin, adminCard3TempMax];
+      if (requiredTemps.some((t) => !Number.isFinite(parseFloat(t)))) {
+        setAdminError('Minden kötelező hőmérséklet mezőbe érvényes számot írj (a ± gombbal váltható az előjel).');
+        setSavingAdmin(false);
+        return;
+      }
 
       const data = await saveForecast({
         title: adminTitle.trim(),
@@ -706,20 +715,12 @@ export default function Forecast() {
                       <div>
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard1TempMin}
-                            onChange={e => setAdminCard1TempMin(e.target.value)}
+                          <SignedNumberInput value={adminCard1TempMin} onChange={setAdminCard1TempMin}
                             placeholder="tól"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard1TempMin2}
-                            onChange={e => setAdminCard1TempMin2(e.target.value)}
+                          <SignedNumberInput value={adminCard1TempMin2} onChange={setAdminCard1TempMin2}
                             placeholder="ig"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
@@ -728,20 +729,12 @@ export default function Forecast() {
                       <div>
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard1TempMax}
-                            onChange={e => setAdminCard1TempMax(e.target.value)}
+                          <SignedNumberInput value={adminCard1TempMax} onChange={setAdminCard1TempMax}
                             placeholder="tól"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard1TempMax2}
-                            onChange={e => setAdminCard1TempMax2(e.target.value)}
+                          <SignedNumberInput value={adminCard1TempMax2} onChange={setAdminCard1TempMax2}
                             placeholder="ig"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
@@ -781,20 +774,12 @@ export default function Forecast() {
                       <div>
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard2TempMin}
-                            onChange={e => setAdminCard2TempMin(e.target.value)}
+                          <SignedNumberInput value={adminCard2TempMin} onChange={setAdminCard2TempMin}
                             placeholder="tól"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard2TempMin2}
-                            onChange={e => setAdminCard2TempMin2(e.target.value)}
+                          <SignedNumberInput value={adminCard2TempMin2} onChange={setAdminCard2TempMin2}
                             placeholder="ig"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
@@ -803,20 +788,12 @@ export default function Forecast() {
                       <div>
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard2TempMax}
-                            onChange={e => setAdminCard2TempMax(e.target.value)}
+                          <SignedNumberInput value={adminCard2TempMax} onChange={setAdminCard2TempMax}
                             placeholder="tól"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard2TempMax2}
-                            onChange={e => setAdminCard2TempMax2(e.target.value)}
+                          <SignedNumberInput value={adminCard2TempMax2} onChange={setAdminCard2TempMax2}
                             placeholder="ig"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
@@ -856,20 +833,12 @@ export default function Forecast() {
                       <div>
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Min Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard3TempMin}
-                            onChange={e => setAdminCard3TempMin(e.target.value)}
+                          <SignedNumberInput value={adminCard3TempMin} onChange={setAdminCard3TempMin}
                             placeholder="tól"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard3TempMin2}
-                            onChange={e => setAdminCard3TempMin2(e.target.value)}
+                          <SignedNumberInput value={adminCard3TempMin2} onChange={setAdminCard3TempMin2}
                             placeholder="ig"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />
@@ -878,20 +847,12 @@ export default function Forecast() {
                       <div>
                         <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Max Hőm Tartomány (°C)</label>
                         <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard3TempMax}
-                            onChange={e => setAdminCard3TempMax(e.target.value)}
+                          <SignedNumberInput value={adminCard3TempMax} onChange={setAdminCard3TempMax}
                             placeholder="tól"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none"
                           />
                           <span className="text-white/40 text-xs font-bold">–</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            value={adminCard3TempMax2}
-                            onChange={e => setAdminCard3TempMax2(e.target.value)}
+                          <SignedNumberInput value={adminCard3TempMax2} onChange={setAdminCard3TempMax2}
                             placeholder="ig"
                             className="flex-1 px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-bold focus:outline-none placeholder:text-night-200/25"
                           />

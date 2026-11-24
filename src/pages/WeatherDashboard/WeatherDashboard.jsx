@@ -7,6 +7,7 @@ import ChartCard, { CHART_CONFIGS } from './ChartCard';
 import StatDetailModal from './StatDetailModal';
 import UvCard from '../../components/UvCard';
 import SponsorTile from '../../components/SponsorTile';
+import SignedNumberInput from '../../components/SignedNumberInput';
 import HeroSky from '../../components/HeroSky';
 import HeroWeatherVideo from '../../components/HeroWeatherVideo';
 import SnowForecastEntry from '../../components/SnowForecastEntry';
@@ -482,7 +483,7 @@ export default function WeatherDashboard() {
   };
 
   const handleEvaluate = async () => {
-    if (!evalDate || !evalTemp) {
+    if (!evalDate || !Number.isFinite(parseFloat(evalTemp))) {
       setEvalError('Kérjük, válaszd ki a dátumot és add meg a mért hőmérsékletet!');
       return;
     }
@@ -1455,12 +1456,10 @@ export default function WeatherDashboard() {
                     </div>
                     <div>
                       <label className="text-[8px] text-night-200/50 uppercase font-bold tracking-wider mb-1 block">Mért Max Hőm (°C)</label>
-                      <input
-                        type="number"
-                        step="0.1"
+                      <SignedNumberInput
                         placeholder="Pl.: 28.4"
                         value={evalTemp}
-                        onChange={e => setEvalTemp(e.target.value)}
+                        onChange={setEvalTemp}
                         className="w-full px-2 py-1.5 rounded-apple-inner border border-white/10 bg-white/[0.04] text-white text-xs font-semibold focus:outline-none"
                       />
                     </div>
